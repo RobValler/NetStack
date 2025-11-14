@@ -12,12 +12,9 @@
 #include <boost/asio.hpp>
 
 #include "network_connect_parms.h"
+#include "configuration.h"
 
 #include <iostream>
-
-namespace {
-    constexpr int gReceiveBufferSize = 2048;
-}
 
 using namespace boost::asio::ip;
 
@@ -30,7 +27,7 @@ CNetworkTCPIP::~CNetworkTCPIP()
 
 void CNetworkTCPIP::Server() {
 
-    if(1024 > mConnectParms.portID) {
+    if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
     std::cout << "Server started" << std::endl;
@@ -53,7 +50,7 @@ void CNetworkTCPIP::Server() {
 
 void CNetworkTCPIP::Client() {
 
-    if(1024 > mConnectParms.portID) {
+    if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
     std::cout << "Client started" << std::endl;
@@ -126,13 +123,13 @@ bool CNetworkTCPIP::IsConnected() {
 
 void CNetworkTCPIP::Stop() {
 
-    mpIOContext.reset();
-    mpAcceptor.reset();
-    mpSocket.reset();
-    mpResolver.reset();
-
     // Close the socket
     mEnoughConnections = false;
     mpSocket->shutdown(tcp::socket::shutdown_both);
     mpSocket->close();
+
+    mpIOContext.reset();
+    mpAcceptor.reset();
+    mpSocket.reset();
+    mpResolver.reset();
 }

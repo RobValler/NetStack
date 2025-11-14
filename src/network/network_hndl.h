@@ -21,11 +21,11 @@ class CNetworkTCPIP;
 
 namespace google::protobuf { class Message; }
 
-class CNetworkHndl : public CSerial
+class CNetworkHndl
 {
 public:
     CNetworkHndl(const SConnectParms& parms);
-    ~CNetworkHndl() =default;
+    ~CNetworkHndl();
     
     void Start();
     void Stop();
@@ -37,8 +37,8 @@ private:
     SConnectParms mParms;
     std::thread mtServer;
     void ThreadFuncServer();
-    std::shared_ptr<CNetworkTCPIP> mNetworkConnection;
-
+    std::unique_ptr<CNetworkTCPIP> mpNetworkConnection;
+    std::unique_ptr<CSerial> mpSerialiser;
 };
 
 #endif // NETWORK_HNDL__H

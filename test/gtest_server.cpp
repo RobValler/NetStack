@@ -24,15 +24,15 @@ namespace {
     std::atomic<bool> gIsExitCalled = false;
 }
 
-TEST(Server, Basic)
+TEST(tcpip, connection)
 {
-
+    // ### SERVER ###
     auto threadServer = [&]() {
 
         TestMsgPackage message;
         SConnectParms parms;
         parms.portID = 1101;
-        parms.ipAddress = "172.0.0.1";
+        parms.ipAddress = "127.0.0.1";
         parms.type = ECommsType::ETypeServer;
         CNetworkHndl network_server(parms);
         int index = 1;
@@ -49,12 +49,83 @@ TEST(Server, Basic)
         network_server.Stop();
     };
 
+    // ### CLIENT ###
     auto threadClient = [&]() {
 
         TestMsgPackage message;
         SConnectParms parms;
         parms.portID = 1101;
-        parms.ipAddress = "172.0.0.1";
+        parms.ipAddress = "127.0.0.1";
+        parms.type = ECommsType::ETypeClient;
+        CNetworkHndl network_client(parms);
+        int index = 1;
+
+        network_client.Start();
+        while( !gIsExitCalled ) {
+
+            if(!network_client.IsConnected()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
+            }
+
+            if(network_client.Receive(message) > 0) {
+                index = message.id();
+                std::cout << "message id = " << std::to_string(index)
+                          << ", name = " << message.name()
+                          << std::endl;
+                if(index >= 5) {
+                    gIsExitCalled = true;
+                }
+            }
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        network_client.Stop();
+
+    };
+
+    std::thread tServer(threadServer);
+    std::thread tClient(threadClient);
+
+    tClient.join();
+    tServer.join();
+
+    std::cout << "Test ended" << std::endl;
+    std::cout.flush();
+}
+
+TEST(posix, connection)
+{
+    // ### SERVER ###
+    auto threadServer = [&]() {
+
+        TestMsgPackage message;
+        SConnectParms parms;
+        parms.portID = 1101;
+        parms.ipAddress = "127.0.0.1";
+        parms.type = ECommsType::ETypeServer;
+        CNetworkHndl network_server(parms);
+        int index = 1;
+
+        network_server.Start();
+        while( !gIsExitCalled ) {
+
+            message.set_id(index++);
+            message.set_name("moo!");
+            network_server.Send(message);
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        network_server.Stop();
+    };
+
+    // ### CLIENT ###
+    auto threadClient = [&]() {
+
+        TestMsgPackage message;
+        SConnectParms parms;
+        parms.portID = 1101;
+        parms.ipAddress = "127.0.0.1";
         parms.type = ECommsType::ETypeClient;
         CNetworkHndl network_client(parms);
         int index = 1;
@@ -91,4 +162,6 @@ TEST(Server, Basic)
 
     std::cout << "Test ended" << std::endl;
     std::cout.flush();
+
 }
+

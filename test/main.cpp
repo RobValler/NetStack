@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     int result;
     testing::InitGoogleTest(&argc, argv);
-//    ::testing::GTEST_FLAG(filter) = "*Test_*";
+    ::testing::GTEST_FLAG(filter) = "tcpip.connection";
     result = RUN_ALL_TESTS();
     return result;
 }
