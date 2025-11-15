@@ -10,16 +10,16 @@
 #ifndef NETWORK_HNDL__H
 #define NETWORK_HNDL__H
 
-#include "serialise.h"
 #include "network_connect_parms.h"
+#include "serialise.h"
 
 #include <memory>
 #include <thread>
+// #include <cstdint>
 
-struct SConnectParms;
 class CNetworkTCPIP;
-
-namespace google::protobuf { class Message; }
+class CEncrypt;
+struct SConnectParms;
 
 class CNetworkHndl
 {
@@ -30,15 +30,17 @@ public:
     void Start();
     void Stop();
     bool IsConnected();
-    int Receive(google::protobuf::Message& proto_message);
-    int Send(const google::protobuf::Message& proto_message);
+    int Receive(const SNetIF& operater, google::protobuf::Message& proto_message);
+    int Send(const SNetIF& operater, const google::protobuf::Message& proto_message);
 
 private:
-    SConnectParms mParms;
-    std::thread mtServer;
     void ThreadFuncServer();
+
+    SConnectParms mParms;
+    std::thread mtServer;    
     std::unique_ptr<CNetworkTCPIP> mpNetworkConnection;
     std::unique_ptr<CSerial> mpSerialiser;
+    std::unique_ptr<CEncrypt> mpEncrypt;
 };
 
 #endif // NETWORK_HNDL__H

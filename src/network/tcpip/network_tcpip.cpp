@@ -34,12 +34,20 @@ void CNetworkTCPIP::Server() {
 
     try {
         mpIOContext = std::make_shared<boost::asio::io_context>();
-        mpAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*mpIOContext, tcp::endpoint(tcp::v4(), 12345));
-        mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
+        mpAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*mpIOContext, tcp::endpoint(tcp::v4(), mConnectParms.portID));
+
 
         // Start accepting connections
         while (true) {
-            mpAcceptor->accept(*mpSocket);
+
+            SClientConnect local_client_connection;
+            local_client_connection.name = mConnectParms.name;
+            local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
+
+            mpAcceptor->accept(*local_client_connection.mpSocket);
+
+            mSocketList.emplace_back(std::move(local_client_connection));
+
             std::cout << "Accepted a connection!" << std::endl;
             mEnoughConnections = true;
         }
@@ -58,11 +66,16 @@ void CNetworkTCPIP::Client() {
     try {
         mpIOContext = std::make_shared<boost::asio::io_context>();
         mpAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*mpIOContext);
-        mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
+//        mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
         mpResolver = std::make_shared<boost::asio::ip::tcp::resolver>(*mpIOContext);
 
-        boost::asio::connect(*mpSocket, mpResolver->resolve("127.0.0.1", "12345"));
+        SClientConnect local_client_connection;
+        local_client_connection.name = mConnectParms.name;
+        local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
+
+        boost::asio::connect(*local_client_connection.mpSocket, mpResolver->resolve(mConnectParms.ipAddress, std::to_string(mConnectParms.portID)));
         std::cout << "Connected to server!" << std::endl;
+        mSocketList.emplace_back(std::move(local_client_connection));
 
         mEnoughConnections = true;
 
@@ -71,12 +84,12 @@ void CNetworkTCPIP::Client() {
     }
 }
 
-int CNetworkTCPIP::Send(const std::vector<char>& outgoing_data) {
+int CNetworkTCPIP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
 
     int result = 0;
     if(mEnoughConnections) {
         if(outgoing_data.size() > 0) {
-            result = boost::asio::write(*mpSocket, boost::asio::buffer(outgoing_data));
+            result = boost::asio::write(*mSocketList[0].mpSocket, boost::asio::buffer(outgoing_data));
         } else {
             std::cout << "Write cannot be performed without at least one connection" << std::endl;
         }
@@ -84,22 +97,22 @@ int CNetworkTCPIP::Send(const std::vector<char>& outgoing_data) {
     return result;
 }
 
-int CNetworkTCPIP::Receive(std::vector<char>& outgoing_data) {
+int CNetworkTCPIP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) {
 
     size_t length = 0;
 
     if(mEnoughConnections) {
 
         // check the size of the next message
-        size_t available_bytes = mpSocket->available();
+        size_t available_bytes = mSocketList[0].mpSocket->available();
         if( 0 == available_bytes) {
             return 0;
         }
 
         // read
-        std::vector<char> readBuffer(available_bytes);
+        std::vector<std::uint8_t> readBuffer(available_bytes);
         boost::system::error_code error;
-        length = mpSocket->read_some(boost::asio::buffer(readBuffer), error);
+        length = mSocketList[0].mpSocket->read_some(boost::asio::buffer(readBuffer), error);
 
         // check for errors
         if (error) {
@@ -123,13 +136,20 @@ bool CNetworkTCPIP::IsConnected() {
 
 void CNetworkTCPIP::Stop() {
 
+    std::cout << "Stop called" << std::endl;
+
     // Close the socket
     mEnoughConnections = false;
-    mpSocket->shutdown(tcp::socket::shutdown_both);
-    mpSocket->close();
+    mSocketList[0].mpSocket->shutdown(tcp::socket::shutdown_both);
+    mSocketList[0].mpSocket->close();
+
+    mpAcceptor->close();
+//    mpAcceptor->cancel();
 
     mpIOContext.reset();
     mpAcceptor.reset();
-    mpSocket.reset();
+    mSocketList[0].mpSocket.reset();
     mpResolver.reset();
+
+//    std::cout << "Network Stopped" << std::endl;
 }

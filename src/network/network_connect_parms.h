@@ -20,9 +20,14 @@ enum class ECommsType: int {
 
 struct SConnectParms {
 
+    std::string name;
     ECommsType type{ECommsType::ETypeNone};
     int portID;
     std::string ipAddress;
+};
+
+struct SNetIF {
+    std::string name;
 };
 
 #endif // NETWORK_CONNECT_PARMS__H

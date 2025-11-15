@@ -9,13 +9,29 @@
 
 #include "encrypt.h"
 
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 
-bool CEncrypt::Encrypt(const std::vector<char>& input_data, std::vector<char>& output_data) {
+CEncrypt::CEncrypt()
+{
+    // SSL_library_init();
+    // SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
+    // SSL *ssl = SSL_new(ctx);
+}
 
+CEncrypt::~CEncrypt() {
+
+    // SSL_CTX_free(ctx);
+}
+
+bool CEncrypt::Encrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data) {
+
+    output_data = input_data;
     return true;
 }
 
-bool CEncrypt::Decrypt(const std::vector<char>& input_data, std::vector<char>& output_data) {
+bool CEncrypt::Decrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data) {
 
+    output_data = input_data;
     return true;
 }

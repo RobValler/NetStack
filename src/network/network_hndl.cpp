@@ -13,6 +13,10 @@
 #include <google/protobuf/message.h>
 
 #include "network_tcpip.h"
+#include "network_connect_parms.h"
+
+#include "serialise.h"
+#include "encrypt.h"
 
 #include <iostream>
 
@@ -35,34 +39,65 @@ void CNetworkHndl::Stop() {
 
     mpNetworkConnection->Stop();
     mtServer.join();
-    std::cout << "Network stopped " << std::endl;
+
+    std::string local_type_str;
+    switch(mParms.type) {
+        case ECommsType::ETypeNone: local_type_str = "unknown"; break;
+        case ECommsType::ETypeServer: local_type_str = "server"; break;
+        case ECommsType::ETypeClient: local_type_str = "client"; break;
+            break;
+    }
+
+    std::cout << local_type_str << " stopped " << std::endl;
 }
 
 bool CNetworkHndl::IsConnected() {
     return mpNetworkConnection->IsConnected();
 }
 
-int CNetworkHndl::Receive(google::protobuf::Message& proto_message) {
+int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& proto_message) {
 
-    std::vector<char> outgoing_data;
-    int outgoing_size = mpNetworkConnection->Receive(outgoing_data); // blocking
-    if(outgoing_size > 0) {
-
-        mpSerialiser->Deserialise(outgoing_data, proto_message, outgoing_size);
+    // read the data from the network
+    std::vector<std::uint8_t> incomming_data;
+    int incomming_data_size = mpNetworkConnection->Receive(operater, incomming_data); // blocking
+    if(0 == incomming_data_size) {
+        return 0;
+    }
+    if(0 > incomming_data_size) {
+        return 0;
     }
 
-    return outgoing_size;
+    // decrypt the data
+    std::vector<std::uint8_t> decrypted_data;
+    int decrypted_data_size;
+    if(!mpEncrypt->Decrypt(incomming_data, decrypted_data)) {
+        return 0;
+    }
+
+    // deserialise the data from vector array to protobuf formatted message class
+    mpSerialiser->Deserialise(decrypted_data, proto_message, incomming_data_size);
+
+    return incomming_data_size;
 }
 
-int CNetworkHndl::Send(const google::protobuf::Message& proto_message) {
+int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& proto_message) {
 
-    int result = 0;
-    std::vector<char> outgoing_data;    
-    int outgoing_size{0};
-
-    if(mpSerialiser->Serialise(proto_message, outgoing_data, outgoing_size)) {
-        result = mpNetworkConnection->Send(outgoing_data);
+    // serialise the data from the protobuf formatted message class to a vector array
+    std::vector<std::uint8_t> serialised_data;
+    int serialised_data_size = 0;
+    if(!mpSerialiser->Serialise(proto_message, serialised_data, serialised_data_size)) {
+        return 0;
     }
+
+    // encrypt the data
+    std::vector<std::uint8_t>encrypted_data;
+    if(!mpEncrypt->Encrypt(serialised_data, encrypted_data)) {
+        return 0;
+    }
+
+    // send the message
+    int result = mpNetworkConnection->Send(operater, encrypted_data);
+
     return result;
 }
 

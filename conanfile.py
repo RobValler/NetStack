@@ -22,6 +22,7 @@ class CommsStackRecipe(ConanFile):
         self.requires("gtest/1.17.0")
         self.requires("protobuf/6.32.1")
 #        self.requires("logger/1.0.1")
+        self.requires("openssl/3.6.0")
 
     def layout(self):
         cmake_layout(self)

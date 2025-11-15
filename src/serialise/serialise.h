@@ -11,6 +11,7 @@
 #define SERIALISE__H
 
 #include <vector>
+#include <cstdint>
 
 namespace google::protobuf { class Message; }
 
@@ -20,8 +21,8 @@ public:
     CSerial();
     ~CSerial();
 
-    bool Serialise(const google::protobuf::Message& proto_message, std::vector<char>& outgoing_data, int& outgoing_size);
-    bool Deserialise(const std::vector<char>& incomming_data, google::protobuf::Message& proto_message, int& outgoing_size);
+    bool Serialise(const google::protobuf::Message& proto_message, std::vector<std::uint8_t>& outgoing_data, int& outgoing_size);
+    void Deserialise(const std::vector<std::uint8_t>& incomming_data, google::protobuf::Message& proto_message, int& outgoing_size);
 };
 
 #endif // SERIALISE__H

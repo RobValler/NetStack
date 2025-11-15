@@ -16,8 +16,14 @@
 
 #include <atomic>
 #include <memory>
+#include <cstdint>
 
 struct SConnectionParms;
+
+struct SClientConnect {
+    std::string name;
+    std::shared_ptr<boost::asio::ip::tcp::socket> mpSocket;
+};
 
 class CNetworkTCPIP
 {
@@ -27,8 +33,8 @@ public:
 
     void Server();
     void Client();
-    int Send(const std::vector<char>& outgoing_data);
-    int Receive(std::vector<char>& outgoing_data);
+    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data);
+    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data);
     bool IsConnected();
     void Stop();
 
@@ -40,8 +46,11 @@ private:
     //
     std::shared_ptr<boost::asio::io_context> mpIOContext;
     std::shared_ptr<boost::asio::ip::tcp::acceptor> mpAcceptor;
-    std::shared_ptr<boost::asio::ip::tcp::socket> mpSocket;
+    //std::shared_ptr<boost::asio::ip::tcp::socket> mpSocket;
     std::shared_ptr<boost::asio::ip::tcp::resolver> mpResolver;
+
+    std::vector<SClientConnect> mSocketList;
+
 };
 
 #endif // NETWORK_HNDL_TCPIP__H

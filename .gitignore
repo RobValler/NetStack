@@ -8,6 +8,7 @@ build/
 # Develop environment
 .vscode/
 .cache/
+.idea/
 
 # CMake
 CMakeLists.txt.user

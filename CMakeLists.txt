@@ -24,7 +24,7 @@ find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
 find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(GTest REQUIRED)
-
+find_package(OpenSSL 3.6.0 REQUIRED)
 
 #EXTERNAL INCLUDES
 include_directories(${ProtobufIncludePath})
@@ -43,6 +43,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 #SOURCE FILES
 file(GLOB_RECURSE APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/*.cc
 )
 
 #HEADERS FILES
@@ -78,6 +79,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Boost::boost
     asio::asio
     protobuf::protobuf
+    openssl::openssl
 )
 
 

@@ -11,15 +11,23 @@
 #define ENCRYPT__H
 
 #include <vector>
+#include <cstdint>
+
+// struct SSL_CTX;
+// struct SSL;
 
 class CEncrypt
 {
 public:
-    CEncrypt() =default;
-    ~CEncrypt() =default;
+    CEncrypt();
+    ~CEncrypt();
 
-    bool Encrypt(const std::vector<char>& input_data, std::vector<char>& output_data);
-    bool Decrypt(const std::vector<char>& input_data, std::vector<char>& output_data);
+    bool Encrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data);
+    bool Decrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data);
+
+private:
+    // SSL_CTX *ctx;
+    // SSL *ssl;
 
 };
 
