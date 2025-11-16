@@ -10,13 +10,14 @@
 // wrapper for actual networking stack
 #include "network_hndl.h"
 
-#include <google/protobuf/message.h>
-
-#include "network_tcpip.h"
 #include "network_connect_parms.h"
-
 #include "serialise.h"
 #include "encrypt.h"
+
+#include "network_tcpip.h"
+#include "network_udp.h"
+
+#include <google/protobuf/message.h>
 
 #include <iostream>
 
@@ -87,8 +88,10 @@ int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& pro
 
 int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& proto_message) {
 
+
     // check connection
-    if( !IsConnected() ) {
+    if((!IsConnected()) &&
+        (ECommsProto::EProto_UDP != mParms.proto) ) {
         return 0;
     }
 
@@ -121,9 +124,8 @@ void CNetworkHndl::ThreadFuncServer() {
             mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
             break;
         case ECommsProto::EProto_UDP:
-            //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
-            //break;
-            return;
+            mpNetworkConnection = std::make_unique<CNetwork_UDP>(mParms);
+            break;
         case ECommsProto::EProto_POSIX:
             //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
             //break;

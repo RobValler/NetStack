@@ -12,30 +12,27 @@
 
 #include "network_connect_parms.h"
 
-#include <memory>
+#include "i_network_hndl.h"
 
-// namespace boost::asio { class io_context; }
-// namespace boost::asio::ip::udp::v4 { class socket; }
+#include <boost/asio.hpp>
 
-class CNetwork_UDP
+
+class CNetwork_UDP : public INetworkHndl
 {
 public:
-
     CNetwork_UDP(const SConnectParms& parms);
     ~CNetwork_UDP();
 
-    void Server();
-    void Client();
-    int Send();
-    int Receive();
-    bool IsConnected() { return false; };
-    void Stop();
+    void Server() override;
+    void Client() override;
+    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
+    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    bool IsConnected() override { return false; };
+    void Stop() override;
 
 private:
     SConnectParms mConnectParms;
-    // std::shared_ptr<boost::asio::io_context> mpIOContext;
-    // std::shared_ptr<boost::asio::ip::udp::v4::socket> mpSocket;
-
+    bool mIsInitialised{false};
 };
 
 #endif // NETWORK_HNDL_UDP__H

@@ -101,3 +101,32 @@ TEST(tcpip, connection)
     std::cout << "Test ended" << std::endl;
     std::cout.flush();
 }
+
+TEST(udp, connection)
+{
+    SConnectParms parms;
+    parms.portID = 1101;
+    parms.ipAddress = "127.0.0.1";
+    parms.proto = ECommsProto::EProto_UDP;
+    parms.type = ECommsType::ETypeServer;
+    CNetworkHndl network_server(parms);
+
+    parms.type = ECommsType::ETypeClient;
+    CNetworkHndl network_client(parms);
+
+    network_server.Start();
+    network_client.Start();
+
+    int index = 0;
+    while( !gIsExitCalled ) {
+
+        if(index++ >= 5) {
+            gIsExitCalled = true;
+        }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    network_server.Stop();
+    network_client.Stop();
+
+}

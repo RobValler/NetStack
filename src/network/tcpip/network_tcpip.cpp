@@ -62,7 +62,6 @@ void CNetworkTCPIP::Client() {
     try {
         mpIOContext = std::make_shared<boost::asio::io_context>();
         mpAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*mpIOContext);
-//        mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
         mpResolver = std::make_shared<boost::asio::ip::tcp::resolver>(*mpIOContext);
 
         SClientConnect local_client_connection;
