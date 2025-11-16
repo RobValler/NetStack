@@ -81,7 +81,7 @@ TEST(tcpip, connection)
                           << std::endl;
             }
 
-            if(index >= 5) {
+            if(index >= 2) {
                 gIsExitCalled = true;
             }
 

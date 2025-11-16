@@ -1,4 +1,5 @@
 #!/bin/sh
+#BUILD_TYPE=Release
 BUILD_TYPE=Debug
 
 echo "Build type $BUILD_TYPE"

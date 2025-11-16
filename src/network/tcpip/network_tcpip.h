@@ -14,7 +14,6 @@
 
 #include "network_connect_parms.h"
 
-#include <atomic>
 #include <memory>
 #include <cstdint>
 
@@ -40,17 +39,10 @@ public:
 
 private:
     SConnectParms mConnectParms;
-    std::atomic<int> mNumberOfConnections;
-    std::atomic<bool> mEnoughConnections{false};
-
-    //
     std::shared_ptr<boost::asio::io_context> mpIOContext;
     std::shared_ptr<boost::asio::ip::tcp::acceptor> mpAcceptor;
-    //std::shared_ptr<boost::asio::ip::tcp::socket> mpSocket;
     std::shared_ptr<boost::asio::ip::tcp::resolver> mpResolver;
-
     std::vector<SClientConnect> mSocketList;
-
 };
 
 #endif // NETWORK_HNDL_TCPIP__H

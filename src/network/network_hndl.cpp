@@ -69,7 +69,6 @@ int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& pro
 
     // decrypt the data
     std::vector<std::uint8_t> decrypted_data;
-    int decrypted_data_size;
     if(!mpEncrypt->Decrypt(incomming_data, decrypted_data)) {
         return 0;
     }

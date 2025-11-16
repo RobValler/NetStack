@@ -30,26 +30,22 @@ void CNetworkTCPIP::Server() {
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
-    std::cout << "Server started" << std::endl;
+    std::cout << "TCP/IP Server started" << std::endl;
 
     try {
         mpIOContext = std::make_shared<boost::asio::io_context>();
         mpAcceptor = std::make_shared<boost::asio::ip::tcp::acceptor>(*mpIOContext, tcp::endpoint(tcp::v4(), mConnectParms.portID));
-
 
         // Start accepting connections
         while (true) {
 
             SClientConnect local_client_connection;
             local_client_connection.name = mConnectParms.name;
+            //local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
             local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
-
             mpAcceptor->accept(*local_client_connection.mpSocket);
-
             mSocketList.emplace_back(std::move(local_client_connection));
-
             std::cout << "Accepted a connection!" << std::endl;
-            mEnoughConnections = true;
         }
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
@@ -61,7 +57,7 @@ void CNetworkTCPIP::Client() {
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
-    std::cout << "Client started" << std::endl;
+    std::cout << "TCP/IP Client started" << std::endl;
 
     try {
         mpIOContext = std::make_shared<boost::asio::io_context>();
@@ -77,8 +73,6 @@ void CNetworkTCPIP::Client() {
         std::cout << "Connected to server!" << std::endl;
         mSocketList.emplace_back(std::move(local_client_connection));
 
-        mEnoughConnections = true;
-
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
     }
@@ -87,7 +81,7 @@ void CNetworkTCPIP::Client() {
 int CNetworkTCPIP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
 
     int result = 0;
-    if(mEnoughConnections) {
+    if(!mSocketList.empty()) {
         if(outgoing_data.size() > 0) {
             result = boost::asio::write(*mSocketList[0].mpSocket, boost::asio::buffer(outgoing_data));
         } else {
@@ -101,7 +95,7 @@ int CNetworkTCPIP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& ou
 
     size_t length = 0;
 
-    if(mEnoughConnections) {
+    if(!mSocketList.empty()) {
 
         // check the size of the next message
         size_t available_bytes = mSocketList[0].mpSocket->available();
@@ -116,7 +110,6 @@ int CNetworkTCPIP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& ou
 
         // check for errors
         if (error) {
-            mEnoughConnections = false;
             std::cerr << "ERROR: " << error.message() << std::endl;
         } else {
             if(length == available_bytes) {
@@ -125,31 +118,27 @@ int CNetworkTCPIP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& ou
             }
         }
     }
-
     return static_cast<int>(length);
 }
 
 bool CNetworkTCPIP::IsConnected() {
 
-    return mEnoughConnections;
+    return !mSocketList.empty();
 }
 
 void CNetworkTCPIP::Stop() {
 
-    std::cout << "Stop called" << std::endl;
-
     // Close the socket
-    mEnoughConnections = false;
     mSocketList[0].mpSocket->shutdown(tcp::socket::shutdown_both);
     mSocketList[0].mpSocket->close();
 
-    mpAcceptor->close();
-//    mpAcceptor->cancel();
+    mpIOContext->stop();
+//    mpAcceptor->close();
+    // //mpAcceptor->cancel();
+    // mpResolver->cancel();
 
     mpIOContext.reset();
     mpAcceptor.reset();
-    mSocketList[0].mpSocket.reset();
     mpResolver.reset();
-
-//    std::cout << "Network Stopped" << std::endl;
+    mSocketList.clear();
 }
