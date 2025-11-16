@@ -36,6 +36,7 @@ TEST(tcpip, connection)
         parms.portID = 1101;
         parms.ipAddress = "127.0.0.1";
         parms.type = ECommsType::ETypeServer;
+        parms.proto = ECommsProto::EProto_TCPIP;
         CNetworkHndl network_server(parms);
         int index = 0;
 
@@ -62,6 +63,7 @@ TEST(tcpip, connection)
         parms.portID = 1101;
         parms.ipAddress = "127.0.0.1";
         parms.type = ECommsType::ETypeClient;
+        parms.proto = ECommsProto::EProto_TCPIP;
         CNetworkHndl network_client(parms);
         int index = 1;
 
@@ -81,7 +83,7 @@ TEST(tcpip, connection)
                           << std::endl;
             }
 
-            if(index >= 2) {
+            if(index >= 5) {
                 gIsExitCalled = true;
             }
 

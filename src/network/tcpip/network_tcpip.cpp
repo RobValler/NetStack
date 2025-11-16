@@ -123,7 +123,11 @@ int CNetworkTCPIP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& ou
 
 bool CNetworkTCPIP::IsConnected() {
 
-    return !mSocketList.empty();
+    if(mSocketList.empty()) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 void CNetworkTCPIP::Stop() {

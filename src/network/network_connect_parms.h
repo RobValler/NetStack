@@ -18,10 +18,18 @@ enum class ECommsType: int {
     ETypeClient,
 };
 
+enum class ECommsProto: int {
+    EProto_None = 0,
+    EProto_TCPIP,
+    EProto_UDP,
+    EProto_POSIX
+};
+
 struct SConnectParms {
 
     std::string name;
     ECommsType type{ECommsType::ETypeNone};
+    ECommsProto proto{ECommsProto::EProto_None};
     int portID;
     std::string ipAddress;
 };

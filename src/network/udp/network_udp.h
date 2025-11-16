@@ -28,6 +28,7 @@ public:
     void Client();
     int Send();
     int Receive();
+    bool IsConnected() { return false; };
     void Stop();
 
 private:

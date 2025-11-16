@@ -13,11 +13,12 @@
 #include "network_connect_parms.h"
 #include "serialise.h"
 
+namespace google::protobuf{ class Message; }
+
 #include <memory>
 #include <thread>
-// #include <cstdint>
 
-class CNetworkTCPIP;
+class INetworkHndl;
 class CEncrypt;
 struct SConnectParms;
 
@@ -38,9 +39,10 @@ private:
 
     SConnectParms mParms;
     std::thread mtServer;    
-    std::unique_ptr<CNetworkTCPIP> mpNetworkConnection;
+    std::unique_ptr<INetworkHndl> mpNetworkConnection;
     std::unique_ptr<CSerial> mpSerialiser;
     std::unique_ptr<CEncrypt> mpEncrypt;
+    bool mIsThereAConnection{false};
 };
 
 #endif // NETWORK_HNDL__H

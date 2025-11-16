@@ -21,9 +21,9 @@
 #include <iostream>
 
 CNetworkHndl::CNetworkHndl(const SConnectParms& parms)
-    : mParms(parms)
-    , mpNetworkConnection(std::make_unique<CNetworkTCPIP>(parms))
+    : mParms(parms)    
     , mpSerialiser(std::make_unique<CSerial>())
+    , mpEncrypt(std::make_unique<CEncrypt>())
 { /* nothing */ }
 
 CNetworkHndl::~CNetworkHndl()
@@ -52,7 +52,13 @@ void CNetworkHndl::Stop() {
 }
 
 bool CNetworkHndl::IsConnected() {
-    return mpNetworkConnection->IsConnected();
+
+    if(mpNetworkConnection) {
+        mIsThereAConnection = mpNetworkConnection->IsConnected();
+    } else {
+        mIsThereAConnection = false;
+    }
+    return mIsThereAConnection;
 }
 
 int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& proto_message) {
@@ -81,6 +87,11 @@ int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& pro
 
 int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& proto_message) {
 
+    // check connection
+    if( !IsConnected() ) {
+        return 0;
+    }
+
     // serialise the data from the protobuf formatted message class to a vector array
     std::vector<std::uint8_t> serialised_data;
     int serialised_data_size = 0;
@@ -101,6 +112,23 @@ int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& 
 }
 
 void CNetworkHndl::ThreadFuncServer() {
+
+    // select the protocol
+    switch(mParms.proto) {
+        case ECommsProto::EProto_None:
+            return;
+        case ECommsProto::EProto_TCPIP:
+            mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
+            break;
+        case ECommsProto::EProto_UDP:
+            //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
+            //break;
+            return;
+        case ECommsProto::EProto_POSIX:
+            //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
+            //break;
+            return;
+    }
 
     switch(mParms.type)
     {

@@ -10,9 +10,11 @@
 #ifndef NETWORK_HNDL_TCPIP__H
 #define NETWORK_HNDL_TCPIP__H
 
-#include <boost/asio/ip/tcp.hpp>
+#include "i_network_hndl.h"
 
 #include "network_connect_parms.h"
+
+#include <boost/asio/ip/tcp.hpp>
 
 #include <memory>
 #include <cstdint>
@@ -24,18 +26,18 @@ struct SClientConnect {
     std::shared_ptr<boost::asio::ip::tcp::socket> mpSocket;
 };
 
-class CNetworkTCPIP
+class CNetworkTCPIP : public INetworkHndl
 {
 public:
     CNetworkTCPIP(const SConnectParms& parms);
     ~CNetworkTCPIP();
 
-    void Server();
-    void Client();
-    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data);
-    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data);
-    bool IsConnected();
-    void Stop();
+    void Server() override;
+    void Client() override;
+    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
+    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    bool IsConnected() override;
+    void Stop() override;
 
 private:
     SConnectParms mConnectParms;
