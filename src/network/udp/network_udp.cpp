@@ -33,27 +33,26 @@ void CNetwork_UDP::Server() {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
     std::cout << "UDP Server started" << std::endl;
-    boost::asio::io_context io_context;
-    udp::socket send_socket(io_context, udp::endpoint(udp::v4(), 0)); // Local socket
 
-    while( true ) {
+    try {
 
-        try {
-            // Create a resolver for the receiving endpoint
-            udp::resolver resolver(io_context);
-            udp::resolver::results_type endpoints = resolver.resolve(udp::v4(), "127.0.0.1", "1101"); // Replace with your server address and port
+        mpIOContext = std::make_shared<boost::asio::io_context>();
+        mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), 0));
+        mpResolver = std::make_shared<udp::resolver>(*mpIOContext);
 
-            std::string message = "Hello, UDP server!";
-            send_socket.send_to(boost::asio::buffer(message), *endpoints.begin()); // Send the message
+        mpEndpoints = mpResolver->resolve(
+            udp::v4(),
+            mConnectParms.ipAddress,
+            std::to_string(mConnectParms.portID) );
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    } catch (std::exception& e) {
+        std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
+    }
 
-        } catch (std::exception& e) {
-            std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
-        }
+    while( !mHasExitBeenRequested ) {
+        std::this_thread::sleep_for(std::chrono::seconds(1000));
+
     } // while
-
-    mIsInitialised = true;
 }
 
 void CNetwork_UDP::Client() {
@@ -64,66 +63,54 @@ void CNetwork_UDP::Client() {
     std::cout << "UDP Client started" << std::endl;
 
     std::size_t length;
+    mpIOContext = std::make_shared<boost::asio::io_context>();
+    mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), mConnectParms.portID));
 
-    boost::asio::io_context io_context;
+    while( !mHasExitBeenRequested ) {
+        std::this_thread::sleep_for(std::chrono::seconds(1000));
 
-    udp::socket receive_socket(io_context, udp::endpoint(udp::v4(), 1101)); // Listening on the same port
-    char recv_buffer[1024];
-    udp::endpoint sender_endpoint;
-
-    while( true ) {
-
-        try {
-            std::size_t length = receive_socket.receive_from(boost::asio::buffer(recv_buffer), sender_endpoint);
-            std::cout << "Received message: "
-                      << std::string(recv_buffer, length)
-                      << " from "
-                      << sender_endpoint.address().to_string()
-                      << ":" << sender_endpoint.port()
-                      << std::endl;
-
-        } catch (std::exception& e) {
-            std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
-        }
-    }
-
-    mIsInitialised = true;
+    } // while
 }
 
 int CNetwork_UDP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
 
-    if(!mIsInitialised) {
+    if(!mpSocket) {
         return 0;
     }
 
     int length = 0;
-
-
-
+    length = mpSocket->send_to(boost::asio::buffer(outgoing_data), *mpEndpoints.begin()); // Send the message
     return length;
 }
 
-
 int CNetwork_UDP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) {
 
-    if(!mIsInitialised) {
+    if(!mpSocket) {
         return 0;
     }
 
     int length = 0;
+    size_t available_bytes = mpSocket->available();
+    if(0 == available_bytes) {
+        return 0;
+    }
+    outgoing_data.resize(available_bytes);
 
-
-
+    udp::endpoint sender_endpoint;
+    length = mpSocket->receive_from(boost::asio::buffer(outgoing_data), sender_endpoint);
     return length;
 }
 
 void CNetwork_UDP::Stop() {
 
-    // Close the socket
-    mpSocket->shutdown(tcp::socket::shutdown_both);
-    mpSocket->close();
+    mHasExitBeenRequested = true;
 
-    mpIOContext.reset();
-    mpSocket.reset();
+
+    // Close the socket
+    // mpSocket->shutdown(tcp::socket::shutdown_both);
+    // mpSocket->close();
+
+    // mpIOContext.reset();
+    // mpSocket.reset();
 
 }

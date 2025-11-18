@@ -16,6 +16,8 @@
 
 #include <boost/asio.hpp>
 
+#include <memory>
+#include <atomic>
 
 class CNetwork_UDP : public INetworkHndl
 {
@@ -32,7 +34,17 @@ public:
 
 private:
     SConnectParms mConnectParms;
+    std::shared_ptr<boost::asio::io_context> mpIOContext;
+    std::shared_ptr<boost::asio::ip::udp::socket> mpSocket;
+    std::shared_ptr<boost::asio::ip::udp::resolver> mpResolver;
+    boost::asio::ip::udp::resolver::results_type mpEndpoints;
+
+    boost::asio::ip::udp::endpoint sender_endpoint;
+
     bool mIsInitialised{false};
+    std::atomic<bool> mHasExitBeenRequested{false};
+
+
 };
 
 #endif // NETWORK_HNDL_UDP__H

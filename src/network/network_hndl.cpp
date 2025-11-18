@@ -64,6 +64,10 @@ bool CNetworkHndl::IsConnected() {
 
 int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& proto_message) {
 
+    if(!mIsInitialised) {
+        return 0;
+    }
+
     // read the data from the network
     std::vector<std::uint8_t> incomming_data;
     int incomming_data_size = mpNetworkConnection->Receive(operater, incomming_data); // blocking
@@ -88,6 +92,9 @@ int CNetworkHndl::Receive(const SNetIF& operater, google::protobuf::Message& pro
 
 int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& proto_message) {
 
+    if(!mIsInitialised) {
+        return 0;
+    }
 
     // check connection
     if((!IsConnected()) &&
@@ -131,6 +138,8 @@ void CNetworkHndl::ThreadFuncServer() {
             //break;
             return;
     }
+
+    mIsInitialised = true;
 
     switch(mParms.type)
     {

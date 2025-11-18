@@ -104,6 +104,81 @@ TEST(tcpip, connection)
 
 TEST(udp, connection)
 {
+    SNetIF local_data;
+
+    // ### SERVER ###
+    auto threadServer = [&]() {
+
+        TestMsgPackage message;
+        SConnectParms parms;
+        parms.portID = 1101;
+        parms.ipAddress = "127.0.0.1";
+        parms.type = ECommsType::ETypeServer;
+        parms.proto = ECommsProto::EProto_UDP;
+        CNetworkHndl network_server(parms);
+        int index = 0;
+
+        network_server.Start();
+        while( !gIsExitCalled ) {
+
+            message.set_id(index++);
+            message.set_name("data");
+
+            SNetIF local_data;
+            local_data.name = "tom";
+            network_server.Send(local_data, message);
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        network_server.Stop();
+    };
+
+    // ### CLIENT ###
+    auto threadClient = [&]() {
+
+        TestMsgPackage message;
+        SConnectParms parms;
+        parms.portID = 1101;
+        parms.ipAddress = "127.0.0.1";
+        parms.type = ECommsType::ETypeClient;
+        parms.proto = ECommsProto::EProto_UDP;
+        CNetworkHndl network_client(parms);
+        int index = 1;
+
+        network_client.Start();
+        while( !gIsExitCalled ) {
+
+
+            local_data.name = "";
+            if(network_client.Receive(local_data, message) > 0) {
+                index = message.id();
+                std::cout << "message id = " << std::to_string(index)
+                          << ", name = " << message.name()
+                          << std::endl;
+            }
+
+            if(index >= 5) {
+                gIsExitCalled = true;
+            }
+
+        }
+        network_client.Stop();
+    };
+
+    std::thread tServer(threadServer);
+    std::thread tClient(threadClient);
+
+    tClient.join();
+    tServer.join();
+
+    std::cout << "Test ended" << std::endl;
+    std::cout.flush();
+}
+
+
+#if 0
+TEST(udp, connection)
+{
     SConnectParms parms;
     parms.portID = 1101;
     parms.ipAddress = "127.0.0.1";
@@ -130,3 +205,4 @@ TEST(udp, connection)
     network_client.Stop();
 
 }
+#endif

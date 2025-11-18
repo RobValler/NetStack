@@ -43,6 +43,7 @@ private:
     std::unique_ptr<CSerial> mpSerialiser;
     std::unique_ptr<CEncrypt> mpEncrypt;
     bool mIsThereAConnection{false};
+    bool mIsInitialised{false};
 };
 
 #endif // NETWORK_HNDL__H
