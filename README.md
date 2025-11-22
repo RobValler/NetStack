@@ -1,3 +1,7 @@
-# Network stack
-General purpose stack.   
+# NetStack
+General purpose network stack.  
+
+## Supporting:  
+* TCP/IP
+* UDP
 

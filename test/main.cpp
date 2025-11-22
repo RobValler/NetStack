@@ -13,8 +13,9 @@ int main(int argc, char *argv[])
 {
     int result;
     testing::InitGoogleTest(&argc, argv);
-    //::testing::GTEST_FLAG(filter) = "tcpip.connection";
-    ::testing::GTEST_FLAG(filter) = "udp.connection";
+    ::testing::GTEST_FLAG(filter) = "connect.tcpip";
+    //::testing::GTEST_FLAG(filter) = "udp.connection";
+    //::testing::GTEST_FLAG(filter) = "*";
     result = RUN_ALL_TESTS();
     return result;
 }
