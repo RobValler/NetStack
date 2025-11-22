@@ -16,6 +16,7 @@
 
 #include "network_tcpip.h"
 #include "network_udp.h"
+#include "network_posix.h"
 
 #include <google/protobuf/message.h>
 
@@ -134,8 +135,9 @@ void CNetworkHndl::ThreadFuncServer() {
             mpNetworkConnection = std::make_unique<CNetwork_UDP>(mParms);
             break;
         case ECommsProto::EProto_POSIX:
-            //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
-            //break;
+            mpNetworkConnection = std::make_unique<CNetwork_POSIX>(mParms);
+            break;
+        default:
             return;
     }
 

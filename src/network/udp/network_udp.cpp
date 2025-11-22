@@ -27,10 +27,11 @@ CNetwork_UDP::CNetwork_UDP(const SConnectParms& parms)
 CNetwork_UDP::~CNetwork_UDP()
 { /* nothing */ }
 
-void CNetwork_UDP::Server() {
+bool CNetwork_UDP::Server() {
 
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
+        return false;
     }
     std::cout << "UDP Server started" << std::endl;
 
@@ -47,18 +48,22 @@ void CNetwork_UDP::Server() {
 
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
+        return false;
     }
 
-    while( !mHasExitBeenRequested ) {
+    while( !mExitCalled ) {
         std::this_thread::sleep_for(std::chrono::seconds(1000));
 
     } // while
+
+    return true;
 }
 
-void CNetwork_UDP::Client() {
+bool CNetwork_UDP::Client() {
 
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
+        return false;
     }
     std::cout << "UDP Client started" << std::endl;
 
@@ -66,10 +71,12 @@ void CNetwork_UDP::Client() {
     mpIOContext = std::make_shared<boost::asio::io_context>();
     mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), mConnectParms.portID));
 
-    while( !mHasExitBeenRequested ) {
+    while( !mExitCalled ) {
         std::this_thread::sleep_for(std::chrono::seconds(1000));
 
     } // while
+
+    return true;
 }
 
 int CNetwork_UDP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {

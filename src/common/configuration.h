@@ -11,10 +11,13 @@
 #define CONFIGURATION__H
 
 #include <cstdint>
+#include <string>
 
 namespace config {
 
     constexpr std::uint16_t gMinPortNumber = 1024;
+    const std::string gPOSIXMQChannelName = "/posix_mq_";
+    constexpr std::uint16_t gMaxNumOfRetryAttempts = 5;
 }
 
 #endif // CONFIGURATION__H

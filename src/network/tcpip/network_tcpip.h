@@ -32,8 +32,8 @@ public:
     CNetworkTCPIP(const SConnectParms& parms);
     ~CNetworkTCPIP();
 
-    void Server() override;
-    void Client() override;
+    bool Server() override;
+    bool Client() override;
     int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
     int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
     bool IsConnected() override;

@@ -30,7 +30,7 @@ find_package(OpenSSL 3.6.0 REQUIRED)
 include_directories(${ProtobufIncludePath})
 
 #INTERNAL INCLUDES
-include_directories(${CMAKE_SOURCE_DIR}/test/main)
+include_directories(${CMAKE_SOURCE_DIR}/test)
 include_directories(${CMAKE_SOURCE_DIR}/messages)
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
@@ -92,13 +92,13 @@ include_directories(${GTest_INCLUDE_DIRS})
 
 #SOURCE FILES
 file(GLOB_RECURSE TEST_SOURCES
-    ${CMAKE_SOURCE_DIR}/test/main.cpp
-    ${CMAKE_SOURCE_DIR}/test/gtest_server.cpp
+    ${CMAKE_SOURCE_DIR}/test/*.cpp
 #    ${CMAKE_SOURCE_DIR}/messages/*.pb.cc
 )
 
 #HEADERS FILES
 file(GLOB_RECURSE TEST_HEADERS
+    ${CMAKE_SOURCE_DIR}/test/*.h
     ${CMAKE_SOURCE_DIR}/messages/*.pb.h
 )
 

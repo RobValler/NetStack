@@ -25,10 +25,11 @@ CNetworkTCPIP::CNetworkTCPIP(const SConnectParms& parms)
 CNetworkTCPIP::~CNetworkTCPIP()
 { /* nothing */ }
 
-void CNetworkTCPIP::Server() {
+bool CNetworkTCPIP::Server() {
 
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
+        return true;
     }
     std::cout << "TCP/IP Server started" << std::endl;
 
@@ -45,17 +46,20 @@ void CNetworkTCPIP::Server() {
             local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
             mpAcceptor->accept(*local_client_connection.mpSocket);
             mSocketList.emplace_back(std::move(local_client_connection));
-            std::cout << "Accepted a connection!" << std::endl;
+            std::cout << "Server: Accepted a connection from a client!" << std::endl;
         }
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
+        return false;
     }
+    return true;
 }
 
-void CNetworkTCPIP::Client() {
+bool CNetworkTCPIP::Client() {
 
     if(config::gMinPortNumber > mConnectParms.portID) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
+        return false;
     }
     std::cout << "TCP/IP Client started" << std::endl;
 
@@ -69,12 +73,14 @@ void CNetworkTCPIP::Client() {
         local_client_connection.mpSocket = std::make_shared<boost::asio::ip::tcp::socket>(*mpIOContext);
 
         boost::asio::connect(*local_client_connection.mpSocket, mpResolver->resolve(mConnectParms.ipAddress, std::to_string(mConnectParms.portID)));
-        std::cout << "Connected to server!" << std::endl;
+        std::cout << "Client: Connected to a server!" << std::endl;
         mSocketList.emplace_back(std::move(local_client_connection));
 
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
+        return false;
     }
+    return true;
 }
 
 int CNetworkTCPIP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
@@ -132,8 +138,10 @@ bool CNetworkTCPIP::IsConnected() {
 void CNetworkTCPIP::Stop() {
 
     // Close the socket
-    mSocketList[0].mpSocket->shutdown(tcp::socket::shutdown_both);
-    mSocketList[0].mpSocket->close();
+    if(!mSocketList.empty()) {
+        mSocketList[0].mpSocket->shutdown(tcp::socket::shutdown_both);
+        mSocketList[0].mpSocket->close();
+    }
 
     mpIOContext->stop();
 //    mpAcceptor->close();

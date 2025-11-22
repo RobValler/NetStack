@@ -10,20 +10,35 @@
 #ifndef NETWORK_POSIX__H
 #define NETWORK_POSIX__H
 
-class CNetwork_POSIX
+#include "i_network_hndl.h"
+
+#include <mqueue.h>
+
+#include "network_connect_parms.h"
+
+#include <string>
+
+class CNetwork_POSIX : public INetworkHndl
 {
 public:
-    CNetwork_POSIX();
+    CNetwork_POSIX(const SConnectParms& parms);
     ~CNetwork_POSIX();
 
-    void Server();
-    void Client();
-    int Receive();
-    int Send();
-    void Stop();
+    bool Server() override;
+    bool Client() override;
+    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
+    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    bool IsConnected() override;
+    void Stop() override;
 
 private:
+    SConnectParms mConnectParms;
     void ThreadFuncServer();
+
+    std::string mPOSIXName;
+    mqd_t mPOSIXChannel;
+    bool mIsConnected{false};
+    bool mExitCalled{false};
 
 };
 
