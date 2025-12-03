@@ -15,7 +15,8 @@ int main(int argc, char *argv[])
     testing::InitGoogleTest(&argc, argv);
     //::testing::GTEST_FLAG(filter) = "connect.tcpip";
     //::testing::GTEST_FLAG(filter) = "connect.udp";
-    ::testing::GTEST_FLAG(filter) = "connect.posix";
+    //::testing::GTEST_FLAG(filter) = "connect.posix";
+    ::testing::GTEST_FLAG(filter) = "connect.ftp";
     //::testing::GTEST_FLAG(filter) = "*";
     result = RUN_ALL_TESTS();
     return result;

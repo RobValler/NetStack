@@ -25,6 +25,7 @@ find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(GTest REQUIRED)
 find_package(OpenSSL 3.6.0 REQUIRED)
+find_package(Libssh2 1.11.1 REQUIRED)
 
 #EXTERNAL INCLUDES
 include_directories(${ProtobufIncludePath})
@@ -82,8 +83,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     asio::asio
     protobuf::protobuf
     openssl::openssl
+    Libssh2::libssh2
 )
-
 
 #if(TEST_ENABLE)
 ################### TEST ###################
@@ -111,16 +112,20 @@ add_executable(${PROJECT_NAME}_TEST
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
-    Boost::boost
-    asio::asio
+#    Boost::boost
+#    asio::asio
     gtest::gtest
     protobuf::protobuf
     net_stack
 )
 #endif()
 
+# copy
+file(COPY "${CMAKE_SOURCE_DIR}/test/ftp_test_transfer.txt" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 message("######################################################################")
 message("# CONFIGURATION #")
 message("#################")
+#message("# TEST_ENABLE:                 [${TEST_ENABLE}]")
 message("# ProtobufIncludePath:         [${ProtobufIncludePath}]")
 message("######################################################################")

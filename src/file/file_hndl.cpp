@@ -12,7 +12,6 @@
 #include <fstream>
 #include <filesystem>
 
-
 bool FileStreamRead(const std::string& filename, std::vector<char>& data) {
 
     bool result = false;

@@ -15,6 +15,10 @@
 
 #include "network_connect_parms.h"
 
+#include "file_hndl.h"
+#include "ftp_hndl.h"
+
+// cpp std
 #include <thread>
 #include <chrono>
 #include <atomic>
@@ -194,4 +198,21 @@ TEST(connect, posix)
     CConnectTest test(ECommsProto::EProto_POSIX);
     test.process();
     EXPECT_TRUE(test.Compare());
+}
+
+TEST(connect, ftp)
+{
+    // const std::string filename = "ftp_test_transfer.txt";
+
+    // if( FTPTransfer(filename) ) {
+
+
+    // } else {
+    //     std::cerr << "FTP transfer error" << std::endl;
+    // }
+
+    FTPClientHandling();
+
+
+
 }
