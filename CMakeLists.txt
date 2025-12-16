@@ -39,7 +39,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/file)
 include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
-include_directories(${CMAKE_SOURCE_DIR}/src/network/posix)
+include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
 #SOURCE FILES

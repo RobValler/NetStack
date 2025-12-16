@@ -25,8 +25,7 @@ public:
     CNetwork_UDP(const SConnectParms& parms);
     ~CNetwork_UDP();
 
-    void Server() override;
-    void Client() override;
+    int Start() override { return 0; };
     int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
     int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
     bool IsConnected() override { return false; };

@@ -9,139 +9,23 @@
 
 #include <gtest/gtest.h>
 
-#include "network_hndl.h"
-
+#include "posix_mq_node.h"
 #include "testMsgPackage.pb.h"
-
-#include "network_connect_parms.h"
+#include "serialise.h"
 
 #include <thread>
 #include <chrono>
-#include <atomic>
+
 #include <vector>
 #include <iostream>
 
-namespace {
-
-    std::atomic<bool> gIsExitCalled = false;
-
+TEST(posix_mq, basic)
+{
+    // ### TEST DATA ###
     struct STestData {
         int num;
         std::string str;
     };
-}
-
-class CConnectTest {
-public:
-
-    CConnectTest(ECommsProto protocol)
-        : mProtocol(protocol)
-    { /**/ }
-
-    ~CConnectTest() =default;
-
-    void process() {
-
-        TestMsgPackage message;
-        SConnectParms parms;
-        parms.portID = 1101;
-        parms.ipAddress = "127.0.0.1";
-        parms.proto = mProtocol;
-
-        // ### SERVER ###
-        auto threadServer = [&]() {
-
-            parms.type = ECommsType::ETypeServer;
-            CNetworkHndl network_server(parms);
-
-            network_server.Start();
-
-            while( !network_server.IsConnected() ){
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
-
-            for(const auto& it : send_data) {
-
-                message.set_id(it.num);
-                message.set_name(it.str);
-
-                SNetIF local_data;
-                local_data.name = "tom";
-                network_server.Send(local_data, message);
-                std::cout << "sent data" << std::endl;
-
-
-                std::this_thread::sleep_for(std::chrono::milliseconds(250));
-            }
-            network_server.Stop();
-        };
-
-        // ### CLIENT ###
-        auto threadClient = [&]() {
-
-            parms.type = ECommsType::ETypeClient;
-            CNetworkHndl network_client(parms);
-            int index = 1;
-            SNetIF local_data;
-            STestData tmp_rec_data;
-
-            network_client.Start();
-            while( !gIsExitCalled ) {
-
-                if(!network_client.IsConnected()) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    continue;
-                }
-
-                local_data.name = "";
-                if(network_client.Receive(local_data, message) > 0) {
-                    std::cout << "received data" << std::endl;
-                    tmp_rec_data.num = message.id();
-                    tmp_rec_data.str = message.name();
-                    rec_data.emplace_back(std::move(tmp_rec_data));
-                }
-
-                if(rec_data.size() == send_data.size()) {
-                    break;
-                }
-            }
-            network_client.Stop();
-        };
-
-
-        std::thread tServer(threadServer);
-        std::thread tClient(threadClient);
-
-        tClient.join();
-        tServer.join();
-
-        std::cout << "Test ended" << std::endl;
-        std::cout.flush();
-    }
-
-    bool Compare() {
-
-        bool result = true;
-
-        if(send_data.size() == rec_data.size()) {
-            for(const auto& it_send : send_data) {
-                for(const auto& it_rec : rec_data) {
-                    if( (it_send.num != it_rec.num) ||
-                        (it_send.str != it_rec.str) )
-
-                        result = false;
-                }
-            }
-        } else {
-            result = false;
-        }
-        std::cout << "compared data" << std::endl;
-        return result;
-    }
-
-private:
-    ECommsProto mProtocol;
-    std::vector<STestData> rec_data;
 
     std::vector<STestData> send_data = {
         { 123, "cat" },
@@ -149,25 +33,92 @@ private:
         { 789, "cow" },
     };
 
-};
+    auto threadServer = [&]() {
 
-TEST(connect, tcpip)
-{
-    CConnectTest test(ECommsProto::EProto_TCPIP);
-    test.process();
-    EXPECT_TRUE(test.Compare());
-}
+        // ### SERVER ###
+        std::vector<std::uint8_t> stream_data;
+        int stream_size;
+        CSerial ser;
 
-TEST(connect, udp)
-{
-    CConnectTest test(ECommsProto::EProto_UDP);
-    test.process();
-    EXPECT_TRUE(test.Compare());
-}
 
-TEST(connect, posix)
-{
-    CConnectTest test(ECommsProto::EProto_POSIX);
-    test.process();
-    EXPECT_TRUE(test.Compare());
+        SConnectParms parms_server;
+        parms_server.channel_send = "/to_client";
+        parms_server.channel_recv = "/to_server";
+        CPOSIX_MQ_Node network_server(parms_server);
+        if (0 != network_server.Start()) {
+
+            std::cout << "CPOSIX_MQ_Server::Start error" << std::endl;
+            return;
+        }
+
+        for(const auto& it : send_data) {
+        //while(true) {
+            TestMsgPackage send_message;
+            send_message.set_id(it.num);
+            send_message.set_name(it.str);
+            SNetIF data;
+            data.name = "output_tester";
+
+            stream_size = 0;
+            stream_data.clear();
+
+            ser.Serialise(send_message, stream_data, stream_size);
+            if(network_server.Send(data, stream_data) <= 0) {
+                std::cout << "send error" << std::endl;
+            }
+        }
+
+        network_server.Stop();
+    };
+
+    auto threadClient = [&]() {
+
+        // ### CLIENT ###
+        std::vector<std::uint8_t> stream_data;
+        int stream_size;
+        CSerial ser;
+
+
+        SConnectParms parms_client;
+        parms_client.channel_send = "/to_server";
+        parms_client.channel_recv = "/to_client";
+        CPOSIX_MQ_Node network_client(parms_client);
+        if (0 != network_client.Start()) {
+
+            std::cout << "CPOSIX_MQ_Client::Start error" << std::endl;
+            return;
+        }
+
+        for(int index = 0; index < send_data.size(); ++index) {
+
+            SNetIF data;
+            data.name = "input_tester";
+
+            stream_size = 0;
+            stream_data.clear();
+
+            if(network_client.Receive(data, stream_data) > 0) {
+
+                TestMsgPackage rec_message;
+                ser.Deserialise(stream_data, rec_message, stream_size);
+
+                std::cout << "ID = " << rec_message.id()
+                          << ", Name = " << rec_message.name()
+                          << std::endl;
+            } else {
+
+                std::cout << "Receive error" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            }
+        } //
+        network_client.Stop();
+    };
+
+    std::thread tClient(threadClient); // client is receiver, receiver creates the channel for MQ
+    std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    std::thread tServer(threadServer);
+
+    tClient.join();
+    tServer.join();
+
 }

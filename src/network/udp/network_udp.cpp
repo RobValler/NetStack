@@ -15,8 +15,8 @@
 #include "boost/asio/ip/udp.hpp"
 
 #include <iostream>
-#include <thread>
-#include <chrono>
+// #include <thread>
+// #include <chrono>
 
 using namespace boost::asio::ip;
 
@@ -27,15 +27,16 @@ CNetwork_UDP::CNetwork_UDP(const SConnectParms& parms)
 CNetwork_UDP::~CNetwork_UDP()
 { /* nothing */ }
 
+#if 0
 void CNetwork_UDP::Server() {
 
-    if(config::gMinPortNumber > mConnectParms.portID) {
+    if( (config::gMinPortNumber > mConnectParms.portID) &&
+        (0 != mConnectParms.portID) ) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
     std::cout << "UDP Server started" << std::endl;
 
     try {
-
         mpIOContext = std::make_shared<boost::asio::io_context>();
         mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), 0));
         mpResolver = std::make_shared<udp::resolver>(*mpIOContext);
@@ -48,16 +49,12 @@ void CNetwork_UDP::Server() {
     } catch (std::exception& e) {
         std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
     }
-
-    while( !mHasExitBeenRequested ) {
-        std::this_thread::sleep_for(std::chrono::seconds(1000));
-
-    } // while
 }
 
 void CNetwork_UDP::Client() {
 
-    if(config::gMinPortNumber > mConnectParms.portID) {
+    if( (config::gMinPortNumber > mConnectParms.portID) &&
+        (0 != mConnectParms.portID) ) {
         std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
     }
     std::cout << "UDP Client started" << std::endl;
@@ -65,12 +62,8 @@ void CNetwork_UDP::Client() {
     std::size_t length;
     mpIOContext = std::make_shared<boost::asio::io_context>();
     mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), mConnectParms.portID));
-
-    while( !mHasExitBeenRequested ) {
-        std::this_thread::sleep_for(std::chrono::seconds(1000));
-
-    } // while
 }
+#endif
 
 int CNetwork_UDP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
 

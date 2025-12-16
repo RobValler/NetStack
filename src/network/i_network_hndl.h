@@ -18,8 +18,7 @@ struct SNetIF;
 class INetworkHndl {
 public:
     ~INetworkHndl(){}
-    virtual void Server() =0;
-    virtual void Client() =0;
+    virtual int Start() =0;
     virtual int Send(const SNetIF&, const std::vector<std::uint8_t>&) =0;
     virtual int Receive(const SNetIF&, std::vector<std::uint8_t>&) =0;
     virtual bool IsConnected() =0;

@@ -27,11 +27,16 @@ enum class ECommsProto: int {
 
 struct SConnectParms {
 
-    std::string name;
+    std::string name{""};
+    std::string channel_send{""};
+    std::string channel_recv{""};
+
+
+
     ECommsType type{ECommsType::ETypeNone};
     ECommsProto proto{ECommsProto::EProto_None};
-    int portID;
-    std::string ipAddress;
+    int portID{0};
+    std::string ipAddress{""};
 };
 
 struct SNetIF {

@@ -14,7 +14,8 @@
 #include "serialise.h"
 #include "encrypt.h"
 
-#include "network_tcpip.h"
+//#include "tcpip_server.h"
+
 #include "network_udp.h"
 
 #include <google/protobuf/message.h>
@@ -124,30 +125,30 @@ int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& 
 void CNetworkHndl::ThreadFuncServer() {
 
     // select the protocol
-    switch(mParms.proto) {
-        case ECommsProto::EProto_None:
-            return;
-        case ECommsProto::EProto_TCPIP:
-            mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
-            break;
-        case ECommsProto::EProto_UDP:
-            mpNetworkConnection = std::make_unique<CNetwork_UDP>(mParms);
-            break;
-        case ECommsProto::EProto_POSIX:
-            //mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
-            //break;
-            return;
-    }
+    // switch(mParms.proto) {
+    //     case ECommsProto::EProto_None:
+    //         return;
+    //     case ECommsProto::EProto_TCPIP:
+    //         mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
+    //         break;
+    //     case ECommsProto::EProto_UDP:
+    //         mpNetworkConnection = std::make_unique<CNetwork_UDP>(mParms);
+    //         break;
+    //     case ECommsProto::EProto_POSIX:
+    //         mpNetworkConnection = std::make_unique<CNetworkTCPIP>(mParms);
+    //         break;
+    //         return;
+    // }
 
     mIsInitialised = true;
 
     switch(mParms.type)
     {
         case ECommsType::ETypeServer:
-            mpNetworkConnection->Server();
+            //mpNetworkConnection->Server();
             break;
         case ECommsType::ETypeClient:
-            mpNetworkConnection->Client();
+            //mpNetworkConnection->Client();
             break;
         case ECommsType::ETypeNone:
             break;
