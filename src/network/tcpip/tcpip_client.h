@@ -12,26 +12,22 @@
 
 #include "network_connect_parms.h"
 
-#include "i_network_hndl.h"
+#include "tcpip_helper.h"
 
 namespace message { struct SMessage; }
 
-class CTCPIP_Client : public INetworkHndl
+class CTCPIP_Client : public CTCPIP_Helper
 {
 public:
     CTCPIP_Client(const SConnectParms& parms);
     ~CTCPIP_Client() =default;
 
     int Start() override;
-    int Send(const message::SMessage& msg_data) override;
-    int Receive(message::SMessage& msg_data) override;
-    bool IsConnected() override;
     void Stop() override;
 
 private:
     SConnectParms mConnectParms;
-    int sock;
-    bool mIsConnected{false};
+
 };
 
 #endif // TCPIP_CLIENT__H

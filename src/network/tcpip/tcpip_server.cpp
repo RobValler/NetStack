@@ -1,7 +1,13 @@
+/*****************************************************************
+ * Copyright (C) 2017 Robert Valler - All rights reserved.
+ *
+ * This file is part of the project: <insert project name here>
+ *
+ * This project can not be copied and/or distributed
+ * without the express permission of the copyright holder
+ *****************************************************************/
 
 #include "tcpip_server.h"
-
-#include "message_define.h"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -27,6 +33,7 @@ int CTCPIP_Server::Start() {
         return 1;
     }
 
+    // reuse the connection after disconnect
     int opt = 1;
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
@@ -60,40 +67,6 @@ int CTCPIP_Server::Start() {
 
     return 0;
 }
-
-int CTCPIP_Server::Send(const message::SMessage& msg_data) {
-
-    auto foo_data(msg_data);
-    foo_data.body_size = (int)foo_data.data_array.size();
-    auto header_bytes = write(client_fd, &foo_data.body_size, sizeof(foo_data.body_size));
-    auto body_bytes = write(client_fd, &foo_data.data_array[0], foo_data.body_size);
-    return body_bytes;
-}
-
-int CTCPIP_Server::Receive(message::SMessage& msg_data) {
-
-    auto foo(msg_data);
-    auto hdr_size = sizeof(foo.body_size);
-    ssize_t hdr_bytes = recv(client_fd, &foo.body_size, hdr_size, 0);
-    if( (hdr_bytes != hdr_size) &&
-        (foo.body_size <= 0) ) {
-        std::cerr << "Size error" << std::endl;
-        return -1;
-    }
-
-    //uint16_t msg_size = ntohl(foo.body_size);
-    foo.data_array.resize(foo.body_size);
-    ssize_t body_bytes = recv(client_fd, &foo.data_array[0], foo.body_size, 0);
-
-    msg_data = foo;
-    return body_bytes;
-}
-
-bool CTCPIP_Server::IsConnected() {
-
-    return true;
-};
-
 
 void CTCPIP_Server::Stop() {
 

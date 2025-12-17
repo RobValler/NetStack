@@ -46,8 +46,8 @@ TEST(tcpip, basic)
                                         { 777, "moo" },
                                         };
 
-
     CSerial ser;
+
 
     auto threadServer = [&]() {
 
@@ -155,18 +155,16 @@ TEST(tcpip, basic)
 
         // SEND
         for(const auto& it : send_data_2) {
-            //while(true) {
+
             TestMsgPackage send_message;
             send_message.set_msgid(it.num);
             send_message.set_msgname(it.str);
 
-            //msg.body.data_array.clear();
             int size;
             if(!ser.Serialise(send_message, msg.data_array, size)) {
                 std::cerr << "error: Serialise" << std::endl;
                 continue;
             }
-            //msg.body_size = size;
 
             if(network_client.Send(msg) <= 0) {
                 std::cout << "send error" << std::endl;
