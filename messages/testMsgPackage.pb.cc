@@ -28,13 +28,10 @@ namespace _fl = ::google::protobuf::internal::field_layout;
 inline constexpr TestMsgPackage::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        name_(
+        msgname_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        stream_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        id_{0} {}
+        msgid_{0} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR TestMsgPackage::TestMsgPackage(::_pbi::ConstantInitialized)
@@ -64,13 +61,11 @@ const ::uint32_t
         protodesc_cold) = {
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_._has_bits_),
-        6, // hasbit index offset
-        PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_.id_),
-        PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_.name_),
-        PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_.stream_),
-        2,
-        0,
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_.msgid_),
+        PROTOBUF_FIELD_OFFSET(::TestMsgPackage, _impl_.msgname_),
         1,
+        0,
 };
 
 static const ::_pbi::MigrationSchema
@@ -82,15 +77,14 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 };
 const char descriptor_table_protodef_testMsgPackage_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\024testMsgPackage.proto\":\n\016TestMsgPackage"
-    "\022\n\n\002id\030\001 \001(\005\022\014\n\004name\030\002 \001(\t\022\016\n\006stream\030\003 \001"
-    "(\014b\006proto3"
+    "\n\024testMsgPackage.proto\"0\n\016TestMsgPackage"
+    "\022\r\n\005MsgId\030\001 \001(\005\022\017\n\007MsgName\030\002 \001(\tb\006proto3"
 };
 static ::absl::once_flag descriptor_table_testMsgPackage_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_testMsgPackage_2eproto = {
     false,
     false,
-    90,
+    80,
     descriptor_table_protodef_testMsgPackage_2eproto,
     "testMsgPackage.proto",
     &descriptor_table_testMsgPackage_2eproto_once,
@@ -128,8 +122,7 @@ PROTOBUF_NDEBUG_INLINE TestMsgPackage::Impl_::Impl_(
     [[maybe_unused]] const ::TestMsgPackage& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
-        name_(arena, from.name_),
-        stream_(arena, from.stream_) {}
+        msgname_(arena, from.msgname_) {}
 
 TestMsgPackage::TestMsgPackage(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -144,7 +137,7 @@ TestMsgPackage::TestMsgPackage(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
-  _impl_.id_ = from._impl_.id_;
+  _impl_.msgid_ = from._impl_.msgid_;
 
   // @@protoc_insertion_point(copy_constructor:TestMsgPackage)
 }
@@ -152,12 +145,11 @@ PROTOBUF_NDEBUG_INLINE TestMsgPackage::Impl_::Impl_(
     [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
     [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
-        name_(arena),
-        stream_(arena) {}
+        msgname_(arena) {}
 
 inline void TestMsgPackage::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.id_ = {};
+  _impl_.msgid_ = {};
 }
 TestMsgPackage::~TestMsgPackage() {
   // @@protoc_insertion_point(destructor:TestMsgPackage)
@@ -170,8 +162,7 @@ inline void TestMsgPackage::SharedDtor(MessageLite& self) {
   }
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.name_.Destroy();
-  this_._impl_.stream_.Destroy();
+  this_._impl_.msgname_.Destroy();
   this_._impl_.~Impl_();
 }
 
@@ -218,16 +209,16 @@ TestMsgPackage::GetClassData() const {
   return TestMsgPackage_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 27, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 30, 2>
 TestMsgPackage::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     TestMsgPackage_class_data_.base(),
@@ -237,31 +228,25 @@ TestMsgPackage::_table_ = {
     ::_pbi::TcParser::GetTable<::TestMsgPackage>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // int32 id = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TestMsgPackage, _impl_.id_), 2>(),
-     {8, 2, 0, PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.id_)}},
-    // string name = 2;
+    // string MsgName = 2;
     {::_pbi::TcParser::FastUS1,
-     {18, 0, 0, PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.name_)}},
-    // bytes stream = 3;
-    {::_pbi::TcParser::FastBS1,
-     {26, 1, 0, PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.stream_)}},
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.msgname_)}},
+    // int32 MsgId = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TestMsgPackage, _impl_.msgid_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.msgid_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // int32 id = 1;
-    {PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.id_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // string name = 2;
-    {PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.name_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // bytes stream = 3;
-    {PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.stream_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
+    // int32 MsgId = 1;
+    {PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.msgid_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // string MsgName = 2;
+    {PROTOBUF_FIELD_OFFSET(TestMsgPackage, _impl_.msgname_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\16\0\4\0\0\0\0\0"
+    "\16\0\7\0\0\0\0\0"
     "TestMsgPackage"
-    "name"
+    "MsgName"
   }},
 };
 PROTOBUF_NOINLINE void TestMsgPackage::Clear() {
@@ -272,15 +257,10 @@ PROTOBUF_NOINLINE void TestMsgPackage::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003U) != 0) {
-    if ((cached_has_bits & 0x00000001U) != 0) {
-      _impl_.name_.ClearNonDefaultToEmpty();
-    }
-    if ((cached_has_bits & 0x00000002U) != 0) {
-      _impl_.stream_.ClearNonDefaultToEmpty();
-    }
+  if ((cached_has_bits & 0x00000001U) != 0) {
+    _impl_.msgname_.ClearNonDefaultToEmpty();
   }
-  _impl_.id_ = 0;
+  _impl_.msgid_ = 0;
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -303,30 +283,22 @@ PROTOBUF_NOINLINE void TestMsgPackage::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // int32 id = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000004U) != 0) {
-    if (this_._internal_id() != 0) {
+  // int32 MsgId = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
+    if (this_._internal_msgid() != 0) {
       target =
           ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
-              stream, this_._internal_id(), target);
+              stream, this_._internal_msgid(), target);
     }
   }
 
-  // string name = 2;
+  // string MsgName = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000001U) != 0) {
-    if (!this_._internal_name().empty()) {
-      const ::std::string& _s = this_._internal_name();
+    if (!this_._internal_msgname().empty()) {
+      const ::std::string& _s = this_._internal_msgname();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "TestMsgPackage.name");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "TestMsgPackage.MsgName");
       target = stream->WriteStringMaybeAliased(2, _s, target);
-    }
-  }
-
-  // bytes stream = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000002U) != 0) {
-    if (!this_._internal_stream().empty()) {
-      const ::std::string& _s = this_._internal_stream();
-      target = stream->WriteBytesMaybeAliased(3, _s, target);
     }
   }
 
@@ -355,26 +327,19 @@ PROTOBUF_NOINLINE void TestMsgPackage::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007U) != 0) {
-    // string name = 2;
+  if ((cached_has_bits & 0x00000003U) != 0) {
+    // string MsgName = 2;
     if ((cached_has_bits & 0x00000001U) != 0) {
-      if (!this_._internal_name().empty()) {
+      if (!this_._internal_msgname().empty()) {
         total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                        this_._internal_name());
+                                        this_._internal_msgname());
       }
     }
-    // bytes stream = 3;
+    // int32 MsgId = 1;
     if ((cached_has_bits & 0x00000002U) != 0) {
-      if (!this_._internal_stream().empty()) {
-        total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
-                                        this_._internal_stream());
-      }
-    }
-    // int32 id = 1;
-    if ((cached_has_bits & 0x00000004U) != 0) {
-      if (this_._internal_id() != 0) {
+      if (this_._internal_msgid() != 0) {
         total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-            this_._internal_id());
+            this_._internal_msgid());
       }
     }
   }
@@ -394,28 +359,19 @@ void TestMsgPackage::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007U) != 0) {
+  if ((cached_has_bits & 0x00000003U) != 0) {
     if ((cached_has_bits & 0x00000001U) != 0) {
-      if (!from._internal_name().empty()) {
-        _this->_internal_set_name(from._internal_name());
+      if (!from._internal_msgname().empty()) {
+        _this->_internal_set_msgname(from._internal_msgname());
       } else {
-        if (_this->_impl_.name_.IsDefault()) {
-          _this->_internal_set_name("");
+        if (_this->_impl_.msgname_.IsDefault()) {
+          _this->_internal_set_msgname("");
         }
       }
     }
     if ((cached_has_bits & 0x00000002U) != 0) {
-      if (!from._internal_stream().empty()) {
-        _this->_internal_set_stream(from._internal_stream());
-      } else {
-        if (_this->_impl_.stream_.IsDefault()) {
-          _this->_internal_set_stream("");
-        }
-      }
-    }
-    if ((cached_has_bits & 0x00000004U) != 0) {
-      if (from._internal_id() != 0) {
-        _this->_impl_.id_ = from._impl_.id_;
+      if (from._internal_msgid() != 0) {
+        _this->_impl_.msgid_ = from._impl_.msgid_;
       }
     }
   }
@@ -437,9 +393,8 @@ void TestMsgPackage::InternalSwap(TestMsgPackage* PROTOBUF_RESTRICT PROTOBUF_NON
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.name_, &other->_impl_.name_, arena);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.stream_, &other->_impl_.stream_, arena);
-  swap(_impl_.id_, other->_impl_.id_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.msgname_, &other->_impl_.msgname_, arena);
+  swap(_impl_.msgid_, other->_impl_.msgid_);
 }
 
 ::google::protobuf::Metadata TestMsgPackage::GetMetadata() const {

@@ -7,19 +7,23 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#ifndef I_NETWORK_HNDL__H
-#define I_NETWORK_HNDL__H
+#ifndef MESSAGE_DEFINE__H
+#define MESSAGE_DEFINE__H
 
-namespace message { struct SMessage; }
+#include <cstdint>
+#include <vector>
+//#include <string>
 
-class INetworkHndl {
-public:
-    ~INetworkHndl(){}
-    virtual int Start() =0;
-    virtual int Send(const message::SMessage&) =0;
-    virtual int Receive(message::SMessage&) =0;
-    virtual bool IsConnected() =0;
-    virtual void Stop() =0;
+/// array message structures
+namespace message {
+
+struct SMessage {
+
+    std::uint32_t body_size{0};
+    std::vector<std::uint8_t> data_array;
+    //std::string text;
 };
 
-#endif // I_NETWORK_HNDL__H
+} // namespace
+
+#endif // MESSAGE_DEFINE__H

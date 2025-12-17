@@ -42,7 +42,7 @@ bool CSerial::Serialise(const google::protobuf::Message& proto_message, std::vec
     return true;
 }
 
-void CSerial::Deserialise(const std::vector<std::uint8_t>& incomming_data, google::protobuf::Message& proto_message, int& outgoing_size) {
+bool CSerial::Deserialise(const std::vector<std::uint8_t>& incomming_data, google::protobuf::Message& proto_message, int& outgoing_size) {
 
     using namespace google::protobuf::io;
 
@@ -53,7 +53,11 @@ void CSerial::Deserialise(const std::vector<std::uint8_t>& incomming_data, googl
     coded_input.ReadVarint32(&size);
     outgoing_size = size;
     google::protobuf::io::CodedInputStream::Limit msgLimit = coded_input.PushLimit(size);
-    proto_message.ParseFromCodedStream(&coded_input);
+    if(!proto_message.ParseFromCodedStream(&coded_input)) {
+        return false;
+    }
     coded_input.ConsumedEntireMessage();
     coded_input.PopLimit(msgLimit);
+
+    return true;
 }

@@ -1,6 +1,8 @@
 
 #include "tcpip_client.h"
 
+#include "message_define.h"
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -23,10 +25,10 @@ int CTCPIP_Client::Start() {
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(8080);
+    server_addr.sin_port = htons(mConnectParms.portID);
 
     // Connect to localhost
-    if (inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &server_addr.sin_addr) <= 0) {
         perror("inet_pton");
         return 1;
     }
@@ -37,25 +39,37 @@ int CTCPIP_Client::Start() {
         return 1;
     }
 
+    std::cout << "Client connected to server" << std::endl;
+
     return 0;
 }
 
-int CTCPIP_Client::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
+int CTCPIP_Client::Send(const message::SMessage& msg_data) {
 
-    // const char* msg = "Hello from client";
-    auto bytes = write(sock, outgoing_data.data(), outgoing_data.size());
-
-    return bytes;
+    auto foo_data(msg_data);
+    foo_data.body_size = (int)foo_data.data_array.size();
+    auto header_bytes = write(sock, &foo_data.body_size, sizeof(foo_data.body_size));
+    auto body_bytes = write(sock, &foo_data.data_array[0], foo_data.body_size);
+    return body_bytes;
 }
 
-int CTCPIP_Client::Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) {
+int CTCPIP_Client::Receive(message::SMessage& msg_data) {
 
-    // char buffer[1024] = {0};
-    outgoing_data.resize(1024);
-    auto bytes = read(sock, outgoing_data.data(), outgoing_data.size() -1);
-    // std::cout << "Server reply: " << buffer << std::endl;
+    auto foo(msg_data);
+    auto hdr_size = sizeof(foo.body_size);
+    ssize_t hdr_bytes = recv(sock, &foo.body_size, hdr_size, 0);
+    if( (hdr_bytes != hdr_size) &&
+        (foo.body_size <= 0) ) {
+        std::cerr << "Size error" << std::endl;
+        return -1;
+    }
 
-    return bytes;
+    //uint16_t msg_size = ntohl(foo.body_size);
+    foo.data_array.resize(foo.body_size);
+    ssize_t body_bytes = recv(sock, &foo.data_array[0], foo.body_size, 0);
+
+    msg_data = foo;
+    return body_bytes;
 }
 
 bool CTCPIP_Client::IsConnected() {

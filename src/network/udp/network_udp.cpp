@@ -10,11 +10,13 @@
 #include "network_udp.h"
 
 #include "network_connect_parms.h"
-#include "configuration.h"
+//#include "configuration.h"
+
+#include "message_define.h"
 
 #include "boost/asio/ip/udp.hpp"
 
-#include <iostream>
+// #include <iostream>
 // #include <thread>
 // #include <chrono>
 
@@ -27,56 +29,18 @@ CNetwork_UDP::CNetwork_UDP(const SConnectParms& parms)
 CNetwork_UDP::~CNetwork_UDP()
 { /* nothing */ }
 
-#if 0
-void CNetwork_UDP::Server() {
-
-    if( (config::gMinPortNumber > mConnectParms.portID) &&
-        (0 != mConnectParms.portID) ) {
-        std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
-    }
-    std::cout << "UDP Server started" << std::endl;
-
-    try {
-        mpIOContext = std::make_shared<boost::asio::io_context>();
-        mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), 0));
-        mpResolver = std::make_shared<udp::resolver>(*mpIOContext);
-
-        mpEndpoints = mpResolver->resolve(
-            udp::v4(),
-            mConnectParms.ipAddress,
-            std::to_string(mConnectParms.portID) );
-
-    } catch (std::exception& e) {
-        std::cerr << "EXCEPTION HANDLED: " << e.what() << std::endl;
-    }
-}
-
-void CNetwork_UDP::Client() {
-
-    if( (config::gMinPortNumber > mConnectParms.portID) &&
-        (0 != mConnectParms.portID) ) {
-        std::cout << "Warning: Attempted to access privilaged port number (below 1024). Check permissions!" << std::endl;
-    }
-    std::cout << "UDP Client started" << std::endl;
-
-    std::size_t length;
-    mpIOContext = std::make_shared<boost::asio::io_context>();
-    mpSocket = std::make_shared<udp::socket>(*mpIOContext, udp::endpoint(udp::v4(), mConnectParms.portID));
-}
-#endif
-
-int CNetwork_UDP::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
+int CNetwork_UDP::Send(const message::SMessage& data) {
 
     if(!mpSocket) {
         return 0;
     }
 
     int length = 0;
-    length = mpSocket->send_to(boost::asio::buffer(outgoing_data), *mpEndpoints.begin()); // Send the message
+    length = mpSocket->send_to(boost::asio::buffer(data.data_array), *mpEndpoints.begin()); // Send the message
     return length;
 }
 
-int CNetwork_UDP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) {
+int CNetwork_UDP::Receive(message::SMessage& data) {
 
     if(!mpSocket) {
         return 0;
@@ -87,10 +51,10 @@ int CNetwork_UDP::Receive(const SNetIF& operater, std::vector<std::uint8_t>& out
     if(0 == available_bytes) {
         return 0;
     }
-    outgoing_data.resize(available_bytes);
+    data.data_array.resize(available_bytes);
 
     udp::endpoint sender_endpoint;
-    length = mpSocket->receive_from(boost::asio::buffer(outgoing_data), sender_endpoint);
+    length = mpSocket->receive_from(boost::asio::buffer(data.data_array), sender_endpoint);
     return length;
 }
 

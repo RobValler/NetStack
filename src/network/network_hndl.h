@@ -10,6 +10,7 @@
 #ifndef NETWORK_HNDL__H
 #define NETWORK_HNDL__H
 
+#if 0
 #include "network_connect_parms.h"
 #include "serialise.h"
 
@@ -45,5 +46,5 @@ private:
     bool mIsThereAConnection{false};
     bool mIsInitialised{false};
 };
-
+#endif
 #endif // NETWORK_HNDL__H

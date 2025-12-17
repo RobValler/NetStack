@@ -7,6 +7,7 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
+#if 0
 // wrapper for actual networking stack
 #include "network_hndl.h"
 
@@ -117,7 +118,7 @@ int CNetworkHndl::Send(const SNetIF& operater, const google::protobuf::Message& 
     }
 
     // send the message
-    int result = mpNetworkConnection->Send(operater, encrypted_data);
+    // int result = mpNetworkConnection->Send(operater, encrypted_data);
 
     return result;
 }
@@ -154,3 +155,4 @@ void CNetworkHndl::ThreadFuncServer() {
             break;
     };
 }
+#endif

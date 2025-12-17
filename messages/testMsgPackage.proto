@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 message TestMsgPackage {
-  int32 id = 1;
-  string name = 2;
-  bytes stream = 3;
+  int32 MsgId = 1;
+  string MsgName = 2;
 }

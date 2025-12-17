@@ -9,6 +9,8 @@
 
 #include "posix_mq_node.h"
 
+#include "message_define.h"
+
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -33,7 +35,7 @@ int CPOSIX_MQ_Node::Start() {
     return 0;
 }
 
-int CPOSIX_MQ_Node::Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) {
+int CPOSIX_MQ_Node::Send(const message::SMessage& data) {
 
     mMQSend = mq_open(mConnectParms.channel_send.c_str(), O_WRONLY);
     if (mMQSend == (mqd_t)-1) {
@@ -43,8 +45,8 @@ int CPOSIX_MQ_Node::Send(const SNetIF& operater, const std::vector<std::uint8_t>
         return(0);
     }
 
-    int bytes = outgoing_data.size();
-    if (mq_send(mMQSend, (const char *)&outgoing_data[0], (size_t)bytes, 0) == -1) {
+    int bytes = data.data_array.size();
+    if (mq_send(mMQSend, (const char *)&data.data_array[0], (size_t)bytes, 0) == -1) {
         perror("mq_send");
         bytes = -1;
     }
@@ -52,7 +54,7 @@ int CPOSIX_MQ_Node::Send(const SNetIF& operater, const std::vector<std::uint8_t>
     return bytes;
 }
 
-int CPOSIX_MQ_Node::Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) {
+int CPOSIX_MQ_Node::Receive(message::SMessage& data) {
 
     struct mq_attr attr;
     char buffer[MAX_MSG_SIZE];
@@ -77,8 +79,8 @@ int CPOSIX_MQ_Node::Receive(const SNetIF& operater, std::vector<std::uint8_t>& o
         perror("mq_receive");
     } else {
         //std::vector<char> vec(arr, arr + sizeof(arr) - 1); // Exclude the null terminator
-        outgoing_data.resize(bytes);
-        outgoing_data.assign(&buffer[0], &buffer[0] + bytes);
+        data.data_array.resize(bytes);
+        data.data_array.assign(&buffer[0], &buffer[0] + bytes);
     }
 
     return bytes;

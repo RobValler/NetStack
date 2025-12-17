@@ -210,56 +210,40 @@ class TestMsgPackage final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kNameFieldNumber = 2,
-    kStreamFieldNumber = 3,
-    kIdFieldNumber = 1,
+    kMsgNameFieldNumber = 2,
+    kMsgIdFieldNumber = 1,
   };
-  // string name = 2;
-  void clear_name() ;
-  const ::std::string& name() const;
+  // string MsgName = 2;
+  void clear_msgname() ;
+  const ::std::string& msgname() const;
   template <typename Arg_ = const ::std::string&, typename... Args_>
-  void set_name(Arg_&& arg, Args_... args);
-  ::std::string* PROTOBUF_NONNULL mutable_name();
-  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_name();
-  void set_allocated_name(::std::string* PROTOBUF_NULLABLE value);
+  void set_msgname(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_msgname();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_msgname();
+  void set_allocated_msgname(::std::string* PROTOBUF_NULLABLE value);
 
   private:
-  const ::std::string& _internal_name() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_name(const ::std::string& value);
-  ::std::string* PROTOBUF_NONNULL _internal_mutable_name();
+  const ::std::string& _internal_msgname() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_msgname(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_msgname();
 
   public:
-  // bytes stream = 3;
-  void clear_stream() ;
-  const ::std::string& stream() const;
-  template <typename Arg_ = const ::std::string&, typename... Args_>
-  void set_stream(Arg_&& arg, Args_... args);
-  ::std::string* PROTOBUF_NONNULL mutable_stream();
-  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_stream();
-  void set_allocated_stream(::std::string* PROTOBUF_NULLABLE value);
+  // int32 MsgId = 1;
+  void clear_msgid() ;
+  ::int32_t msgid() const;
+  void set_msgid(::int32_t value);
 
   private:
-  const ::std::string& _internal_stream() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_stream(const ::std::string& value);
-  ::std::string* PROTOBUF_NONNULL _internal_mutable_stream();
-
-  public:
-  // int32 id = 1;
-  void clear_id() ;
-  ::int32_t id() const;
-  void set_id(::int32_t value);
-
-  private:
-  ::int32_t _internal_id() const;
-  void _internal_set_id(::int32_t value);
+  ::int32_t _internal_msgid() const;
+  void _internal_set_msgid(::int32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:TestMsgPackage)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 27,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 30,
                                    2>
       _table_;
 
@@ -280,9 +264,8 @@ class TestMsgPackage final : public ::google::protobuf::Message
         const TestMsgPackage& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr name_;
-    ::google::protobuf::internal::ArenaStringPtr stream_;
-    ::int32_t id_;
+    ::google::protobuf::internal::ArenaStringPtr msgname_;
+    ::int32_t msgid_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -307,158 +290,93 @@ extern const ::google::protobuf::internal::ClassDataFull TestMsgPackage_class_da
 
 // TestMsgPackage
 
-// int32 id = 1;
-inline void TestMsgPackage::clear_id() {
+// int32 MsgId = 1;
+inline void TestMsgPackage::clear_msgid() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.id_ = 0;
-  _impl_._has_bits_[0] &= ~0x00000004U;
+  _impl_.msgid_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000002U;
 }
-inline ::int32_t TestMsgPackage::id() const {
-  // @@protoc_insertion_point(field_get:TestMsgPackage.id)
-  return _internal_id();
+inline ::int32_t TestMsgPackage::msgid() const {
+  // @@protoc_insertion_point(field_get:TestMsgPackage.MsgId)
+  return _internal_msgid();
 }
-inline void TestMsgPackage::set_id(::int32_t value) {
-  _internal_set_id(value);
-  _impl_._has_bits_[0] |= 0x00000004U;
-  // @@protoc_insertion_point(field_set:TestMsgPackage.id)
+inline void TestMsgPackage::set_msgid(::int32_t value) {
+  _internal_set_msgid(value);
+  _impl_._has_bits_[0] |= 0x00000002U;
+  // @@protoc_insertion_point(field_set:TestMsgPackage.MsgId)
 }
-inline ::int32_t TestMsgPackage::_internal_id() const {
+inline ::int32_t TestMsgPackage::_internal_msgid() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.id_;
+  return _impl_.msgid_;
 }
-inline void TestMsgPackage::_internal_set_id(::int32_t value) {
+inline void TestMsgPackage::_internal_set_msgid(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.id_ = value;
+  _impl_.msgid_ = value;
 }
 
-// string name = 2;
-inline void TestMsgPackage::clear_name() {
+// string MsgName = 2;
+inline void TestMsgPackage::clear_msgname() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.name_.ClearToEmpty();
+  _impl_.msgname_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000001U;
 }
-inline const ::std::string& TestMsgPackage::name() const
+inline const ::std::string& TestMsgPackage::msgname() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:TestMsgPackage.name)
-  return _internal_name();
+  // @@protoc_insertion_point(field_get:TestMsgPackage.MsgName)
+  return _internal_msgname();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TestMsgPackage::set_name(Arg_&& arg, Args_... args) {
+PROTOBUF_ALWAYS_INLINE void TestMsgPackage::set_msgname(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001U;
-  _impl_.name_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:TestMsgPackage.name)
+  _impl_.msgname_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:TestMsgPackage.MsgName)
 }
-inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::mutable_name()
+inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::mutable_msgname()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::std::string* _s = _internal_mutable_name();
-  // @@protoc_insertion_point(field_mutable:TestMsgPackage.name)
+  ::std::string* _s = _internal_mutable_msgname();
+  // @@protoc_insertion_point(field_mutable:TestMsgPackage.MsgName)
   return _s;
 }
-inline const ::std::string& TestMsgPackage::_internal_name() const {
+inline const ::std::string& TestMsgPackage::_internal_msgname() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.name_.Get();
+  return _impl_.msgname_.Get();
 }
-inline void TestMsgPackage::_internal_set_name(const ::std::string& value) {
+inline void TestMsgPackage::_internal_set_msgname(const ::std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001U;
-  _impl_.name_.Set(value, GetArena());
+  _impl_.msgname_.Set(value, GetArena());
 }
-inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::_internal_mutable_name() {
+inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::_internal_mutable_msgname() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001U;
-  return _impl_.name_.Mutable( GetArena());
+  return _impl_.msgname_.Mutable( GetArena());
 }
-inline ::std::string* PROTOBUF_NULLABLE TestMsgPackage::release_name() {
+inline ::std::string* PROTOBUF_NULLABLE TestMsgPackage::release_msgname() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:TestMsgPackage.name)
+  // @@protoc_insertion_point(field_release:TestMsgPackage.MsgName)
   if ((_impl_._has_bits_[0] & 0x00000001U) == 0) {
     return nullptr;
   }
   _impl_._has_bits_[0] &= ~0x00000001U;
-  auto* released = _impl_.name_.Release();
+  auto* released = _impl_.msgname_.Release();
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.name_.Set("", GetArena());
+    _impl_.msgname_.Set("", GetArena());
   }
   return released;
 }
-inline void TestMsgPackage::set_allocated_name(::std::string* PROTOBUF_NULLABLE value) {
+inline void TestMsgPackage::set_allocated_msgname(::std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001U;
   } else {
     _impl_._has_bits_[0] &= ~0x00000001U;
   }
-  _impl_.name_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.name_.IsDefault()) {
-    _impl_.name_.Set("", GetArena());
+  _impl_.msgname_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.msgname_.IsDefault()) {
+    _impl_.msgname_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:TestMsgPackage.name)
-}
-
-// bytes stream = 3;
-inline void TestMsgPackage::clear_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.stream_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002U;
-}
-inline const ::std::string& TestMsgPackage::stream() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:TestMsgPackage.stream)
-  return _internal_stream();
-}
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void TestMsgPackage::set_stream(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  _impl_.stream_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:TestMsgPackage.stream)
-}
-inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::mutable_stream()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::std::string* _s = _internal_mutable_stream();
-  // @@protoc_insertion_point(field_mutable:TestMsgPackage.stream)
-  return _s;
-}
-inline const ::std::string& TestMsgPackage::_internal_stream() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.stream_.Get();
-}
-inline void TestMsgPackage::_internal_set_stream(const ::std::string& value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  _impl_.stream_.Set(value, GetArena());
-}
-inline ::std::string* PROTOBUF_NONNULL TestMsgPackage::_internal_mutable_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002U;
-  return _impl_.stream_.Mutable( GetArena());
-}
-inline ::std::string* PROTOBUF_NULLABLE TestMsgPackage::release_stream() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:TestMsgPackage.stream)
-  if ((_impl_._has_bits_[0] & 0x00000002U) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000002U;
-  auto* released = _impl_.stream_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.stream_.Set("", GetArena());
-  }
-  return released;
-}
-inline void TestMsgPackage::set_allocated_stream(::std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002U;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000002U;
-  }
-  _impl_.stream_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.stream_.IsDefault()) {
-    _impl_.stream_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:TestMsgPackage.stream)
+  // @@protoc_insertion_point(field_set_allocated:TestMsgPackage.MsgName)
 }
 
 #ifdef __GNUC__

@@ -1,7 +1,7 @@
 
 
-#ifndef POSIX_SERVER__H
-#define POSIX_SERVER__H
+#ifndef TCPIP_SERVER__H
+#define TCPIP_SERVER__H
 
 #include "network_connect_parms.h"
 
@@ -14,8 +14,8 @@ public:
     ~CTCPIP_Server() =default;
 
     int Start() override;
-    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
-    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    int Send(const message::SMessage& msg_data) override;
+    int Receive(message::SMessage& msg_data) override;
     bool IsConnected() override;
     void Stop() override;
 
@@ -26,4 +26,4 @@ private:
     int client_fd;
 };
 
-#endif // POSIX_SERVER__H
+#endif // TCPIP_SERVER__H

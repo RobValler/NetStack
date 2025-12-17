@@ -19,6 +19,8 @@
 #include <memory>
 #include <atomic>
 
+namespace message {struct SMessage; }
+
 class CNetwork_UDP : public INetworkHndl
 {
 public:
@@ -26,8 +28,8 @@ public:
     ~CNetwork_UDP();
 
     int Start() override { return 0; };
-    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
-    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    int Send(const message::SMessage& data) override;
+    int Receive(message::SMessage& data) override;
     bool IsConnected() override { return false; };
     void Stop() override;
 

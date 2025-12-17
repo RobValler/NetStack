@@ -16,6 +16,8 @@
 
 #include "i_network_hndl.h"
 
+namespace message { struct SMessage; }
+
 class CPOSIX_MQ_Node : public INetworkHndl
 {
 public:
@@ -23,8 +25,8 @@ public:
     ~CPOSIX_MQ_Node() =default;
 
     int Start() override;
-    int Send(const SNetIF& operater, const std::vector<std::uint8_t>& outgoing_data) override;
-    int Receive(const SNetIF& operater, std::vector<std::uint8_t>& outgoing_data) override;
+    int Send(const message::SMessage& data) override;
+    int Receive(message::SMessage& data) override;
     bool IsConnected() override;
     void Stop() override;
 
