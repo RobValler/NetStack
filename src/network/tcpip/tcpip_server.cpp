@@ -26,23 +26,21 @@ CTCPIP_Server::CTCPIP_Server(const SConnectParms& parms)
 int CTCPIP_Server::Start() {
 
     mtFunc = std::thread(&CTCPIP_Server::ThreadFunc, this);
+
     return 0;
 }
 
 void CTCPIP_Server::Stop() {
 
-    mExitCaller = false;
-
     for(const auto& it : mClientFDList) {
-        close(it.fd);
+        it->Stop();
     }
-
     mClientFDList.clear();
 
-    if(-1 == shutdown(server_fd, SHUT_RDWR) ) {
+    if(-1 == shutdown(mServerFD, SHUT_RDWR) ) {
         std::cerr << strerror(errno) << std::endl;
     }
-    close(server_fd);
+    close(mServerFD);
 
     mExitCaller = false;
     mtFunc.join();
@@ -51,80 +49,76 @@ void CTCPIP_Server::Stop() {
 int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
-
-    if(Connections() > 0) {
-        auto foo_data(msg_data);
-        foo_data.body_size = (int)foo_data.data_array.size();
-        auto header_bytes = write(mClientFDList[0].fd, &foo_data.body_size, sizeof(foo_data.body_size));
-        body_bytes = write(mClientFDList[0].fd, &foo_data.data_array[0], foo_data.body_size);
+    for(const auto& it : mClientFDList) {
+        if(msg_data.ID == it->GetID()) {
+            body_bytes = it->Send(msg_data);
+        }
     }
     return body_bytes;
 }
 
 int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
-    auto foo(msg_data);
-    auto hdr_size = sizeof(foo.body_size);
-    ssize_t hdr_bytes = recv(mClientFDList[0].fd, &foo.body_size, hdr_size, 0);
-    if( (hdr_bytes != hdr_size) &&
-        (foo.body_size <= 0) ) {
-        std::cerr << "Size error" << std::endl;
-        return -1;
+    int body_bytes = 0;
+    for(const auto& it : mClientFDList) {
+        if(msg_data.ID == it->GetID()) {
+            body_bytes = it->Receive(msg_data);
+        }
     }
-
-    //uint16_t msg_size = ntohl(foo.body_size);
-    foo.data_array.resize(foo.body_size);
-    ssize_t body_bytes = recv(mClientFDList[0].fd, &foo.data_array[0], foo.body_size, 0);
-
-    msg_data = foo;
     return body_bytes;
 }
 
 int CTCPIP_Server::Connections() {
 
-    int local_num_of_clients = mClientFDList.size();
+    int local_num_of_clients = 0;
+
+    for(const auto& it : mClientFDList) {
+        if(it->Connected()) {
+            local_num_of_clients++;
+        }
+    }
 
     return local_num_of_clients;
 };
 
 int CTCPIP_Server::ThreadFunc() {
 
-    if(server_fd >= 0 ) {
-        close(server_fd);
+    if(mServerFD >= 0 ) {
+        close(mServerFD);
     }
 
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) {
+    mServerFD = socket(AF_INET, SOCK_STREAM, 0);
+    if (mServerFD < 0) {
         perror("socket");
         return 1;
     }
 
     // reuse the connection after disconnect
     int opt = 1;
-    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(mServerFD, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;   // 0.0.0.0
     server_addr.sin_port = htons(mConnectParms.portID);
 
-    if (bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+    if (bind(mServerFD, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("bind");
-        close(server_fd);
+        close(mServerFD);
         return 1;
     }
 
     while(!mExitCaller) {
 
-        if (listen(server_fd, 5) < 0) {
+        if (listen(mServerFD, 5) < 0) {
             perror("listen");
-            close(server_fd);
+            close(mServerFD);
             return 1;
         }
 
-        std::cout << "Server listening on port " << std::to_string(mConnectParms.portID) << std::endl;
+        std::cout << "Server now listening on port " << std::to_string(mConnectParms.portID) << std::endl;
 
-        int fd = accept(server_fd, nullptr, nullptr);
+        int fd = accept(mServerFD, nullptr, nullptr);
         if (fd < 0) {
             switch(errno) {
                 case 22:
@@ -135,23 +129,24 @@ int CTCPIP_Server::ThreadFunc() {
                     break;
             }
 
-            close(server_fd);
+            close(mServerFD);
             return 1;
         }
 
         std::cout << "Server connected to something..." << std::endl;
 
-        // add the client to the client list
+        // get the ip address of the connecting client
         struct sockaddr_in client_addr;
         socklen_t addr_size = sizeof(struct sockaddr_in);
-        int res = getpeername(fd, (struct sockaddr *)&client_addr, &addr_size);
-        //char *clientip = new char[20];
+        (void)getpeername(fd, (struct sockaddr *)&client_addr, &addr_size);
         std::string clientip = inet_ntoa(client_addr.sin_addr);
 
-        SClientEntryCont cont;
-        cont.fd = fd;
-        cont.ipaddress = clientip;
-        mClientFDList.emplace_back(std::move(cont));
+        // add the client to the client list
+        SClientEntryCont local_conn_parms;
+        local_conn_parms.client_fd = fd;
+        local_conn_parms.ID = 10;
+        local_conn_parms.ipaddress = clientip;
+        mClientFDList.emplace_back(std::make_shared<CTCPIP_ClientConn>(local_conn_parms));
     }
     return 0;
 }

@@ -14,17 +14,12 @@
 
 #include "i_network_hndl.h"
 
+#include "tcpip_client_conn.h"
+
 #include <thread>
 #include <atomic>
 #include <vector>
-#include <string>
-
-struct SClientEntryCont {
-
-    int fd;
-    std::string name;
-    std::string ipaddress;
-};
+#include <memory>
 
 namespace message { struct SMessage; }
 
@@ -36,7 +31,6 @@ public:
 
     int Start() override;
     void Stop() override;
-
     int Send(const message::SMessage& msg_data) override;
     int Receive(message::SMessage& msg_data) override;
     int Connections() override;
@@ -47,9 +41,8 @@ private:
     std::thread mtFunc;
     std::atomic<bool> mExitCaller{false};
 
-    // int client_fd;
-    int server_fd;
-    std::vector<SClientEntryCont> mClientFDList;
+    int mServerFD;
+    std::vector<std::shared_ptr<CTCPIP_ClientConn>> mClientFDList;
 
 };
 

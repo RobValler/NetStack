@@ -67,26 +67,21 @@ public:
             parms_server.channel_recv = "/to_server";
             SERV network_server(parms_server);
 
-            if (0 != network_server.Start()) {
-
-                std::cout << "server start error" << std::endl;
-                run_result = false;
-                return;
-            }
+            network_server.Start();
 
             // wait for connection
-            int wait_index = 0;
+            auto end_time = std::chrono::system_clock::now() + std::chrono::seconds(5);
             while(true) {
                 if(network_server.Connections() > 0) {
-
                     break;
                 } else {
-
-                    if(wait_index++ > 100) {
+                    auto time_now = std::chrono::system_clock::now();
+                    if(time_now > end_time) {
+                        // connection failed, leave
+                        std::cout << "Connection timeout, exiting" << std::endl;
                         return;
                     }
-
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 }
             }
 
@@ -103,6 +98,7 @@ public:
                     continue;
                 }
 
+                msg.ID = 10;
                 if(network_server.Send(msg) <= 0) {
                     std::cerr << "server send error" << std::endl;
                 }
@@ -112,6 +108,7 @@ public:
             for(int index = 0; index < send_data_to.size(); ++index) {
 
                 msg.data_array.clear();
+                msg.ID = 10;
                 if(network_server.Receive(msg) > 0) {
 
                     TestMsgPackage rec_message;
