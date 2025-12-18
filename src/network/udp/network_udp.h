@@ -30,7 +30,7 @@ public:
     int Start() override { return 0; };
     int Send(const message::SMessage& data) override;
     int Receive(message::SMessage& data) override;
-    bool IsConnected() override { return false; };
+    int Connections() override { return 0; };
     void Stop() override;
 
 private:

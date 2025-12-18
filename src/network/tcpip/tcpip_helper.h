@@ -10,7 +10,6 @@
 #ifndef TCPIP_HELPER__H
 #define TCPIP_HELPER__H
 
-
 #include "i_network_hndl.h"
 
 class CTCPIP_Helper : public INetworkHndl
@@ -19,13 +18,13 @@ public:
     CTCPIP_Helper() =default;
     ~CTCPIP_Helper() =default;
 
-    int Send(const message::SMessage& msg_data) override;
-    int Receive(message::SMessage& msg_data) override;
-    bool IsConnected() override;
+    // int Send(const message::SMessage& msg_data) override;
+    // int Receive(message::SMessage& msg_data) override;
+    // int Connections() override;
 
 protected:
-    int server_fd;
-    int client_fd;
+    //int server_fd;
+//    int client_fd;
 };
 
 #endif // TCPIP_HELPER__H

@@ -86,9 +86,12 @@ int CPOSIX_MQ_Node::Receive(message::SMessage& data) {
     return bytes;
 }
 
-bool CPOSIX_MQ_Node::IsConnected() {
+int CPOSIX_MQ_Node::Connections() {
 
-    return true;
+    int local_num_of_clients = 0;
+
+
+    return local_num_of_clients;
 }
 
 void CPOSIX_MQ_Node::Stop(){

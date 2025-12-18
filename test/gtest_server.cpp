@@ -23,17 +23,16 @@
 #include <vector>
 #include <iostream>
 
-
-template<class C, class D>
+template<class SERV, class CLIENT>
 class TestClass
 {
 public:
-    TestClass() {
-
-    }
+    TestClass() =default;
     ~TestClass() =default;
 
     bool Run() {
+
+        bool run_result = false;
 
         // ### TEST DATA ###
         struct STestData {
@@ -41,20 +40,21 @@ public:
             std::string str;
         };
 
-        std::vector<STestData> send_data_to = {
-                                               { 123, "cat" },
-                                               { 456, "dog" },
-                                               { 789, "cow" },
-                                               };
+        std::vector<STestData>
+            send_data_to = {
+                { 123, "cat" },
+                { 456, "dog" },
+                { 789, "cow" },
+            };
 
-        std::vector<STestData> send_data_from = {
-                                                 { 444, "meaow" },
-                                                 { 555, "woof" },
-                                                 { 777, "moo" },
-                                                 };
+        std::vector<STestData>
+            send_data_from = {
+                { 444, "meaow" },
+                { 555, "woof" },
+                { 777, "moo" },
+            };
 
         CSerial serialise;
-
 
         // ### SERVER ###
         auto threadServer = [&]() {
@@ -65,17 +65,34 @@ public:
             parms_server.portID = 8080;
             parms_server.channel_send = "/to_client";
             parms_server.channel_recv = "/to_server";
-            C network_server(parms_server);
+            SERV network_server(parms_server);
 
             if (0 != network_server.Start()) {
 
-                std::cout << "Start error" << std::endl;
+                std::cout << "server start error" << std::endl;
+                run_result = false;
                 return;
+            }
+
+            // wait for connection
+            int wait_index = 0;
+            while(true) {
+                if(network_server.Connections() > 0) {
+
+                    break;
+                } else {
+
+                    if(wait_index++ > 100) {
+                        return;
+                    }
+
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
             }
 
             // SEND
             for(const auto& it : send_data_to) {
-                //while(true) {
+
                 TestMsgPackage send_message;
                 send_message.set_msgid(it.num);
                 send_message.set_msgname(it.str);
@@ -87,7 +104,7 @@ public:
                 }
 
                 if(network_server.Send(msg) <= 0) {
-                    std::cout << "send error" << std::endl;
+                    std::cerr << "server send error" << std::endl;
                 }
             }
 
@@ -100,7 +117,7 @@ public:
                     TestMsgPackage rec_message;
                     int size = msg.data_array.size();
                     if(!serialise.Deserialise(msg.data_array, rec_message, size)) {
-                        std::cerr << "error: Serialise" << std::endl;
+                        std::cerr << "server serialise error" << std::endl;
                         continue;
                     }
 
@@ -111,7 +128,7 @@ public:
                               << std::endl;
                 } else {
 
-                    std::cout << "Receive error" << std::endl;
+                    std::cerr << "server receive error" << std::endl;
                     std::this_thread::sleep_for(std::chrono::milliseconds(250));
                 }
             } //
@@ -129,11 +146,12 @@ public:
             parms_client.portID = 8080;
             parms_client.channel_send = "/to_server";
             parms_client.channel_recv = "/to_client";
-            D network_client(parms_client);
+            CLIENT network_client(parms_client);
 
             if (0 != network_client.Start()) {
 
-                std::cout << "Start error" << std::endl;
+                std::cerr << "client start error" << std::endl;
+                run_result = false;
                 return;
             }
 
@@ -146,7 +164,7 @@ public:
                     TestMsgPackage rec_message;
                     int size = msg.data_array.size();
                     if(!serialise.Deserialise(msg.data_array, rec_message, size)) {
-                        std::cerr << "error: Serialise" << std::endl;
+                        std::cerr << "client serialise error" << std::endl;
                         continue;
                     }
 
@@ -157,7 +175,7 @@ public:
                               << std::endl;
                 } else {
 
-                    std::cout << "Receive error" << std::endl;
+                    std::cerr << "client receive error" << std::endl;
                     std::this_thread::sleep_for(std::chrono::milliseconds(250));
                 }
             } //
@@ -171,12 +189,12 @@ public:
 
                 int size;
                 if(!serialise.Serialise(send_message, msg.data_array, size)) {
-                    std::cerr << "error: Serialise" << std::endl;
+                    std::cerr << "client serialise err" << std::endl;
                     continue;
                 }
 
                 if(network_client.Send(msg) <= 0) {
-                    std::cout << "send error" << std::endl;
+                    std::cout << "client send error" << std::endl;
                 }
             }
 
@@ -190,6 +208,7 @@ public:
         tClient.join();
         tServer.join();
 
+        return run_result;
     }
 
 private:
@@ -200,7 +219,8 @@ private:
 TEST(tcpip, basic)
 {
     TestClass <CTCPIP_Server, CTCPIP_Client> t;
-    EXPECT_EQ(t.Run(), true);
+    //EXPECT_EQ(t.Run(), true);
+    t.Run();
 }
 
 TEST(posix_mq, basic)

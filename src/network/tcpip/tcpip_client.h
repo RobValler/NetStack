@@ -12,11 +12,11 @@
 
 #include "network_connect_parms.h"
 
-#include "tcpip_helper.h"
+#include "i_network_hndl.h"
 
 namespace message { struct SMessage; }
 
-class CTCPIP_Client : public CTCPIP_Helper
+class CTCPIP_Client : public INetworkHndl
 {
 public:
     CTCPIP_Client(const SConnectParms& parms);
@@ -25,9 +25,13 @@ public:
     int Start() override;
     void Stop() override;
 
+    int Send(const message::SMessage& msg_data) override;
+    int Receive(message::SMessage& msg_data) override;
+    int Connections() override;
+
 private:
     SConnectParms mConnectParms;
-
+    int client_fd;
 };
 
 #endif // TCPIP_CLIENT__H

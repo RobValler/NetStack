@@ -18,7 +18,7 @@ public:
     virtual int Start() =0;
     virtual int Send(const message::SMessage&) =0;
     virtual int Receive(message::SMessage&) =0;
-    virtual bool IsConnected() =0;
+    virtual int Connections() =0;
     virtual void Stop() =0;
 };
 

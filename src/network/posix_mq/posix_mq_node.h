@@ -27,7 +27,7 @@ public:
     int Start() override;
     int Send(const message::SMessage& data) override;
     int Receive(message::SMessage& data) override;
-    bool IsConnected() override;
+    int Connections() override;
     void Stop() override;
 
 private:

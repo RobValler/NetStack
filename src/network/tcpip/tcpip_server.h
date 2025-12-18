@@ -12,11 +12,23 @@
 
 #include "network_connect_parms.h"
 
-#include "tcpip_helper.h"
+#include "i_network_hndl.h"
+
+#include <thread>
+#include <atomic>
+#include <vector>
+#include <string>
+
+struct SClientEntryCont {
+
+    int fd;
+    std::string name;
+    std::string ipaddress;
+};
 
 namespace message { struct SMessage; }
 
-class CTCPIP_Server : public CTCPIP_Helper
+class CTCPIP_Server : public INetworkHndl
 {
 public:
     CTCPIP_Server(const SConnectParms& parms);
@@ -25,8 +37,20 @@ public:
     int Start() override;
     void Stop() override;
 
+    int Send(const message::SMessage& msg_data) override;
+    int Receive(message::SMessage& msg_data) override;
+    int Connections() override;
+
 private:
     SConnectParms mConnectParms;
+    int ThreadFunc();
+    std::thread mtFunc;
+    std::atomic<bool> mExitCaller{false};
+
+    // int client_fd;
+    int server_fd;
+    std::vector<SClientEntryCont> mClientFDList;
+
 };
 
 #endif // TCPIP_SERVER__H
