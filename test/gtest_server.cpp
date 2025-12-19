@@ -33,7 +33,7 @@ public:
 
     bool Run() {
 
-        bool run_result = false;
+        bool run_result = true;
 
         // ### TEST DATA ###
         struct STestData {
@@ -80,6 +80,8 @@ public:
                     if(time_now > end_time) {
                         // connection failed, leave
                         std::cout << "Connection timeout, exiting" << std::endl;
+
+                        run_result = false;
                         return;
                     }
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -200,27 +202,23 @@ public:
         };
 
         std::thread tServer(threadServer);
-        //std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for(std::chrono::milliseconds(25));
         std::thread tClient(threadClient); // client is receiver, receiver creates the channel for MQ
 
         tClient.join();
         tServer.join();
 
         return run_result;
-    }
+    } // Run()
+
+private:
+
 
 };
 
 TEST(tcpip, basic)
 {
     TestClass <CTCPIP_Server, CTCPIP_Client> t;
-    //EXPECT_EQ(t.Run(), true);
-    t.Run();
-}
-
-TEST(posix_mq, basic)
-{
-    TestClass <CPOSIX_MQ_Node, CPOSIX_MQ_Node> t;
     EXPECT_EQ(t.Run(), true);
 }
 
@@ -229,3 +227,10 @@ TEST(udp, basic)
     TestClass <CUDP_Server, CUDP_Client> t;
     EXPECT_EQ(t.Run(), true);
 }
+
+TEST(posix_mq, basic)
+{
+    TestClass <CPOSIX_MQ_Node, CPOSIX_MQ_Node> t;
+    EXPECT_EQ(t.Run(), true);
+}
+

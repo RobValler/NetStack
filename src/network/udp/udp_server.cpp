@@ -52,7 +52,7 @@ int CUDP_Server::Start() {
     mServerAddr.sin_port = htons(mConnectParms.portID);
 
     if (bind(mSockFD, (sockaddr*)&mServerAddr, sizeof(mServerAddr)) < 0) {
-        perror("bind");
+        perror("server bind");
 #ifdef __linux__
         close(mSockFD);
 #elif _WIN32
@@ -61,7 +61,6 @@ int CUDP_Server::Start() {
 #endif
         return 1;
     }
-
     return 0;
 }
 
@@ -73,7 +72,6 @@ void CUDP_Server::Stop() {
     closesocket(sock);
     WSACleanup();
 #endif
-
 }
 
 int CUDP_Server::Send(const message::SMessage& msg_data) {

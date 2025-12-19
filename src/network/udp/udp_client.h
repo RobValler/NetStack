@@ -18,8 +18,6 @@
 #include <netinet/in.h>
 #elif _WIN32
 
-#else
-#error "OS not supported"
 #endif
 
 
@@ -38,9 +36,15 @@ public:
     void Stop() override;
 
 private:
-    SConnectParms mConnectParms;
-    int mSockFD;
+    SConnectParms mConnectParms;    
     sockaddr_in mServerAddr{};
+
+#ifdef __linux__
+    int mSockFD;
+#elif _WIN32
+    SOCKET mSockFD;
+#endif
+
 
 };
 

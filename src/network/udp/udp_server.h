@@ -38,8 +38,13 @@ public:
 
 private:
     SConnectParms mConnectParms;
-    int mSockFD;
     sockaddr_in mServerAddr{};
+
+#ifdef __linux__
+    int mSockFD;
+#elif _WIN32
+    SOCKET mSockFD;
+#endif
 
 };
 
