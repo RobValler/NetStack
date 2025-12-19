@@ -12,7 +12,8 @@
 #include "posix_mq_node.h"
 #include "tcpip_server.h"
 #include "tcpip_client.h"
-#include "network_udp.h"
+#include "udp_server.h"
+#include "udp_client.h"
 
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
@@ -199,7 +200,7 @@ public:
         };
 
         std::thread tServer(threadServer);
-        std::this_thread::sleep_for(std::chrono::milliseconds(25));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(250));
         std::thread tClient(threadClient); // client is receiver, receiver creates the channel for MQ
 
         tClient.join();
@@ -207,9 +208,6 @@ public:
 
         return run_result;
     }
-
-private:
-
 
 };
 
@@ -228,6 +226,6 @@ TEST(posix_mq, basic)
 
 TEST(udp, basic)
 {
-    TestClass <CNetwork_UDP, CNetwork_UDP> t;
+    TestClass <CUDP_Server, CUDP_Client> t;
     EXPECT_EQ(t.Run(), true);
 }

@@ -20,8 +20,8 @@ set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL src/messages)
 
 #PACKAGES
 find_package(Threads REQUIRED)
-find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
-find_package(asio 1.36.0 REQUIRED)
+#find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
+#find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(GTest REQUIRED)
 find_package(OpenSSL 3.6.0 REQUIRED)
@@ -43,14 +43,21 @@ include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
 #SOURCE FILES
-file(GLOB_RECURSE APP_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/*.cc
+file(GLOB APP_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/network/udp/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
+    ${CMAKE_SOURCE_DIR}/messages/*.cc
 )
 
 #HEADERS FILES
 file(GLOB_RECURSE APP_HEADERS
-    ${CMAKE_SOURCE_DIR}/src/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
+    ${CMAKE_SOURCE_DIR}/src/serialise/*.h
+    ${CMAKE_SOURCE_DIR}/messages/*.h
 )
 
 #PROTOBUF FILES
@@ -78,8 +85,8 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
-    Boost::boost
-    asio::asio
+    #Boost::boost
+    #asio::asio
     protobuf::protobuf
     openssl::openssl
 )
@@ -111,8 +118,8 @@ add_executable(${PROJECT_NAME}_TEST
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     ${CMAKE_THREAD_LIBS_INIT}
-    Boost::boost
-    asio::asio
+    #Boost::boost
+    #asio::asio
     gtest::gtest
     protobuf::protobuf
     net_stack
