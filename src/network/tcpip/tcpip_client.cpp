@@ -18,6 +18,8 @@
 
 #include <cstring>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 CTCPIP_Client::CTCPIP_Client(const SConnectParms& parms)
     : mConnectParms(parms)
@@ -31,18 +33,30 @@ int CTCPIP_Client::Start() {
         return 1;
     }
 
+    // configuration
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(mConnectParms.portID);
-
-    // Connect to localhost
+    server_addr.sin_port = htons(mConnectParms.portID);   
     if (inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &server_addr.sin_addr) <= 0) {
         perror("inet_pton");
         return 1;
     }
 
-    if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("connect");
+    // Connect to localhost
+    //  we apply a re-try strategy here
+    bool local_connected_OK = false;
+    for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
+
+        if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            perror("tcpip client connect error");
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        } else {
+            local_connected_OK = true;
+            break;
+        }
+    }
+
+    if(!local_connected_OK) {
         close(client_fd);
         return 1;
     }
@@ -56,10 +70,6 @@ void CTCPIP_Client::Stop(){
 
     close(client_fd);
 }
-
-
-
-
 
 int CTCPIP_Client::Send(const message::SMessage& msg_data) {
 

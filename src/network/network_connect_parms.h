@@ -30,8 +30,7 @@ struct SConnectParms {
     std::string name{""};
     std::string channel_send{""};
     std::string channel_recv{""};
-
-
+    int maxConnectRetryAttempts{10};
 
     ECommsType type{ECommsType::ETypeNone};
     ECommsProto proto{ECommsProto::EProto_None};
