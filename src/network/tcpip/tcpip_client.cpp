@@ -43,7 +43,7 @@ int CTCPIP_Client::Start() {
     }
 
     // Connect to localhost
-    //  we apply a re-try strategy here
+    // we apply a re-try strategy here
     bool local_connected_OK = false;
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
 

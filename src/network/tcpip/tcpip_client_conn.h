@@ -43,7 +43,13 @@ public:
 private:
 
     int mID;
-    int mClientFD;
+
+#ifdef __linux__
+int mClientFD;
+#elif _WIN32
+    SOCKET mClientFD;
+#endif
+
     std::string mName;
     std::string mIPAaddress;
 

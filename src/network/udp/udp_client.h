@@ -17,9 +17,8 @@
 #ifdef __linux__
 #include <netinet/in.h>
 #elif _WIN32
-
+//
 #endif
-
 
 namespace message {struct SMessage; }
 
@@ -44,7 +43,6 @@ private:
 #elif _WIN32
     SOCKET mSockFD;
 #endif
-
 
 };
 

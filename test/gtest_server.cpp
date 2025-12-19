@@ -222,6 +222,32 @@ TEST(tcpip, basic)
     EXPECT_EQ(t.Run(), true);
 }
 
+TEST(tcpip, multi)
+{
+    message::SMessage msg;
+    SConnectParms parms_server;
+    parms_server.ipAddress = "127.0.0.1";
+    parms_server.portID = 8080;
+    CTCPIP_Server network_server(parms_server);
+    network_server.Start();
+
+    std::vector<CTCPIP_Client*> local_client_list;
+    const int local_max_num_of_clients = 10;
+    for(int local_client_index = 0; local_client_index <= local_max_num_of_clients; ++local_client_index) {
+
+        CTCPIP_Client* foo = new CTCPIP_Client(parms_server);
+        foo->Start();
+        local_client_list.push_back(foo);
+        std::cout << "Number of clients = " << std::to_string(network_server.Connections()) << std::endl;
+    }
+
+    msg.ID = 10;
+    network_server.Send(msg);
+    network_server.Stop();
+    std::cout << "Number of clients after Stop() = " << std::to_string(network_server.Connections()) << std::endl;
+}
+
+
 TEST(udp, basic)
 {
     TestClass <CUDP_Server, CUDP_Client> t;

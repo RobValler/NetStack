@@ -1,14 +1,27 @@
-
+/*****************************************************************
+ * Copyright (C) 2017 Robert Valler - All rights reserved.
+ *
+ * This file is part of the project: <insert project name here>
+ *
+ * This project can not be copied and/or distributed
+ * without the express permission of the copyright holder
+ *****************************************************************/
 
 #include "tcpip_client_conn.h"
 
 #include "message_define.h"
 
+#ifdef __linux__
 #include <arpa/inet.h>
-#include <netinet/in.h>
 #include <sys/socket.h>
-#include <unistd.h>
+#include <netinet/in.h>
+#elif _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+#endif
 
+#include <unistd.h>
 #include <iostream>
 
 void CTCPIP_ClientConn::Stop() {
@@ -25,6 +38,7 @@ int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
         foo_data.body_size = (int)foo_data.data_array.size();
         (void)write(mClientFD, &foo_data.body_size, sizeof(foo_data.body_size));
         body_bytes = write(mClientFD, &foo_data.data_array[0], foo_data.body_size);
+        std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
     }
     return body_bytes;
 }
