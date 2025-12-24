@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 {
     int result;
     testing::InitGoogleTest(&argc, argv);
-    //::testing::GTEST_FLAG(filter) = "*";
+    ::testing::GTEST_FLAG(filter) = "*";
     //::testing::GTEST_FLAG(filter) = "posix_mq.basic";
     //::testing::GTEST_FLAG(filter) = "udp.basic";
     ::testing::GTEST_FLAG(filter) = "tcpip.basic";
