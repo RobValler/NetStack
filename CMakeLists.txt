@@ -16,6 +16,8 @@ set(W1)
 set(Wfloat-conversion)
 
 #OPTIONS
+set(TEST_ENABLE ON)
+
 set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL src/messages)
 
 #PACKAGES
@@ -30,7 +32,6 @@ find_package(OpenSSL 3.6.0 REQUIRED)
 include_directories(${ProtobufIncludePath})
 
 #INTERNAL INCLUDES
-include_directories(${CMAKE_SOURCE_DIR}/test/main)
 include_directories(${CMAKE_SOURCE_DIR}/messages)
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
@@ -44,19 +45,27 @@ include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
 #SOURCE FILES
 file(GLOB APP_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/network/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/file/*.cpp
     ${CMAKE_SOURCE_DIR}/messages/*.cc
 )
 
 #HEADERS FILES
 file(GLOB_RECURSE APP_HEADERS
+    ${CMAKE_SOURCE_DIR}/src/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/*.h
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.h
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
+    ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
+    ${CMAKE_SOURCE_DIR}/src/file/*.h
     ${CMAKE_SOURCE_DIR}/messages/*.h
 )
 
@@ -92,16 +101,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 
-#if(TEST_ENABLE)
+if(TEST_ENABLE)
 ################### TEST ###################
 #INCLUDE
 include_directories(${GTest_INCLUDE_DIRS})
+include_directories(${CMAKE_SOURCE_DIR}/test/main)
 
 #SOURCE FILES
 file(GLOB_RECURSE TEST_SOURCES
     ${CMAKE_SOURCE_DIR}/test/main.cpp
     ${CMAKE_SOURCE_DIR}/test/gtest_server.cpp
-#    ${CMAKE_SOURCE_DIR}/messages/*.pb.cc
 )
 
 #HEADERS FILES
@@ -124,7 +133,7 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     protobuf::protobuf
     net_stack
 )
-#endif()
+endif()
 
 message("######################################################################")
 message("# CONFIGURATION #")

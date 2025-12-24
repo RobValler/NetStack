@@ -12,35 +12,14 @@
 
 #include <string>
 
-enum class ECommsType: int {
-    ETypeNone = 0,
-    ETypeServer,
-    ETypeClient,
-};
-
-enum class ECommsProto: int {
-    EProto_None = 0,
-    EProto_TCPIP,
-    EProto_UDP,
-    EProto_POSIX
-};
-
 struct SConnectParms {
 
     std::string name{""};
     std::string channel_send{""};
     std::string channel_recv{""};
     int maxConnectRetryAttempts{10};
-
-    ECommsType type{ECommsType::ETypeNone};
-    ECommsProto proto{ECommsProto::EProto_None};
     int portID{0};
     std::string ipAddress{""};
 };
-
-struct SNetIF {
-    std::string name;
-};
-
 
 #endif // NETWORK_CONNECT_PARMS__H
