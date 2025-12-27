@@ -88,7 +88,7 @@ int CPOSIX_MQ_Node::Receive(message::SMessage& data) {
 
 int CPOSIX_MQ_Node::Connections() {
 
-    int local_num_of_clients = 0;
+    int local_num_of_clients = 1; // fake a connection
 
 
     return local_num_of_clients;
