@@ -12,7 +12,6 @@
 
 #include <cstdint>
 #include <vector>
-//#include <string>
 
 /// array message structures
 namespace message {
@@ -22,7 +21,6 @@ struct SMessage {
     int ID{0};
     std::uint32_t body_size{0};
     std::vector<std::uint8_t> data_array;
-    //std::string text;
 };
 
 } // namespace

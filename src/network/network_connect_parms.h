@@ -19,6 +19,10 @@ struct SConnectParms {
     std::string channel_recv{""};
     int maxConnectRetryAttempts{10};
     int portID{0};
+
+    int portLocalID{0};
+    int portRemoteID{0};
+
     std::string ipAddress{""};
 };
 

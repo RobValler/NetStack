@@ -7,8 +7,8 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#ifndef UDP_SERVER__H
-#define UDP_SERVER__H
+#ifndef UDP_STACK__H
+#define UDP_STACK__H
 
 #include "network_connect_parms.h"
 
@@ -22,11 +22,11 @@
 
 namespace message {struct SMessage; }
 
-class CUDP_Server : public INetworkHndl
+class CUDP_Stack : public INetworkHndl
 {
 public:
-    CUDP_Server(const SConnectParms& parms);
-    ~CUDP_Server() =default;
+    CUDP_Stack(const SConnectParms& parms);
+    ~CUDP_Stack() =default;
 
     int Start() override;
     int Send(const message::SMessage& data) override;
@@ -36,14 +36,15 @@ public:
 
 private:
     SConnectParms mConnectParms;
-    sockaddr_in mServerAddr{};
+    sockaddr_in mLocalAddr{};
+    sockaddr_in mRemoteAddr{};
 
 #ifdef __linux__
-    int mSockFD;
+    int mLocalSockFD;
 #elif _WIN32
-    SOCKET mSockFD;
+    SOCKET mLocalSockFD;
 #endif
 
 };
 
-#endif // UDP_SERVER__H
+#endif // UDP_STACK__H
