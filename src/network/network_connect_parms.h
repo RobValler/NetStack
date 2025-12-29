@@ -36,6 +36,10 @@ struct SConnectParms {
     ECommsType type{ECommsType::ETypeNone};
     ECommsProto proto{ECommsProto::EProto_None};
     int portID{0};
+
+    int portLocalID{0};
+    int portRemoteID{0};
+
     std::string ipAddress{""};
 };
 

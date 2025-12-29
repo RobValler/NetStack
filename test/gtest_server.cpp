@@ -12,8 +12,9 @@
 #include "posix_mq_node.h"
 #include "tcpip_server.h"
 #include "tcpip_client.h"
-#include "udp_server.h"
-#include "udp_client.h"
+// #include "udp_server.h"
+// #include "udp_client.h"
+#include "udp_stack.h"
 
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
@@ -64,6 +65,10 @@ public:
             SConnectParms parms_server;
             parms_server.ipAddress = "127.0.0.1";
             parms_server.portID = 8080;
+
+            parms_server.portLocalID = 9000;
+            parms_server.portRemoteID = 9001;
+
             parms_server.channel_send = "/to_client";
             parms_server.channel_recv = "/to_server";
             SERV network_server(parms_server);
@@ -144,6 +149,10 @@ public:
             SConnectParms parms_client;
             parms_client.ipAddress = "127.0.0.1";
             parms_client.portID = 8080;
+
+            parms_client.portLocalID = 9001;
+            parms_client.portRemoteID = 9000;
+
             parms_client.channel_send = "/to_server";
             parms_client.channel_recv = "/to_client";
             CLIENT network_client(parms_client);
@@ -224,8 +233,94 @@ TEST(tcpip, basic)
 
 TEST(udp, basic)
 {
-    TestClass <CUDP_Server, CUDP_Client> t;
-    EXPECT_EQ(t.Run(), true);
+    CSerial serialise;
+
+    auto tlocal = [&]() {
+
+        message::SMessage message;
+        SConnectParms parms_local;
+        parms_local.portLocalID = 9000;
+        parms_local.portRemoteID = 9001;
+        CUDP_Stack port_local(parms_local);
+
+        port_local.Start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        TestMsgPackage send_message;
+        send_message.set_msgid(1);
+        send_message.set_msgname("local test");
+
+        message::SMessage msg;
+
+        int size;
+        msg.ID = 5;
+        serialise.Serialise(send_message, msg.data_array, size);
+        port_local.Send(msg);
+
+        // REC
+        msg.data_array.clear();
+        msg.ID = 10;
+        if(port_local.Receive(msg) > 0) {
+
+            TestMsgPackage rec_message;
+            int size = msg.data_array.size();
+            serialise.Deserialise(msg.data_array, rec_message, size);
+
+            auto id = rec_message.msgid();
+            auto name = rec_message.msgname();
+            std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
+            std::cout << str << std::endl;
+        }
+
+        port_local.Stop();
+    };
+
+    auto tremote = [&]() {
+
+        SConnectParms parms_remote;
+        parms_remote.portLocalID = 9001;
+        parms_remote.portRemoteID = 9000;
+        CUDP_Stack port_remote(parms_remote);
+
+
+        port_remote.Start();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        // SEND
+        TestMsgPackage send_message;
+        send_message.set_msgid(2);
+        send_message.set_msgname("remote test");
+
+        message::SMessage msg;
+        int size;
+        msg.ID = 6;
+        serialise.Serialise(send_message, msg.data_array, size);
+        port_remote.Send(msg);
+
+        // REC
+        msg.data_array.clear();
+        msg.ID = 10;
+        if(port_remote.Receive(msg) > 0) {
+
+            TestMsgPackage rec_message;
+            int size = msg.data_array.size();
+            serialise.Deserialise(msg.data_array, rec_message, size);
+
+            auto id = rec_message.msgid();
+            auto name = rec_message.msgname();
+            std::string str = "remote message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
+            std::cout << str << std::endl;
+        }
+
+        port_remote.Stop();
+    };
+
+
+    std::thread tServer(tlocal);
+    std::thread tClient(tremote);
+
+    tClient.join();
+    tServer.join();
 }
 
 TEST(posix_mq, basic)

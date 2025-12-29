@@ -40,7 +40,6 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
         return -1;
     }
 
-    //uint16_t msg_size = ntohl(foo.body_size);
     foo.data_array.resize(foo.body_size);
     ssize_t body_bytes = recv(mClientFD, &foo.data_array[0], foo.body_size, 0);
 
