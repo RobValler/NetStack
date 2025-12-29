@@ -67,10 +67,11 @@ int CUDP_Stack::Start() {
 
     mRemoteAddr.sin_family = AF_INET;
     mRemoteAddr.sin_port = htons(mConnectParms.portRemoteID);
-    if(1 != inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &mRemoteAddr.sin_addr)) {
+    auto res = inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &mRemoteAddr.sin_addr);
+    if(1 != res) {
 
         // return value is wierd
-        std::cerr << "portRemoteID inet_pton error: " << std::strerror(errno) << "\n" << std::endl;
+        std::cerr << "portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
         return 1;
     }
 

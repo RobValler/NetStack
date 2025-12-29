@@ -269,7 +269,7 @@ TEST(udp, basic)
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
             std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
-            std::cout << str << std::endl;
+            std::cout << str;
         }
 
         port_local.Stop();
@@ -309,7 +309,7 @@ TEST(udp, basic)
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
             std::string str = "remote message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
-            std::cout << str << std::endl;
+            std::cout << str;
         }
 
         port_remote.Stop();
