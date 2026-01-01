@@ -18,21 +18,19 @@ set(Wfloat-conversion)
 #OPTIONS
 set(TEST_ENABLE ON)
 
-set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL src/messages)
-
 #PACKAGES
 find_package(Threads REQUIRED)
 #find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
 #find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
-find_package(GTest REQUIRED)
 find_package(OpenSSL 3.6.0 REQUIRED)
+find_package(Libssh2 1.11.1 REQUIRED)
+
 
 #EXTERNAL INCLUDES
 include_directories(${ProtobufIncludePath})
 
 #INTERNAL INCLUDES
-include_directories(${CMAKE_SOURCE_DIR}/messages)
 include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
@@ -52,8 +50,7 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/file/*.cpp
-    ${CMAKE_SOURCE_DIR}/messages/*.cc
+    ${CMAKE_SOURCE_DIR}/src/file/*.cpp    
 )
 
 #HEADERS FILES
@@ -65,13 +62,9 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
-    ${CMAKE_SOURCE_DIR}/src/file/*.h
-    ${CMAKE_SOURCE_DIR}/messages/*.h
+    ${CMAKE_SOURCE_DIR}/src/file/*.h    
 )
 
-#PROTOBUF FILES
-file(GLOB ProtoFiles
-    ${CMAKE_CURRENT_SOURCE_DIR}/messages/*.proto)
 
 #CONFIG FILES
 file(GLOB APP_CONFIG
@@ -80,15 +73,9 @@ file(GLOB APP_CONFIG
     ${CMAKE_SOURCE_DIR}/create.sh
 )
 
-#GENERATE
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${ProtoFiles})
-
 add_library(${PROJECT_NAME}
     ${APP_SOURCES}
     ${APP_HEADERS}
-    ${PROTO_SRCS}
-    ${PROTO_HDRS}
-    ${ProtoFiles}   
     ${APP_CONFIG}
 )
 
@@ -98,31 +85,49 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     #asio::asio
     protobuf::protobuf
     openssl::openssl
+    Libssh2::libssh2
 )
 
 
 if(TEST_ENABLE)
 ################### TEST ###################
+
+#
+find_package(GTest REQUIRED)
+
+#CONFIG
+set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL test/messages)
+
 #INCLUDE
 include_directories(${GTest_INCLUDE_DIRS})
-include_directories(${CMAKE_SOURCE_DIR}/test/main)
+include_directories(${CMAKE_SOURCE_DIR}/test/src)
+include_directories(${CMAKE_SOURCE_DIR}/test/messages)
 
 #SOURCE FILES
 file(GLOB_RECURSE TEST_SOURCES
-    ${CMAKE_SOURCE_DIR}/test/main.cpp
-    ${CMAKE_SOURCE_DIR}/test/gtest_server.cpp
+    ${CMAKE_SOURCE_DIR}/test/src/*.cpp
+    ${CMAKE_SOURCE_DIR}/test/messages/*.cc
 )
 
 #HEADERS FILES
 file(GLOB_RECURSE TEST_HEADERS
-    ${CMAKE_SOURCE_DIR}/messages/*.pb.h
+    ${CMAKE_SOURCE_DIR}/test/src/*.h
+    ${CMAKE_SOURCE_DIR}/test/messages/*.pb.h
 )
+
+#PROTOBUF FILES
+file(GLOB ProtoFiles
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/messages/*.proto)
+
+#GENERATE
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${ProtoFiles})
 
 add_executable(${PROJECT_NAME}_TEST
     ${TEST_SOURCES}
     ${TEST_HEADERS}
     ${PROTO_SRCS}
     ${PROTO_HDRS}
+    ${ProtoFiles}
 )
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
@@ -137,6 +142,7 @@ endif()
 
 message("######################################################################")
 message("# CONFIGURATION #")
-message("#################")
-message("# ProtobufIncludePath:         [${ProtobufIncludePath}]")
+message("#---------------#")
+message("# TEST_ENABLE :            [${TEST_ENABLE}]")
+message("# ProtobufIncludePath :    [${ProtobufIncludePath}]")
 message("######################################################################")

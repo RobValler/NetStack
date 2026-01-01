@@ -12,8 +12,6 @@
 #include "posix_mq_node.h"
 #include "tcpip_server.h"
 #include "tcpip_client.h"
-// #include "udp_server.h"
-// #include "udp_client.h"
 #include "udp_stack.h"
 
 #include "testMsgPackage.pb.h"
