@@ -9,7 +9,34 @@
 
 #include "ftp_hndl.h"
 
-//#include "network_tcpip.h"
+#include "access.h"
+
+#include <cstdlib>
+#include <iostream>
+
+void CSFTPHndl::Put(const std::string& file_name) {
+
+    std::string command = "/bin/bash -c 'sshpass -p "
+                          + access::gSFTP_remote_pass
+                          + " sftp "
+                          + access::gSFTP_remote_user
+                          + "@"
+                          + access::gSFTP_remote_address
+                          + ":"
+                          + access::gSFTP_remote_path
+                          + " <<< "
+                          + "\"put "
+                          + file_name
+                          + "\"'";
+
+    std::cout << command << std::endl;
+    std::system(command.c_str());
+
+}
+
+
+
+#if 0
 
 #include <libssh2.h>
 #include <libssh2_sftp.h>
@@ -239,4 +266,4 @@ bool SFTPClient() {
     return true;
 }
 
-
+#endif

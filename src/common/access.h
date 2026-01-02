@@ -7,24 +7,17 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#ifndef FTP_HNDL__H
-#define FTP_HNDL__H
+#ifndef ACCESS__H
+#define ACCESS__H
 
 #include <string>
 
-class CSFTPHndl {
-public:
-    CSFTPHndl() =default;
-    ~CSFTPHndl() =default;
+namespace access {
 
-    void Put(const std::string& file_name);
+const std::string gSFTP_remote_address = "192.168.0.10";
+const std::string gSFTP_remote_path = "/home/rob/Documents";
+const std::string gSFTP_remote_user = "";
+const std::string gSFTP_remote_pass = "";
+}
 
-};
-
-
-#if 0
-bool SFTPServer();
-bool SFTPClient();
-#endif
-
-#endif // FTP_HNDL__H
+#endif // ACCESS__H

@@ -13,6 +13,7 @@
 #include "tcpip_server.h"
 #include "tcpip_client.h"
 #include "udp_stack.h"
+#include "ftp_hndl.h"
 
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
@@ -351,5 +352,11 @@ TEST(posix_mq, basic)
 {
     TestClass <CPOSIX_MQ_Node, CPOSIX_MQ_Node> t;
     EXPECT_EQ(t.Run(), true);
+}
+
+TEST(sftp, basic)
+{
+    CSFTPHndl sftp;
+    sftp.Put("/home/rob/WORK/C_CPP/NetStack/build/Debug/moo.txt");
 }
 
