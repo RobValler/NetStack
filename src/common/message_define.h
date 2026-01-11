@@ -12,6 +12,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 /// array message structures
 namespace message {
@@ -19,6 +20,7 @@ namespace message {
 struct SMessage {
 
     int ID{0};
+    std::string ipaddress;
     std::uint32_t body_size{0};
     std::vector<std::uint8_t> data_array;
 };
