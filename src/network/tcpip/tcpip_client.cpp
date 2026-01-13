@@ -61,7 +61,7 @@ int CTCPIP_Client::Start() {
         return 1;
     }
 
-    std::cout << "Client connected to server" << std::endl;
+    std::cout << "Client: Connected to remote server (" << mConnectParms.ipAddress << ")" << std::endl;
 
     return 0;
 }

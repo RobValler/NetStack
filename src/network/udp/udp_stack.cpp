@@ -122,7 +122,7 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
         char local_ip_address[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &clientAddr.sin_addr, local_ip_address, INET_ADDRSTRLEN);
         msg_data.ipaddress = local_ip_address;
-        std::cout << "received from ip address : " << msg_data.ipaddress << std::endl;
+        //std::cout << "received from ip address : " << msg_data.ipaddress << std::endl;
     }
 
     return body_bytes;

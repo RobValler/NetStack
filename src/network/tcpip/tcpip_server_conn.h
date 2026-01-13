@@ -13,10 +13,13 @@
 #include <string>
 
 struct SClientEntryCont {
-    int ID{0};
-    int client_fd{0};
-    std::string name{""};
-    std::string ipaddress{""};
+    int mConnectionID{0};
+#ifdef __linux__
+    int mClientFD{0};
+#elif _WIN32
+    SOCKET mClientFD{0};
+#endif
+    std::string mIPAaddress{""};
 };
 
 namespace message { struct SMessage; }
@@ -25,33 +28,18 @@ class CTCPIP_ClientConn
 {
 public:
     CTCPIP_ClientConn(SClientEntryCont parms)
-        : mID(parms.ID)
-        , mClientFD(parms.client_fd)
-        , mName(parms.name)
-        , mIPAaddress(parms.ipaddress)
+        : mParms(parms)
     {}
     ~CTCPIP_ClientConn() =default;
 
-    int GetID() {
-        return mID;
-    }
     int Receive(message::SMessage& msg_data);
     int Send(const message::SMessage& msg_data);
     void Stop();
     bool Connected();
+    int GetConnectionID();
 
 private:
-
-    int mID;
-
-#ifdef __linux__
-int mClientFD;
-#elif _WIN32
-    SOCKET mClientFD;
-#endif
-
-    std::string mName;
-    std::string mIPAaddress;
+    SClientEntryCont mParms;
 
     bool mExitCaller{false};
     bool mConnected{true}; // class instance exists after connection

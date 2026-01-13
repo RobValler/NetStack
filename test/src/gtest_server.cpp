@@ -62,14 +62,7 @@ public:
 
             message::SMessage msg;
             SConnectParms parms_server;
-            parms_server.ipAddress = "127.0.0.1";
             parms_server.portID = 8080;
-
-            parms_server.portLocalID = 9000;
-            parms_server.portRemoteID = 9001;
-
-            parms_server.channel_send = "/to_client";
-            parms_server.channel_recv = "/to_server";
             SERV network_server(parms_server);
 
             network_server.Start();
@@ -105,7 +98,7 @@ public:
                     continue;
                 }
 
-                msg.ID = 10;
+                //msg.ID = 10; ???
                 if(network_server.Send(msg) <= 0) {
                     std::cerr << "server send error" << std::endl;
                 }
@@ -146,14 +139,9 @@ public:
             message::SMessage msg;
 
             SConnectParms parms_client;
-            parms_client.ipAddress = "127.0.0.1";
+            parms_client.ipAddress = "127.0.0.3";
             parms_client.portID = 8080;
 
-            parms_client.portLocalID = 9001;
-            parms_client.portRemoteID = 9000;
-
-            parms_client.channel_send = "/to_server";
-            parms_client.channel_recv = "/to_client";
             CLIENT network_client(parms_client);
 
             if (0 != network_client.Start()) {
@@ -293,7 +281,8 @@ TEST(udp, basic)
 
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
-            std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
+            std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname()
+                                  + " from ip address: " + msg.ipaddress + "\n";
             std::cout << str;
         }
 

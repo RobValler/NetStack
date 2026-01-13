@@ -21,10 +21,4 @@ public:
 
 };
 
-
-#if 0
-bool SFTPServer();
-bool SFTPClient();
-#endif
-
 #endif // FTP_HNDL__H

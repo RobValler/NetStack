@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <random>
 #include <cstring>
 #include <iostream>
 
@@ -50,7 +51,7 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.ID == it->GetID()) {
+        if(msg_data.ID == it->GetConnectionID()) {
             body_bytes = it->Send(msg_data);
         }
     }
@@ -61,7 +62,7 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.ID == it->GetID()) {
+        if(msg_data.ID == it->GetConnectionID()) {
             body_bytes = it->Receive(msg_data);
         }
     }
@@ -133,8 +134,6 @@ int CTCPIP_Server::ThreadFunc() {
             return 1;
         }
 
-        std::cout << "Server connected to something..." << std::endl;
-
         // get the ip address of the connecting client
         struct sockaddr_in client_addr;
         socklen_t addr_size = sizeof(struct sockaddr_in);
@@ -143,9 +142,22 @@ int CTCPIP_Server::ThreadFunc() {
 
         // add the client to the client list
         SClientEntryCont local_conn_parms;
-        local_conn_parms.client_fd = fd;
-        local_conn_parms.ID = 10;
-        local_conn_parms.ipaddress = clientip;
+        local_conn_parms.mClientFD = fd;
+
+        auto numgen = []() {
+            std::random_device dev;
+            std::mt19937 rng(dev());
+            std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 65536); // distribution in range [1, 6]
+            return dist6(rng);
+        };
+
+        local_conn_parms.mConnectionID = numgen();
+        local_conn_parms.mIPAaddress = clientip;
+
+        std::cout << "Server: Connected to remote client [connection ID = "
+                  << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "
+                  << clientip << "]" << std::endl;
+
         mClientFDList.emplace_back(std::make_shared<CTCPIP_ClientConn>(local_conn_parms));
     }
     return 0;
