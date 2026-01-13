@@ -293,7 +293,8 @@ TEST(udp, basic)
 
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
-            std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname() + "\n";
+            std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname()
+                                  + " from ip address: " + msg.ipaddress + "\n";
             std::cout << str;
         }
 
