@@ -25,7 +25,7 @@ find_package(Threads REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(OpenSSL 3.6.0 REQUIRED)
 find_package(Libssh2 1.11.1 REQUIRED)
-
+find_package(libxml2 2.15.0 REQUIRED)
 
 #EXTERNAL INCLUDES
 include_directories(${ProtobufIncludePath})
@@ -86,6 +86,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     protobuf::protobuf
     openssl::openssl
     Libssh2::libssh2
+    LibXml2::LibXml2
 )
 
 
@@ -136,7 +137,7 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     #asio::asio
     gtest::gtest
     protobuf::protobuf
-    net_stack
+    net_stack    
 )
 endif()
 

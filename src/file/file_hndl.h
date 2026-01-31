@@ -13,7 +13,19 @@
 #include <string>
 #include <vector>
 
+struct STestCase{
+    int id;
+    std::string name;
+    std::string result;
+};
+
+struct SXmlData {
+    std::vector<STestCase> test_case;
+};
+
 bool FileStreamRead(const std::string& filename, std::vector<char>& data);
 bool FileStreamWrite(const std::string& filename, const std::vector<char>& data);
+int XMLReadconst(std::string xml_filename, SXmlData& outgoing_data);
+
 
 #endif // FILE_HNDL__H

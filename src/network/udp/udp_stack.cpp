@@ -91,8 +91,8 @@ void CUDP_Stack::Stop() {
 int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
     int body_bytes = sendto(mLocalSockFD,
-                            &msg_data.data_array[0],
-                            msg_data.data_array.size(),
+                            &msg_data.mMsgPayload[0],
+                            msg_data.mMsgPayload.size(),
                             0, (sockaddr*)&mRemoteAddr,
                             sizeof(mRemoteAddr));
     if(body_bytes <= 0) {
@@ -117,11 +117,11 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
         std::cerr << "server receive error " << strerror(errno) << std::endl;
     } else {
 
-        msg_data.data_array.resize(body_bytes);
-        msg_data.data_array.assign(data.begin(), data.end());
+        msg_data.mMsgPayload.resize(body_bytes);
+        msg_data.mMsgPayload.assign(data.begin(), data.end());
         char local_ip_address[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &clientAddr.sin_addr, local_ip_address, INET_ADDRSTRLEN);
-        msg_data.ipaddress = local_ip_address;
+        msg_data.mIpAddress = local_ip_address;
         //std::cout << "received from ip address : " << msg_data.ipaddress << std::endl;
     }
 

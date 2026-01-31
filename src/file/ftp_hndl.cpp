@@ -14,9 +14,9 @@
 #include <cstdlib>
 #include <iostream>
 
-void CSFTPHndl::Put(const std::string& file_name) {
+void PutCommand(const std::string& file_name) {
 
-    std::string command = "/bin/bash -c 'sshpass -p "
+    std::string command1 = "/bin/bash -c 'sshpass -p "
                           + access::gSFTP_remote_pass
                           + " sftp "
                           + access::gSFTP_remote_user
@@ -29,6 +29,16 @@ void CSFTPHndl::Put(const std::string& file_name) {
                           + file_name
                           + "\"'";
 
+    std::string command2 = "/bin/bash -c 'sftp "
+                          + access::gSFTP_remote_address
+                          + ":"
+                          + access::gSFTP_remote_path
+                          + " <<< "
+                          + "\"put "
+                          + file_name
+                          + "\"'";
+
+    auto command = command2;
     std::cout << command << std::endl;
     std::system(command.c_str());
 

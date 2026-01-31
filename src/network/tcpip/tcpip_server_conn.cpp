@@ -35,9 +35,9 @@ int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
 
     if(mConnected) {
         auto foo_data(msg_data);
-        foo_data.body_size = (int)foo_data.data_array.size();
+        foo_data.body_size = (int)foo_data.mMsgPayload.size();
         (void)write(mParms.mClientFD, &foo_data.body_size, sizeof(foo_data.body_size));
-        body_bytes = write(mParms.mClientFD, &foo_data.data_array[0], foo_data.body_size);
+        body_bytes = write(mParms.mClientFD, &foo_data.mMsgPayload[0], foo_data.body_size);
         std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
     }
     return body_bytes;
@@ -54,9 +54,8 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
         return -1;
     }
 
-    //uint16_t msg_size = ntohl(foo.body_size);
-    foo.data_array.resize(foo.body_size);
-    ssize_t body_bytes = recv(mParms.mClientFD, &foo.data_array[0], foo.body_size, 0);
+    foo.mMsgPayload.resize(foo.body_size);
+    ssize_t body_bytes = recv(mParms.mClientFD, &foo.mMsgPayload[0], foo.body_size, 0);
 
     msg_data = foo;
     return body_bytes;

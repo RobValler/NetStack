@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="BasicSuite">
+    <testcase id="1" name="LoginTest">
+        <result>pass</result>
+    </testcase>
+    <testcase id="2" name="LogoutTest">
+        <result>fail</result>
+    </testcase>
+</testsuite>
+

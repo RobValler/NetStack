@@ -12,13 +12,6 @@
 
 #include <string>
 
-class CSFTPHndl {
-public:
-    CSFTPHndl() =default;
-    ~CSFTPHndl() =default;
-
-    void Put(const std::string& file_name);
-
-};
+void PutCommand(const std::string& file_name);
 
 #endif // FTP_HNDL__H

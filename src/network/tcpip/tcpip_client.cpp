@@ -74,9 +74,9 @@ void CTCPIP_Client::Stop(){
 int CTCPIP_Client::Send(const message::SMessage& msg_data) {
 
     auto foo_data(msg_data);
-    foo_data.body_size = (int)foo_data.data_array.size();
+    foo_data.body_size = (int)foo_data.mMsgPayload.size();
     auto header_bytes = write(client_fd, &foo_data.body_size, sizeof(foo_data.body_size));
-    auto body_bytes = write(client_fd, &foo_data.data_array[0], foo_data.body_size);
+    auto body_bytes = write(client_fd, &foo_data.mMsgPayload[0], foo_data.body_size);
     return body_bytes;
 }
 
@@ -92,8 +92,8 @@ int CTCPIP_Client::Receive(message::SMessage& msg_data) {
     }
 
     //uint16_t msg_size = ntohl(foo.body_size);
-    foo.data_array.resize(foo.body_size);
-    ssize_t body_bytes = recv(client_fd, &foo.data_array[0], foo.body_size, 0);
+    foo.mMsgPayload.resize(foo.body_size);
+    ssize_t body_bytes = recv(client_fd, &foo.mMsgPayload[0], foo.body_size, 0);
 
     msg_data = foo;
     return body_bytes;

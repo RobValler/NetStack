@@ -45,8 +45,8 @@ int CPOSIX_MQ_Node::Send(const message::SMessage& data) {
         return(0);
     }
 
-    int bytes = data.data_array.size();
-    if (mq_send(mMQSend, (const char *)&data.data_array[0], (size_t)bytes, 0) == -1) {
+    int bytes = data.mMsgPayload.size();
+    if (mq_send(mMQSend, (const char *)&data.mMsgPayload[0], (size_t)bytes, 0) == -1) {
         perror("mq_send");
         bytes = -1;
     }
@@ -79,8 +79,8 @@ int CPOSIX_MQ_Node::Receive(message::SMessage& data) {
         perror("mq_receive");
     } else {
         //std::vector<char> vec(arr, arr + sizeof(arr) - 1); // Exclude the null terminator
-        data.data_array.resize(bytes);
-        data.data_array.assign(&buffer[0], &buffer[0] + bytes);
+        data.mMsgPayload.resize(bytes);
+        data.mMsgPayload.assign(&buffer[0], &buffer[0] + bytes);
     }
 
     return bytes;

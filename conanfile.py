@@ -24,6 +24,7 @@ class CommsStackRecipe(ConanFile):
 #        self.requires("logger/1.0.1")
         self.requires("openssl/3.6.0")
         self.requires("libssh2/1.11.1")
+        self.requires("libxml2/2.15.0")
 
 
     def layout(self):

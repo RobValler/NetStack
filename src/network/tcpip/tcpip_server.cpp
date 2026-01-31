@@ -51,7 +51,7 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.ID == it->GetConnectionID()) {
+        if(msg_data.mClientID == it->GetConnectionID()) {
             body_bytes = it->Send(msg_data);
         }
     }
@@ -62,7 +62,7 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.ID == it->GetConnectionID()) {
+        if(msg_data.mClientID == it->GetConnectionID()) {
             body_bytes = it->Receive(msg_data);
         }
     }

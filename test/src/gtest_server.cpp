@@ -14,6 +14,7 @@
 #include "tcpip_client.h"
 #include "udp_stack.h"
 #include "ftp_hndl.h"
+#include "file_hndl.h"
 
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
@@ -93,7 +94,7 @@ public:
                 send_message.set_msgname(it.str);
 
                 int size;
-                if(!serialise.Serialise(send_message, msg.data_array, size)) {
+                if(!serialise.Serialise(send_message, msg.mMsgPayload, size)) {
                     std::cerr << "error: Serialise" << std::endl;
                     continue;
                 }
@@ -107,13 +108,13 @@ public:
             // REC
             for(int index = 0; index < send_data_to.size(); ++index) {
 
-                msg.data_array.clear();
-                msg.ID = 10;
+                msg.mMsgPayload.clear();
+                msg.mClientID = 10;
                 if(network_server.Receive(msg) > 0) {
 
                     TestMsgPackage rec_message;
-                    int size = msg.data_array.size();
-                    if(!serialise.Deserialise(msg.data_array, rec_message, size)) {
+                    int size = msg.mMsgPayload.size();
+                    if(!serialise.Deserialise(msg.mMsgPayload, rec_message, size)) {
                         std::cerr << "server serialise error" << std::endl;
                         continue;
                     }
@@ -154,12 +155,12 @@ public:
             // RECV
             for(int index = 0; index < send_data_to.size(); ++index) {
 
-                msg.data_array.clear();
+                msg.mMsgPayload.clear();
                 if(network_client.Receive(msg) > 0) {
 
                     TestMsgPackage rec_message;
-                    int size = msg.data_array.size();
-                    if(!serialise.Deserialise(msg.data_array, rec_message, size)) {
+                    int size = msg.mMsgPayload.size();
+                    if(!serialise.Deserialise(msg.mMsgPayload, rec_message, size)) {
                         std::cerr << "client serialise error" << std::endl;
                         continue;
                     }
@@ -184,7 +185,7 @@ public:
                 send_message.set_msgname(it.str);
 
                 int size;
-                if(!serialise.Serialise(send_message, msg.data_array, size)) {
+                if(!serialise.Serialise(send_message, msg.mMsgPayload, size)) {
                     std::cerr << "client serialise err" << std::endl;
                     continue;
                 }
@@ -237,7 +238,7 @@ TEST(tcpip, multi)
         std::cout << "Number of clients = " << std::to_string(network_server.Connections()) << std::endl;
     }
 
-    msg.ID = 10;
+    msg.mClientID = 10;
     network_server.Send(msg);
     network_server.Stop();
     std::cout << "Number of clients after Stop() = " << std::to_string(network_server.Connections()) << std::endl;
@@ -266,23 +267,23 @@ TEST(udp, basic)
         message::SMessage msg;
 
         int size;
-        msg.ID = 5;
-        serialise.Serialise(send_message, msg.data_array, size);
+        msg.mClientID = 5;
+        serialise.Serialise(send_message, msg.mMsgPayload, size);
         port_local.Send(msg);
 
         // REC
-        msg.data_array.clear();
-        msg.ID = 10;
+        msg.mMsgPayload.clear();
+        msg.mClientID = 10;
         if(port_local.Receive(msg) > 0) {
 
             TestMsgPackage rec_message;
-            int size = msg.data_array.size();
-            serialise.Deserialise(msg.data_array, rec_message, size);
+            int size = msg.mMsgPayload.size();
+            serialise.Deserialise(msg.mMsgPayload, rec_message, size);
 
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
             std::string str = "local message: (" + std::to_string(id) + ") " + rec_message.msgname()
-                                  + " from ip address: " + msg.ipaddress + "\n";
+                                  + " from ip address: " + msg.mIpAddress + "\n";
             std::cout << str;
         }
 
@@ -307,18 +308,18 @@ TEST(udp, basic)
 
         message::SMessage msg;
         int size;
-        msg.ID = 6;
-        serialise.Serialise(send_message, msg.data_array, size);
+        msg.mClientID = 6;
+        serialise.Serialise(send_message, msg.mMsgPayload, size);
         port_remote.Send(msg);
 
         // REC
-        msg.data_array.clear();
-        msg.ID = 10;
+        msg.mMsgPayload.clear();
+        msg.mClientID = 10;
         if(port_remote.Receive(msg) > 0) {
 
             TestMsgPackage rec_message;
-            int size = msg.data_array.size();
-            serialise.Deserialise(msg.data_array, rec_message, size);
+            int size = msg.mMsgPayload.size();
+            serialise.Deserialise(msg.mMsgPayload, rec_message, size);
 
             auto id = rec_message.msgid();
             auto name = rec_message.msgname();
@@ -328,7 +329,6 @@ TEST(udp, basic)
 
         port_remote.Stop();
     };
-
 
     std::thread tServer(tlocal);
     std::thread tClient(tremote);
@@ -345,7 +345,11 @@ TEST(posix_mq, basic)
 
 TEST(sftp, basic)
 {
-    CSFTPHndl sftp;
-    sftp.Put("/home/rob/WORK/C_CPP/NetStack/build/Debug/moo.txt");
+    PutCommand("/home/rob/WORK/C_CPP/NetStack/build/Debug/moo.txt");
 }
 
+TEST(file, basic)
+{
+    SXmlData data;
+    XMLReadconst("/home/rob/WORK/C_CPP/NetStack/test/data/test.xml", data);
+}
