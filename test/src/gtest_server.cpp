@@ -237,10 +237,16 @@ TEST(tcpip, multi)
         std::cout << "Number of clients = " << std::to_string(network_server.Connections()) << std::endl;
     }
 
-    //auto moo = network_server.
 
-    message::SMessage msg;
-    network_server.Send(msg);
+    while(true) {
+
+        message::SMessage msg;
+        network_server.Send(msg);
+
+
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 
 
     network_server.Stop();

@@ -50,10 +50,10 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.mConnectionID == it->GetConnectionID()) {
+        // if(msg_data.mConnectionID == it->GetConnectionID()) {
             body_bytes = it->Send(msg_data);
             break;
-        }
+        // }
     }
     return body_bytes;
 }
@@ -96,6 +96,11 @@ int CTCPIP_Server::ThreadFunc() {
     server_addr.sin_addr.s_addr = INADDR_ANY;   // 0.0.0.0
     server_addr.sin_port = htons(mConnectParms.portID);
 
+    fd_set master_set, read_set;
+    FD_ZERO(&master_set);
+    FD_SET(mServerFD, &master_set);
+    int max_fd = mServerFD;
+
     if (bind(mServerFD, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("bind");
         close(mServerFD);
@@ -104,7 +109,9 @@ int CTCPIP_Server::ThreadFunc() {
 
     while(!mExitCaller) {
 
-        if (listen(mServerFD, 5) < 0) {
+        read_set = master_set;
+
+        if (listen(mServerFD, SOMAXCONN) < 0) {
             perror("listen");
             close(mServerFD);
             return 1;
@@ -112,46 +119,50 @@ int CTCPIP_Server::ThreadFunc() {
 
         std::cout << "Server now listening on port " << std::to_string(mConnectParms.portID) << std::endl;
 
-        int fd = accept(mServerFD, nullptr, nullptr);
-        if (fd < 0) {
-            switch(errno) {
-                case 22:
-                    // ignore invalid argument (22) error
-                    break;
-                default:
-                    std::cerr << "accept error = " <<  strerror(errno) << "(" << errno << ")" << std::endl;
-                    break;
+        if (FD_ISSET(mServerFD, &read_set)) {
+            int fd = accept(mServerFD, nullptr, nullptr);
+            if (fd < 0) {
+                switch(errno) {
+                    case 22:
+                        // ignore invalid argument (22) error
+                        break;
+                    default:
+                        std::cerr << "accept error = " <<  strerror(errno) << "(" << errno << ")" << std::endl;
+                        break;
+                }
+                close(mServerFD);
+                return 1;
             }
 
-            close(mServerFD);
-            return 1;
-        }
+            // get the ip address of the connecting client
+            struct sockaddr_in client_addr;
+            socklen_t addr_size = sizeof(struct sockaddr_in);
+            (void)getpeername(fd, (struct sockaddr *)&client_addr, &addr_size);
+            std::string clientip = inet_ntoa(client_addr.sin_addr);
 
-        // get the ip address of the connecting client
-        struct sockaddr_in client_addr;
-        socklen_t addr_size = sizeof(struct sockaddr_in);
-        (void)getpeername(fd, (struct sockaddr *)&client_addr, &addr_size);
-        std::string clientip = inet_ntoa(client_addr.sin_addr);
+            // add the client to the client list
+            SClientEntryCont local_conn_parms;
+            local_conn_parms.mClientFD = fd;
 
-        // add the client to the client list
-        SClientEntryCont local_conn_parms;
-        local_conn_parms.mClientFD = fd;
+            auto numgen = []() {
+                std::random_device dev;
+                std::mt19937 rng(dev());
+                std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 65536); // distribution in range [1, 6]
+                return dist6(rng);
+            };
 
-        auto numgen = []() {
-            std::random_device dev;
-            std::mt19937 rng(dev());
-            std::uniform_int_distribution<std::mt19937::result_type> dist6(1, 65536); // distribution in range [1, 6]
-            return dist6(rng);
-        };
+            local_conn_parms.mConnectionID = numgen();
+            local_conn_parms.mIPAaddress = clientip;
 
-        local_conn_parms.mConnectionID = numgen();
-        local_conn_parms.mIPAaddress = clientip;
+            std::cout << "Server: Connected to remote client [connection ID = "
+                      << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "
+                      << clientip << "]" << std::endl;
 
-        std::cout << "Server: Connected to remote client [connection ID = "
-                  << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "
-                  << clientip << "]" << std::endl;
+            mClientFDList.emplace_back(std::make_shared<CTCPIP_ClientConn>(local_conn_parms));
+            max_fd = std::max(max_fd, fd);
 
-        mClientFDList.emplace_back(std::make_shared<CTCPIP_ClientConn>(local_conn_parms));
-    }
+        } // FD_ISSET
+    } // while
+
     return 0;
 }
