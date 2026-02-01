@@ -13,6 +13,7 @@
 #include <string>
 
 struct SClientEntryCont {
+    std::string mName{""};
     int mConnectionID{0};
 #ifdef __linux__
     int mClientFD{0};
@@ -36,11 +37,11 @@ public:
     int Send(const message::SMessage& msg_data);
     void Stop();
     bool Connected();
-    int GetConnectionID();
+    int GetConnectionID() { return mParms.mConnectionID; }
+    std::string GetName() { return mParms.mName; }
 
 private:
     SClientEntryCont mParms;
-
     bool mExitCaller{false};
     bool mConnected{true}; // class instance exists after connection
 };

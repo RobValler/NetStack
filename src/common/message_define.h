@@ -19,8 +19,8 @@ namespace message {
 
 struct SMessage {
 
-    int mClientID{0};
-    std::string mIpAddress;
+    int mConnectionID{0};
+    std::string mIpAddress{""};
     std::uint32_t body_size{0};
     std::vector<std::uint8_t> mMsgPayload;
 };

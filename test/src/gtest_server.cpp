@@ -109,7 +109,7 @@ public:
             for(int index = 0; index < send_data_to.size(); ++index) {
 
                 msg.mMsgPayload.clear();
-                msg.mClientID = 10;
+                msg.mConnectionID = 10;
                 if(network_server.Receive(msg) > 0) {
 
                     TestMsgPackage rec_message;
@@ -220,26 +220,29 @@ TEST(tcpip, basic)
 }
 
 TEST(tcpip, multi)
-{
-    message::SMessage msg;
+{    
     SConnectParms parms_server;
     parms_server.ipAddress = "127.0.0.1";
     parms_server.portID = 8080;
     CTCPIP_Server network_server(parms_server);
     network_server.Start();
 
-    std::vector<CTCPIP_Client*> local_client_list;
+    std::vector<std::shared_ptr<CTCPIP_Client>> local_client_list;
     const int local_max_num_of_clients = 10;
     for(int local_client_index = 0; local_client_index <= local_max_num_of_clients; ++local_client_index) {
 
-        CTCPIP_Client* foo = new CTCPIP_Client(parms_server);
+        auto foo = std::make_shared<CTCPIP_Client>(parms_server);
         foo->Start();
-        local_client_list.push_back(foo);
+        local_client_list.push_back(std::move(foo));
         std::cout << "Number of clients = " << std::to_string(network_server.Connections()) << std::endl;
     }
 
-    msg.mClientID = 10;
+    //auto moo = network_server.
+
+    message::SMessage msg;
     network_server.Send(msg);
+
+
     network_server.Stop();
     std::cout << "Number of clients after Stop() = " << std::to_string(network_server.Connections()) << std::endl;
 }
@@ -267,13 +270,13 @@ TEST(udp, basic)
         message::SMessage msg;
 
         int size;
-        msg.mClientID = 5;
+        msg.mConnectionID = 5;
         serialise.Serialise(send_message, msg.mMsgPayload, size);
         port_local.Send(msg);
 
         // REC
         msg.mMsgPayload.clear();
-        msg.mClientID = 10;
+        msg.mConnectionID = 10;
         if(port_local.Receive(msg) > 0) {
 
             TestMsgPackage rec_message;
@@ -308,13 +311,13 @@ TEST(udp, basic)
 
         message::SMessage msg;
         int size;
-        msg.mClientID = 6;
+        msg.mConnectionID = 6;
         serialise.Serialise(send_message, msg.mMsgPayload, size);
         port_remote.Send(msg);
 
         // REC
         msg.mMsgPayload.clear();
-        msg.mClientID = 10;
+        msg.mConnectionID = 10;
         if(port_remote.Receive(msg) > 0) {
 
             TestMsgPackage rec_message;

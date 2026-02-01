@@ -33,17 +33,24 @@ int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
 
-    if(mConnected) {
-        auto foo_data(msg_data);
-        foo_data.body_size = (int)foo_data.mMsgPayload.size();
-        (void)write(mParms.mClientFD, &foo_data.body_size, sizeof(foo_data.body_size));
-        body_bytes = write(mParms.mClientFD, &foo_data.mMsgPayload[0], foo_data.body_size);
-        std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
+    if(!mConnected) {
+        return 0;
     }
+
+    auto foo_data(msg_data);
+    foo_data.body_size = (int)foo_data.mMsgPayload.size();
+    (void)write(mParms.mClientFD, &foo_data.body_size, sizeof(foo_data.body_size));
+    body_bytes = write(mParms.mClientFD, &foo_data.mMsgPayload[0], foo_data.body_size);
+    std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
+
     return body_bytes;
 }
 
 int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
+
+    if(!mConnected) {
+        return 0;
+    }
 
     auto foo(msg_data);
     auto hdr_size = sizeof(foo.body_size);
@@ -51,6 +58,7 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
     if( (hdr_bytes != hdr_size) &&
         (foo.body_size <= 0) ) {
         std::cerr << "Size error" << std::endl;
+        mConnected = false;
         return -1;
     }
 
@@ -63,9 +71,6 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
 
 bool CTCPIP_ClientConn::Connected() {
 
-    return true;
+    return mConnected;
 };
 
-int CTCPIP_ClientConn::GetConnectionID() {
-    return mParms.mConnectionID;
-}

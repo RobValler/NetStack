@@ -27,7 +27,6 @@ CTCPIP_Server::CTCPIP_Server(const SConnectParms& parms)
 int CTCPIP_Server::Start() {
 
     mtFunc = std::thread(&CTCPIP_Server::ThreadFunc, this);
-
     return 0;
 }
 
@@ -51,8 +50,9 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.mClientID == it->GetConnectionID()) {
+        if(msg_data.mConnectionID == it->GetConnectionID()) {
             body_bytes = it->Send(msg_data);
+            break;
         }
     }
     return body_bytes;
@@ -62,8 +62,9 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.mClientID == it->GetConnectionID()) {
+        if(msg_data.mConnectionID == it->GetConnectionID()) {
             body_bytes = it->Receive(msg_data);
+            std::cout << "data received from " << it->GetName() << "\n" << std::endl;
         }
     }
     return body_bytes;
@@ -71,15 +72,7 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
 int CTCPIP_Server::Connections() {
 
-    int local_num_of_clients = 0;
-
-    for(const auto& it : mClientFDList) {
-        if(it->Connected()) {
-            local_num_of_clients++;
-        }
-    }
-
-    return local_num_of_clients;
+    return mClientFDList.size();
 };
 
 int CTCPIP_Server::ThreadFunc() {
