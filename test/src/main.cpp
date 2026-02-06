@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     //::testing::GTEST_FLAG(filter) = "posix_mq.basic";
     //::testing::GTEST_FLAG(filter) = "udp.basic";
     //::testing::GTEST_FLAG(filter) = "tcpip.basic";
-    ::testing::GTEST_FLAG(filter) = "tcpip.multi";
-    //::testing::GTEST_FLAG(filter) = "sftp.basic";
+    //::testing::GTEST_FLAG(filter) = "tcpip.multi";
+    ::testing::GTEST_FLAG(filter) = "sftp.basic";
     //::testing::GTEST_FLAG(filter) = "file.basic";
 
     result = RUN_ALL_TESTS();

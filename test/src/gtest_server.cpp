@@ -13,7 +13,7 @@
 #include "tcpip_server.h"
 #include "tcpip_client.h"
 #include "udp_stack.h"
-#include "ftp_hndl.h"
+#include "sftp_hndl.h"
 #include "file_hndl.h"
 
 #include "testMsgPackage.pb.h"
@@ -345,7 +345,16 @@ TEST(posix_mq, basic)
 
 TEST(sftp, basic)
 {
-    PutCommand("/home/rob/WORK/C_CPP/NetStack/build/Debug/moo.txt");
+
+    GetFile(
+        "localhost",
+        22,
+        "rob",
+        "/home/rob/.ssh/id_ed25519",
+        "/home/rob/.ssh/id_ed25519.pub",
+        "",
+        "/home/rob/WORK/Files/sftp_test/test_1.txt",
+        "/home/rob/WORK/C_CPP/NetStack/test_1.txt");
 }
 
 TEST(file, basic)

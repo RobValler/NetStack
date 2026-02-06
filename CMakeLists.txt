@@ -35,6 +35,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
+include_directories(${CMAKE_SOURCE_DIR}/src/sftp)
 include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
@@ -50,7 +51,8 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/file/*.cpp    
+    ${CMAKE_SOURCE_DIR}/src/file/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/sftp/*.cpp
 )
 
 #HEADERS FILES
@@ -62,7 +64,8 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
-    ${CMAKE_SOURCE_DIR}/src/file/*.h    
+    ${CMAKE_SOURCE_DIR}/src/file/*.h
+    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
 )
 
 
