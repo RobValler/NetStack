@@ -7,11 +7,17 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#ifndef FTP_HNDL__H
-#define FTP_HNDL__H
+#ifndef NETSTACK_CONFIG__H
+#define NETSTACK_CONFIG__H
 
 #include <string>
 
-void PutCommand(const std::string& file_name);
+namespace netstack_config {
 
-#endif // FTP_HNDL__H
+const std::string gSFTP_remote_address = "192.168.0.10";
+const std::string gSFTP_remote_path = "/home/rob/Documents";
+const std::string gSFTP_remote_user = "";
+const std::string gSFTP_remote_pass = "";
+}
+
+#endif // NETSTACK_CONFIG__H
