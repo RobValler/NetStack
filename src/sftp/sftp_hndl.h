@@ -11,6 +11,7 @@
 #define FTP_HNDL__H
 
 #include <string>
+#include <vector>
 
 void PutCommand(const std::string& file_name);
 bool GetFile(
@@ -20,7 +21,7 @@ bool GetFile(
     const std::string& private_key_path,
     const std::string& public_key_path,
     const std::string& key_passphrase, // nullptr if none
-    const std::string& remote_path,
+    const std::vector<std::string>& remote_files,
     const std::string& local_path );
 
 #endif // FTP_HNDL__H

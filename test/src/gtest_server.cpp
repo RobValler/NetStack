@@ -356,14 +356,16 @@ TEST(sftp, basic)
 {
 
     GetFile(
-        "localhost",
+        "127.0.0.1",
         22,
         "rob",
         "/home/rob/.ssh/id_ed25519",
         "/home/rob/.ssh/id_ed25519.pub",
         "",
-        "/home/rob/WORK/Files/sftp_test/test_1.txt",
-        "/home/rob/WORK/C_CPP/NetStack/test_1.txt");
+        {"/home/rob/WORK/Files/sftp_test/test_1.txt",
+         "/home/rob/WORK/Files/sftp_test/test_3.txt",
+         "/home/rob/WORK/Files/sftp_test/test_4.txt"},
+        "/home/rob/WORK/C_CPP/NetStack/");
 }
 
 TEST(file, basic)

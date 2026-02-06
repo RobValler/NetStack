@@ -19,13 +19,12 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <filesystem>
 
 #include <cstdio>
 #include <cstring>
 #include <iostream>
 
-
-void waitsocket(int socket_fd, LIBSSH2_SESSION* session);
 
 bool GetFile(
             const std::string& host,
@@ -34,7 +33,7 @@ bool GetFile(
             const std::string& private_key_path,
             const std::string& public_key_path,
             const std::string& key_passphrase,
-            const std::string& remote_path,
+            const std::vector<std::string>& remote_files,
             const std::string& local_path) {
 
     // automatics
@@ -133,37 +132,42 @@ bool GetFile(
         return false;
     }
 
-    remote_file = libssh2_sftp_open(
-        sftp,
-        remote_path.c_str(),
-        LIBSSH2_FXF_READ,
-        0
-        );
+    // loop through the file list
+    for(const auto& it : remote_files) {
 
-    if (!remote_file) {
-        fprintf(stderr, "Unable to open remote file\n");
-        cleanup();
-        return false;
-    }
+        remote_file = libssh2_sftp_open(
+            sftp,
+            it.c_str(),
+            LIBSSH2_FXF_READ, 0);
 
-    local_file = fopen(local_path.c_str(), "wb");
-    if (!local_file) {
-        perror("fopen");
-        cleanup();
-        return false;
-    }
+        if (!remote_file) {
+            fprintf(stderr, "Unable to open remote file\n");
+            cleanup();
+            return false;
+        }
 
-    char buffer[4096];
-    ssize_t n;
+        // save the file
 
-    while ((n = libssh2_sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
-        fwrite(buffer, 1, n, local_file);
-    }
+        std::string save_file_name = local_path + std::filesystem::path(it).filename().string();
+        local_file = fopen(save_file_name.c_str(), "wb");
+        if (!local_file) {
+            perror("fopen");
+            cleanup();
+            return false;
+        }
 
-    if (n < 0) {
-        fprintf(stderr, "Error while reading remote file\n");
-        cleanup();
-        return false;
+        char buffer[4096];
+        ssize_t n;
+
+        while ((n = libssh2_sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
+            fwrite(buffer, 1, n, local_file);
+        }
+
+        if (n < 0) {
+            fprintf(stderr, "Error while reading remote file\n");
+            cleanup();
+            return false;
+        }
     }
 
     cleanup();
@@ -200,25 +204,3 @@ void PutCommand(const std::string& file_name) {
 
 }
 
-void waitsocket(int socket_fd, LIBSSH2_SESSION* session) {
-    struct timeval timeout;
-    fd_set fd;
-    fd_set* writefd = nullptr;
-    fd_set* readfd = nullptr;
-
-    timeout.tv_sec = 10;
-    timeout.tv_usec = 0;
-
-    FD_ZERO(&fd);
-    FD_SET(socket_fd, &fd);
-
-    int dir = libssh2_session_block_directions(session);
-
-    if (dir & LIBSSH2_SESSION_BLOCK_INBOUND)
-        readfd = &fd;
-
-    if (dir & LIBSSH2_SESSION_BLOCK_OUTBOUND)
-        writefd = &fd;
-
-    select(socket_fd + 1, readfd, writefd, nullptr, &timeout);
-}
