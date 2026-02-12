@@ -11,28 +11,14 @@
 #define FTP_HNDL__H
 
 #include <string>
-#include <vector>
 
 bool SFTPGetFile(
-    const std::string& host,
+    const std::string& hostname,
     int port,
     const std::string& username,
     const std::string& private_key_path,
-    const std::string& public_key_path,
-    const std::string& key_passphrase, // nullptr if none
-    const std::vector<std::string>& remote_files,
-    const std::string& local_path );
-
-bool SFTPPutFile(
-    const std::string& host,
-    int port,
-    const std::string& username,
-    const std::string& private_key_path,
-    const std::string& public_key_path,
     const std::string& key_passphrase,
-    const std::vector<std::string>& remote_files,
+    const std::string& remote_path,
     const std::string& local_path);
-
-void PutCommand(const std::string& file_name);
 
 #endif // FTP_HNDL__H

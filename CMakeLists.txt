@@ -23,8 +23,9 @@ find_package(Threads REQUIRED)
 #find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
 #find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
-find_package(OpenSSL 3.6.0 REQUIRED)
-find_package(Libssh2 1.11.1 REQUIRED)
+#find_package(OpenSSL 3.6.0 REQUIRED)
+#find_package(Libssh2 1.11.1 REQUIRED)
+find_package(libssh 0.11.3 REQUIRED)
 find_package(libxml2 2.15.0 REQUIRED)
 
 #EXTERNAL INCLUDES
@@ -35,7 +36,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
-include_directories(${CMAKE_SOURCE_DIR}/src/sftp)
+include_directories(${CMAKE_SOURCE_DIR}/src/sftp2)
 include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
@@ -52,7 +53,7 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
     ${CMAKE_SOURCE_DIR}/src/file/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/sftp/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/sftp2/*.cpp
 )
 
 #HEADERS FILES
@@ -65,7 +66,7 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
     ${CMAKE_SOURCE_DIR}/src/file/*.h
-    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
+    ${CMAKE_SOURCE_DIR}/src/sftp2/*.h
 )
 
 
@@ -87,8 +88,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     #Boost::boost
     #asio::asio
     protobuf::protobuf
-    openssl::openssl
-    Libssh2::libssh2
+    #openssl::openssl
+    ssh::ssh
+#    Libssh2::libssh2
     LibXml2::LibXml2
 )
 

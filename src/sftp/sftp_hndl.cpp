@@ -26,7 +26,7 @@
 #include <iostream>
 
 
-bool GetFile(
+bool SFTPGetFile(
             const std::string& host,
             int port,
             const std::string& username,
@@ -36,7 +36,7 @@ bool GetFile(
             const std::vector<std::string>& remote_files,
             const std::string& local_path) {
 
-    // automatics
+    // #### INIT ####
     int sock = -1;
     LIBSSH2_SESSION* session = nullptr;
     LIBSSH2_SFTP* sftp = nullptr;
@@ -46,23 +46,29 @@ bool GetFile(
     // functors
     // this is called if we encounter an error and we need to flush all resources before exiting
     auto cleanup = [&]() {
-        if (local_file) fclose(local_file);
-        if (remote_file) libssh2_sftp_close(remote_file);
-        if (sftp) libssh2_sftp_shutdown(sftp);
-        if (session) {
+        if(local_file) {
+            fclose(local_file);
+        }
+        if(remote_file) {
+            libssh2_sftp_close(remote_file);
+        }
+        if(sftp) {
+            libssh2_sftp_shutdown(sftp);
+        }
+        if(session) {
             libssh2_session_disconnect(session, "Aborted");
             libssh2_session_free(session);
         }
-        if (sock != -1) close(sock);
+        if(sock != -1) {
+            close(sock);
+        }
         libssh2_exit();
     };
 
-    libssh2_init(0);
-
-    // ---- TCP connection ----
+    // #### TCP ####
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1) {
-        perror("socket");
+        std::cerr << "Socket error " << strerror(errno) << std::endl;
         cleanup();
         return false;
     }
@@ -81,30 +87,32 @@ bool GetFile(
         return false;
     }
 
-    // ---- SSH session ----
+    // #### SSH session ####
+    libssh2_init(0);
+
     session = libssh2_session_init();
     if (!session) {
-        fprintf(stderr, "libssh2_session_init failed\n");
+        std::cerr << "libssh2_session_init failed " << strerror(errno) << std::endl;
         cleanup();
         return false;
     }
     libssh2_session_set_blocking(session, 1);
 
-    // SFTP handshake - we have to keep retrying until the resource is available
-    int rc;
+    // SSH handshake - we have to keep retrying until the resource is available
+    int result;
     do {
-        rc = libssh2_session_handshake(session, sock);
-    } while (rc == LIBSSH2_ERROR_EAGAIN);
+        result = libssh2_session_handshake(session, sock);
+    } while (result == LIBSSH2_ERROR_EAGAIN);
 
-    if (rc) {
-        fprintf(stderr, "Handshake failed\n");
+    if (result) {
+        std::cerr << "Handshake failed " << strerror(errno) << std::endl;
         cleanup();
         return false;
     }
 
-    // SFTP key autherisation - we have to keep retrying until the resource is available
+    // SSH key autherisation - we have to keep retrying until the resource is available
     do {
-        rc = libssh2_userauth_publickey_fromfile(
+        result = libssh2_userauth_publickey_fromfile(
             session,
             username.c_str(),
             public_key_path.c_str(),
@@ -112,27 +120,25 @@ bool GetFile(
             //key_passphrase.c_str())) {
             nullptr
             );
-    } while (rc == LIBSSH2_ERROR_EAGAIN);
+    } while (result == LIBSSH2_ERROR_EAGAIN);
 
-    if (rc) {
-        char* msg;
-        int len;
-        libssh2_session_last_error(session, &msg, &len, 0);
-        fprintf(stderr, "Auth failed: %s\n", msg);
+    if (result) {
+        char* local_error_msg;
+        int length;
+        libssh2_session_last_error(session, &local_error_msg, &length, 0);
+        std::cerr << "Authentication failed " << local_error_msg << std::endl;
         cleanup();
         return false;
     }
 
-
-    // ---- SFTP ----
+    // #### SFTP ####
     sftp = libssh2_sftp_init(session);
     if (!sftp) {
-        fprintf(stderr, "Unable to init SFTP\n");
+        std::cerr << "Unable to init SFTP " << strerror(errno) << std::endl;
         cleanup();
         return false;
     }
 
-    // loop through the file list
     for(const auto& it : remote_files) {
 
         remote_file = libssh2_sftp_open(
@@ -141,30 +147,181 @@ bool GetFile(
             LIBSSH2_FXF_READ, 0);
 
         if (!remote_file) {
-            fprintf(stderr, "Unable to open remote file\n");
+            std::cerr << "File error " << strerror(errno) << std::endl;
             cleanup();
             return false;
         }
 
         // save the file
-
         std::string save_file_name = local_path + std::filesystem::path(it).filename().string();
         local_file = fopen(save_file_name.c_str(), "wb");
         if (!local_file) {
-            perror("fopen");
+            std::cerr << "File open error " << strerror(errno) << std::endl;
             cleanup();
             return false;
         }
 
         char buffer[4096];
-        ssize_t n;
+        ssize_t bytes;
 
-        while ((n = libssh2_sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
-            fwrite(buffer, 1, n, local_file);
+        while ((bytes = libssh2_sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
+            fwrite(buffer, 1, bytes, local_file);
         }
 
-        if (n < 0) {
-            fprintf(stderr, "Error while reading remote file\n");
+        if (bytes < 0) {
+            std::cerr << "File read error " << strerror(errno) << std::endl;
+            cleanup();
+            return false;
+        }
+    }
+
+    cleanup();
+    return true;
+}
+
+bool SFTPPutFile(
+    const std::string& host,
+    int port,
+    const std::string& username,
+    const std::string& private_key_path,
+    const std::string& public_key_path,
+    const std::string& key_passphrase,
+    const std::vector<std::string>& remote_files,
+    const std::string& local_path) {
+
+    // #### INIT ####
+    int sock = -1;
+    LIBSSH2_SESSION* session = nullptr;
+    LIBSSH2_SFTP* sftp = nullptr;
+    LIBSSH2_SFTP_HANDLE* remote_file = nullptr;
+    FILE* local_file = nullptr;
+
+    // functors
+    // this is called if we encounter an error and we need to flush all resources before exiting
+    auto cleanup = [&]() {
+        if(local_file) {
+            fclose(local_file);
+        }
+        if(remote_file) {
+            libssh2_sftp_close(remote_file);
+        }
+        if(sftp) {
+            libssh2_sftp_shutdown(sftp);
+        }
+        if(session) {
+            libssh2_session_disconnect(session, "Aborted");
+            libssh2_session_free(session);
+        }
+        if(sock != -1) {
+            close(sock);
+        }
+        libssh2_exit();
+    };
+
+    // #### TCP ####
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) {
+        std::cerr << "Socket error " << strerror(errno) << std::endl;
+        cleanup();
+        return false;
+    }
+
+    sockaddr_in sin {};
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(port);
+    inet_pton(AF_INET, host.c_str(), &sin.sin_addr);
+
+    int flags = fcntl(sock, F_GETFL, 0);
+    fcntl(sock, F_SETFL, flags & ~O_NONBLOCK);
+
+    if (connect(sock, (sockaddr*)&sin, sizeof(sin)) != 0) {
+        perror("connect");
+        cleanup();
+        return false;
+    }
+
+    // #### SSH session ####
+    libssh2_init(0);
+
+    session = libssh2_session_init();
+    if (!session) {
+        std::cerr << "libssh2_session_init failed " << strerror(errno) << std::endl;
+        cleanup();
+        return false;
+    }
+    libssh2_session_set_blocking(session, 1);
+
+    // SSH handshake - we have to keep retrying until the resource is available
+    int result;
+    do {
+        result = libssh2_session_handshake(session, sock);
+    } while (result == LIBSSH2_ERROR_EAGAIN);
+
+    if (result) {
+        std::cerr << "Handshake failed " << strerror(errno) << std::endl;
+        cleanup();
+        return false;
+    }
+
+    // SSH key autherisation - we have to keep retrying until the resource is available
+    do {
+        result = libssh2_userauth_publickey_fromfile(
+            session,
+            username.c_str(),
+            public_key_path.c_str(),
+            private_key_path.c_str(),
+            //key_passphrase.c_str())) {
+            nullptr );
+    } while (result == LIBSSH2_ERROR_EAGAIN);
+
+    if (result) {
+        char* local_error_msg;
+        int length;
+        libssh2_session_last_error(session, &local_error_msg, &length, 0);
+        std::cerr << "Authentication failed " << local_error_msg << std::endl;
+        cleanup();
+        return false;
+    }
+
+    // #### SFTP ####
+    sftp = libssh2_sftp_init(session);
+    if (!sftp) {
+        std::cerr << "Unable to init SFTP " << strerror(errno) << std::endl;
+        cleanup();
+        return false;
+    }
+
+    for(const auto& it_file : remote_files) {
+
+        remote_file = libssh2_sftp_open(
+            sftp,
+            it_file.c_str(),
+            LIBSSH2_FXF_READ, 0);
+
+        if (!remote_file) {
+            std::cerr << "File error " << strerror(errno) << std::endl;
+            cleanup();
+            return false;
+        }
+
+        // save the file
+        std::string save_file_name = local_path + std::filesystem::path(it_file).filename().string();
+        local_file = fopen(save_file_name.c_str(), "wb");
+        if (!local_file) {
+            std::cerr << "File open error " << strerror(errno) << std::endl;
+            cleanup();
+            return false;
+        }
+
+        char buffer[4096];
+        ssize_t bytes;
+
+        while ((bytes = libssh2_sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
+            fwrite(buffer, 1, bytes, local_file);
+        }
+
+        if (bytes < 0) {
+            std::cerr << "File read error " << strerror(errno) << std::endl;
             cleanup();
             return false;
         }
