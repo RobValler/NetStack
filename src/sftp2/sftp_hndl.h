@@ -21,4 +21,13 @@ bool SFTPGetFile(
     const std::string& remote_path,
     const std::string& local_path);
 
+bool SFTPPutFile(
+    const std::string& hostname,
+    int port,
+    const std::string& username,
+    const std::string& private_key_path,
+    const std::string& key_passphrase,
+    const std::string& local_path,
+    const std::string& remote_path);
+
 #endif // FTP_HNDL__H

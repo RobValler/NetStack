@@ -364,8 +364,19 @@ TEST(sftp, basic)
         "/home/rob/.ssh/id_ed25519",
         "",
         "/home/rob/WORK/Files/sftp_test/test_1.txt",
-        "/home/rob/WORK/C_CPP/NetStack/test/files/test_1.txt"
+        "/home/rob/WORK/C_CPP/NetStack/test/files/test_2.txt"
     );
+
+    SFTPPutFile(
+        "127.0.0.1",
+        22,
+        "rob",
+        "/home/rob/.ssh/id_ed25519",
+        "",
+        "/home/rob/WORK/C_CPP/NetStack/test/files/test_2.txt",
+        "/home/rob/WORK/Files/sftp_test/test_3.txt"
+    );
+
 #else
     SFTPGetFile(
         "test.rebex.net",
