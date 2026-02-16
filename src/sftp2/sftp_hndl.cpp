@@ -39,7 +39,7 @@ namespace {
     constexpr int gMsgBufferSize = 32768;
 }
 
-bool SFTPGetFile(
+bool CSFTPHndl::SFTPGetFile(
     const std::string& hostname,
     int port,
     const std::string& username,
@@ -183,8 +183,8 @@ bool SFTPGetFile(
             break;
         }
 
-        float percent = (local_bytes_transferred * 100.0f) / local_total_size;
-        std::cout << "\rProgress: " << percent << "%   " << std::flush;
+        mProgressGet = (local_bytes_transferred * 100.0f) / local_total_size;
+        //std::cout << "\rProgress: " << mProgressGet << "%   " << std::flush;
     }
 
     if (bytes_read < 0) {
@@ -207,7 +207,7 @@ bool SFTPGetFile(
 
 
 
-bool SFTPPutFile(
+bool CSFTPHndl::SFTPPutFile(
     const std::string& hostname,
     int port,
     const std::string& username,
@@ -350,8 +350,8 @@ bool SFTPPutFile(
             }
 
             local_bytes_transferred += bytes_written;
-            float percent = (local_bytes_transferred * 100.0f) / local_total_size;
-            std::cout << "\rProgress: " << percent << "%   " << std::flush;
+            mProgressPut = (local_bytes_transferred * 100.0f) / local_total_size;
+            //std::cout << "\rProgress: " << mProgressPut << "%   " << std::flush;
         }
     }
 

@@ -11,23 +11,42 @@
 #define FTP_HNDL__H
 
 #include <string>
+#include <atomic>
 
-bool SFTPGetFile(
-    const std::string& hostname,
-    int port,
-    const std::string& username,
-    const std::string& private_key_path,
-    const std::string& key_passphrase,
-    const std::string& remote_path,
-    const std::string& local_path);
+class CSFTPHndl {
+public:
+    CSFTPHndl() =default;
+    ~CSFTPHndl() =default;
 
-bool SFTPPutFile(
-    const std::string& hostname,
-    int port,
-    const std::string& username,
-    const std::string& private_key_path,
-    const std::string& key_passphrase,
-    const std::string& local_path,
-    const std::string& remote_path);
+    bool SFTPGetFile(
+        const std::string& hostname,
+        int port,
+        const std::string& username,
+        const std::string& private_key_path,
+        const std::string& key_passphrase,
+        const std::string& remote_path,
+        const std::string& local_path);
+
+    bool SFTPPutFile(
+        const std::string& hostname,
+        int port,
+        const std::string& username,
+        const std::string& private_key_path,
+        const std::string& key_passphrase,
+        const std::string& local_path,
+        const std::string& remote_path);
+
+    float FetchProgressGet() {
+        return mProgressGet;
+    };
+
+    float FetchProgressPut() {
+        return mProgressPut;
+    };
+
+private:
+    std::atomic<float> mProgressGet{0.0f};
+    std::atomic<float> mProgressPut{0.0f};
+};
 
 #endif // FTP_HNDL__H

@@ -355,17 +355,37 @@ TEST(posix_mq, basic)
 TEST(sftp, basic)
 {
 
-    SFTPGetFile(
-        "127.0.0.1",
-        22,
-        "rob",
-        "/home/rob/.ssh/id_ed25519",
-        "",
-        "/home/rob/WORK/Files/sftp_test/testfile_remote.bin",
-        "/home/rob/WORK/C_CPP/NetStack/test/files/testfile_local.bin"
-    );
+    CSFTPHndl sftp;
+    bool wehavestopped = false;
 
-    SFTPPutFile(
+    auto get = [&](){
+        sftp.SFTPGetFile(
+            "127.0.0.1",
+            22,
+            "rob",
+            "/home/rob/.ssh/id_ed25519",
+            "",
+            "/home/rob/WORK/Files/sftp_test/testfile_remote.bin",
+            "/home/rob/WORK/C_CPP/NetStack/test/files/testfile_local.bin"
+        );
+    };
+
+    auto getstatus = [&](){
+
+        while(!wehavestopped) {
+            std::cout << "\rGet progress: " << std::to_string(sftp.FetchProgressGet()) << "%   " << std::flush;
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+    };
+
+    std::thread tget(get);
+    std::thread tgetstatus(getstatus);
+
+    tget.join();
+    wehavestopped = true;
+    tgetstatus.join();
+
+    sftp.SFTPPutFile(
         "127.0.0.1",
         22,
         "rob",
@@ -374,6 +394,9 @@ TEST(sftp, basic)
         "/home/rob/WORK/C_CPP/NetStack/test/files/testfile_local.bin",
         "/home/rob/WORK/Files/sftp_test/testfile_remote_returned.bin"
     );
+
+
+
 }
 
 TEST(file, basic)
