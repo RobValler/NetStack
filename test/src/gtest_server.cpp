@@ -355,16 +355,14 @@ TEST(posix_mq, basic)
 TEST(sftp, basic)
 {
 
-
-#if 1
     SFTPGetFile(
         "127.0.0.1",
         22,
         "rob",
         "/home/rob/.ssh/id_ed25519",
         "",
-        "/home/rob/WORK/Files/sftp_test/test_1.txt",
-        "/home/rob/WORK/C_CPP/NetStack/test/files/test_2.txt"
+        "/home/rob/WORK/Files/sftp_test/testfile_remote.bin",
+        "/home/rob/WORK/C_CPP/NetStack/test/files/testfile_local.bin"
     );
 
     SFTPPutFile(
@@ -373,22 +371,9 @@ TEST(sftp, basic)
         "rob",
         "/home/rob/.ssh/id_ed25519",
         "",
-        "/home/rob/WORK/C_CPP/NetStack/test/files/test_2.txt",
-        "/home/rob/WORK/Files/sftp_test/test_3.txt"
+        "/home/rob/WORK/C_CPP/NetStack/test/files/testfile_local.bin",
+        "/home/rob/WORK/Files/sftp_test/testfile_remote_returned.bin"
     );
-
-#else
-    SFTPGetFile(
-        "test.rebex.net",
-        22,
-        "demo",
-        "/home/rob/.ssh/id_ed25519",
-        "",
-        {"/pub/example/KeyGenerator.png"},
-        "/home/rob/WORK/C_CPP/NetStack/test/files/"
-        );
-#endif
-
 }
 
 TEST(file, basic)

@@ -158,22 +158,41 @@ bool SFTPGetFile(
         return false;
     }
 
+
+    // get remote file parameters (i.e. size)
+    sftp_attributes attr = sftp_stat(sftp, remote_path.c_str());
+    if (!attr) {
+        std::cerr << "[Get] " << remote_path << " attribute read failed : " << sftp_get_error(sftp) << std::endl;
+        cleanup();
+        return false;
+    }
+    size_t local_total_size = attr->size;
+    sftp_attributes_free(attr);
+    size_t local_bytes_transferred = 0;
+
+    // write
     char buffer[gMsgBufferSize];
     int bytes_read;
-
     while ((bytes_read = sftp_read(remote_file, buffer, sizeof(buffer))) > 0) {
 
         outfile.write(buffer, bytes_read);
+        local_bytes_transferred += bytes_read;
+
         if (!outfile) {
             std::cerr << "Write to local file failed\n";
             break;
         }
+
+        float percent = (local_bytes_transferred * 100.0f) / local_total_size;
+        std::cout << "\rProgress: " << percent << "%   " << std::flush;
     }
 
     if (bytes_read < 0) {
         std::cerr << "Error reading remote file\n";
         cleanup();
         return false;
+    } else {
+        std::cout << "Success!" << std::endl;
     }
 
     outfile.close();
@@ -291,11 +310,16 @@ bool SFTPPutFile(
     }
 
     // Open local file for reading
-    std::ifstream infile(local_path, std::ios::binary);
+    size_t local_total_size = 0;
+    std::ifstream infile(local_path, std::ios::binary | std::ios::ate);
     if (!infile) {
         std::cerr << "[Put] Failed to open local file " << local_path << " : " << ssh_get_error(session) << std::endl;
         cleanup();
         return false;
+    } else {
+
+        local_total_size = infile.tellg();
+        infile.seekg(0);
     }
 
     // Open remote file for writing
@@ -307,8 +331,9 @@ bool SFTPPutFile(
         return false;
     }
 
+    // transfer
+    size_t local_bytes_transferred = 0;
     char buffer[gMsgBufferSize];
-
     while (infile.good()) {
 
         infile.read(buffer, sizeof(buffer));
@@ -316,14 +341,17 @@ bool SFTPPutFile(
 
         if (bytes_read > 0) {
 
-            int bytes_written =
-                sftp_write(remote_file, buffer, bytes_read);
+            int bytes_written = sftp_write(remote_file, buffer, bytes_read);
 
             if (bytes_written != bytes_read) {
                 std::cerr << "Error writing to remote file\n";
                 cleanup();
                 return false;
             }
+
+            local_bytes_transferred += bytes_written;
+            float percent = (local_bytes_transferred * 100.0f) / local_total_size;
+            std::cout << "\rProgress: " << percent << "%   " << std::flush;
         }
     }
 
