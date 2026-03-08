@@ -26,12 +26,13 @@
 #include <cstring>
 #include <iostream>
 
-CUDP_Stack::CUDP_Stack(const SConnectParms& parms)
-    : mConnectParms(parms)
-{ /* do nothing */ }
 
+int CUDP_Stack::Start(const SUDPParms& parms) {
 
-int CUDP_Stack::Start() {
+    mConnectParms.broadCastSender = parms.broadCastSender;
+    mConnectParms.portLocalID = parms.portLocalID;
+    mConnectParms.portRemoteID = parms.portRemoteID;
+    mConnectParms.ipAddress = parms.ipAddress;
 
 #ifdef _WIN32
     WSADATA wsaData;
@@ -117,18 +118,18 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
         std::cerr << "server receive error " << strerror(errno) << std::endl;
     } else {
 
+        // fetch payload
         msg_data.mMsgPayload.resize(body_bytes);
-        msg_data.mMsgPayload.assign(data.begin(), data.end());
+        msg_data.mMsgPayload.assign(data.begin(), data.begin() + body_bytes);
+
+        // get the senders IP Address
         char local_ip_address[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &clientAddr.sin_addr, local_ip_address, INET_ADDRSTRLEN);
         msg_data.mIpAddress = local_ip_address;
-        //std::cout << "received from ip address : " << msg_data.ipaddress << std::endl;
+
+        // get the senders Port
+        msg_data.mPort = ntohs(clientAddr.sin_port);
     }
 
     return body_bytes;
 }
-
-int CUDP_Stack::Connections() {
-
-    return 1; // default to 1, we dont actually have a connection
-};

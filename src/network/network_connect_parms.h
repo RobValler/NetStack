@@ -14,16 +14,21 @@
 
 struct SConnectParms {
 
+    //TCPIP
     std::string name{""};
-    std::string channel_send{""};
-    std::string channel_recv{""};
+
     int maxConnectRetryAttempts{10};
     int portID{0};
 
+    // UDP
+    bool broadCastSender{false};
     int portLocalID{0};
     int portRemoteID{0};
-
     std::string ipAddress{""};
+
+    // POSIXMQ
+    std::string channel_send{""};
+    std::string channel_recv{""};
 };
 
 #endif // NETWORK_CONNECT_PARMS__H

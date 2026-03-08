@@ -21,11 +21,9 @@
 #include <thread>
 #include <chrono>
 
-CTCPIP_Client::CTCPIP_Client(const SConnectParms& parms)
-    : mConnectParms(parms)
-{}
+int CTCPIP_Client::Start(const SConnectParms& parms) {
 
-int CTCPIP_Client::Start() {
+    mConnectParms = parms;
 
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client_fd < 0) {

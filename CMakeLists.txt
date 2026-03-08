@@ -88,9 +88,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     #Boost::boost
     #asio::asio
     protobuf::protobuf
-    #openssl::openssl
     ssh::ssh
-#    Libssh2::libssh2
     LibXml2::LibXml2
 )
 

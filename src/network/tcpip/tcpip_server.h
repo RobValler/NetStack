@@ -10,10 +10,6 @@
 #ifndef TCPIP_SERVER__H
 #define TCPIP_SERVER__H
 
-#include "network_connect_parms.h"
-
-#include "i_network_hndl.h"
-
 #include "tcpip_server_conn.h"
 
 #include <thread>
@@ -21,22 +17,27 @@
 #include <vector>
 #include <memory>
 
+struct STCPIPParms {
+    int portID{0};
+};
+
 namespace message { struct SMessage; }
 
-class CTCPIP_Server : public INetworkHndl
+class CTCPIP_Server
 {
 public:
-    CTCPIP_Server(const SConnectParms& parms);
+    CTCPIP_Server() =default;
     ~CTCPIP_Server() =default;
 
-    int Start() override;
-    void Stop() override;
-    int Send(const message::SMessage& msg_data) override;
-    int Receive(message::SMessage& msg_data) override;
-    int Connections() override;
+    int Start(const STCPIPParms& parms);
+    void Stop();
+    int Send(const message::SMessage& msg_data);
+    int Receive(message::SMessage& msg_data);
+    int Connections();
 
 private:
-    SConnectParms mConnectParms;
+    STCPIPParms mConnectParms;
+
     int ThreadFunc();
     std::thread mtFunc;
     std::atomic<bool> mExitCaller{false};

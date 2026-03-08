@@ -21,6 +21,7 @@ struct SMessage {
 
     int mConnectionID{0};
     std::string mIpAddress{""};
+    int mPort{0};
     std::uint32_t body_size{0};
     std::vector<std::uint8_t> mMsgPayload;
 };

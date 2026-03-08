@@ -10,8 +10,6 @@
 #ifndef UDP_STACK__H
 #define UDP_STACK__H
 
-#include "network_connect_parms.h"
-
 #include "i_network_hndl.h"
 
 #ifdef __linux__
@@ -20,22 +18,32 @@
 //
 #endif
 
+#include <string>
+
+
+struct SUDPParms {
+    bool broadCastSender{false};
+    int portLocalID{0};
+    int portRemoteID{0};
+    std::string ipAddress{""};
+};
+
+
 namespace message {struct SMessage; }
 
-class CUDP_Stack : public INetworkHndl
+class CUDP_Stack
 {
 public:
-    CUDP_Stack(const SConnectParms& parms);
+    CUDP_Stack() =default;
     ~CUDP_Stack() =default;
 
-    int Start() override;
-    int Send(const message::SMessage& data) override;
-    int Receive(message::SMessage& data) override;
-    int Connections() override;
-    void Stop() override;
+    int Start(const SUDPParms& parms);
+    void Stop();
+    int Send(const message::SMessage& data);
+    int Receive(message::SMessage& data);
 
 private:
-    SConnectParms mConnectParms;
+    SUDPParms mConnectParms;
     sockaddr_in mLocalAddr{};
     sockaddr_in mRemoteAddr{};
 

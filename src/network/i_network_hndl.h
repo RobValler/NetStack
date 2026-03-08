@@ -12,10 +12,12 @@
 
 namespace message { struct SMessage; }
 
+struct SConnectParms;
+
 class INetworkHndl {
 public:
     ~INetworkHndl(){}
-    virtual int Start() =0;
+    virtual int Start(const SConnectParms&) =0;
     virtual int Send(const message::SMessage&) =0;
     virtual int Receive(message::SMessage&) =0;
     virtual int Connections() =0;

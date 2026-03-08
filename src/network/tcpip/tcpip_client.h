@@ -14,17 +14,17 @@
 
 #include "i_network_hndl.h"
 
+
 namespace message { struct SMessage; }
 
 class CTCPIP_Client : public INetworkHndl
 {
 public:
-    CTCPIP_Client(const SConnectParms& parms);
+    CTCPIP_Client() =default;
     ~CTCPIP_Client() =default;
 
-    int Start() override;
+    int Start(const SConnectParms& parms) override;
     void Stop() override;
-
     int Send(const message::SMessage& msg_data) override;
     int Receive(message::SMessage& msg_data) override;
     int Connections() override;

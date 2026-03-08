@@ -169,6 +169,7 @@ bool CSFTPHndl::SFTPGetFile(
     size_t local_total_size = attr->size;
     sftp_attributes_free(attr);
     size_t local_bytes_transferred = 0;
+    mProgressGet = 0;
 
     // write
     char buffer[gMsgBufferSize];
@@ -332,6 +333,7 @@ bool CSFTPHndl::SFTPPutFile(
     }
 
     // transfer
+    mProgressGet = 0;
     size_t local_bytes_transferred = 0;
     char buffer[gMsgBufferSize];
     while (infile.good()) {

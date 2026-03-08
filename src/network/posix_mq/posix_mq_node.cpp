@@ -24,14 +24,9 @@
 #define MAX_MSG_SIZE 1024
 
 
-CPOSIX_MQ_Node::CPOSIX_MQ_Node(const SConnectParms& parms)
-    : mConnectParms(parms)
-{ /**/ }
+int CPOSIX_MQ_Node::Start(const SConnectParms& parms) {
 
-int CPOSIX_MQ_Node::Start() {
-
-
-
+    mConnectParms = parms;
     return 0;
 }
 

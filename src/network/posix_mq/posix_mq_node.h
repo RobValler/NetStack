@@ -21,10 +21,10 @@ namespace message { struct SMessage; }
 class CPOSIX_MQ_Node : public INetworkHndl
 {
 public:
-    CPOSIX_MQ_Node(const SConnectParms& parms);
+    CPOSIX_MQ_Node() =default;
     ~CPOSIX_MQ_Node() =default;
 
-    int Start() override;
+    int Start(const SConnectParms& parms) override;
     int Send(const message::SMessage& data) override;
     int Receive(message::SMessage& data) override;
     int Connections() override;
