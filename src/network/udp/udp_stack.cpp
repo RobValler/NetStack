@@ -24,15 +24,14 @@
 #endif
 
 #include <cstring>
+#include <thread>
+#include <chrono>
 #include <iostream>
 
 
 int CUDP_Stack::Start(const SUDPParms& parms) {
 
-    mConnectParms.broadCastSender = parms.broadCastSender;
-    mConnectParms.portLocalID = parms.portLocalID;
-    mConnectParms.portRemoteID = parms.portRemoteID;
-    mConnectParms.ipAddress = parms.ipAddress;
+    mConnectParms = parms;
 
 #ifdef _WIN32
     WSADATA wsaData;
@@ -50,9 +49,34 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
         return 1;
     }
 
-    mLocalAddr.sin_family = AF_INET;
-    mLocalAddr.sin_addr.s_addr = INADDR_ANY;
-    mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
+    if(mConnectParms.broadCastSender) {
+
+        // Enable broadcast
+        int broadcastEnable = 1;
+        if (setsockopt(mLocalSockFD, SOL_SOCKET, SO_BROADCAST,
+                       &broadcastEnable, sizeof(broadcastEnable)) < 0) {
+            perror("setsockopt");
+            return 1;
+        }
+
+        mLocalAddr.sin_family = AF_INET;
+        mLocalAddr.sin_addr.s_addr = INADDR_ANY;
+        mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
+
+    } else {
+
+        mLocalAddr.sin_family = AF_INET;
+#if 0
+        mLocalAddr.sin_addr.s_addr = INADDR_ANY;
+#else
+        if(1 != inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &mLocalAddr.sin_addr)) {
+            std::cerr << "mLocalAddr inet_pton error: " << std::strerror(errno) << "\n";
+            return 1;
+        }
+#endif
+        mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
+    }
+
 
     if (bind(mLocalSockFD, (sockaddr*)&mLocalAddr, sizeof(mLocalAddr)) < 0) {
 #ifdef __linux__
@@ -68,10 +92,8 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
 
     mRemoteAddr.sin_family = AF_INET;
     mRemoteAddr.sin_port = htons(mConnectParms.portRemoteID);
-    auto res = inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &mRemoteAddr.sin_addr);
-    if(1 != res) {
+    if(1 != inet_pton(AF_INET, mConnectParms.remoteIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
 
-        // return value is wierd
         std::cerr << "portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
         return 1;
     }
@@ -116,6 +138,7 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
                                   &clientLen);
     if(body_bytes <= 0) {
         std::cerr << "server receive error " << strerror(errno) << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     } else {
 
         // fetch payload

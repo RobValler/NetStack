@@ -62,7 +62,7 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
     for(const auto& it : mClientFDList) {
         if(msg_data.mConnectionID == it->GetConnectionID()) {
             body_bytes = it->Receive(msg_data);
-            std::cout << "data received from " << it->GetName() << "\n" << std::endl;
+//            std::cout << "data received from " << it->GetName() << "\n" << std::endl;
         }
     }
     return body_bytes;

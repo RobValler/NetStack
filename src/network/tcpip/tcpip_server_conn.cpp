@@ -41,7 +41,7 @@ int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
     foo_data.body_size = (int)foo_data.mMsgPayload.size();
     (void)write(mParms.mClientFD, &foo_data.body_size, sizeof(foo_data.body_size));
     body_bytes = write(mParms.mClientFD, &foo_data.mMsgPayload[0], foo_data.body_size);
-    std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
+    //std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
 
     return body_bytes;
 }

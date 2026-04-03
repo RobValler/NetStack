@@ -17,8 +17,8 @@ class CommsStackRecipe(ConanFile):
     generators = "CMakeDeps", "CMakeToolchain"
 
     def requirements(self):
-        self.requires("boost/1.88.0")
-        self.requires("asio/1.36.0")
+#        self.requires("boost/1.88.0")
+#        self.requires("asio/1.36.0")
         self.requires("gtest/1.17.0")
         self.requires("protobuf/6.32.1")
 #        self.requires("logger/1.0.1")

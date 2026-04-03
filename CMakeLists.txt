@@ -16,7 +16,7 @@ set(W1)
 set(Wfloat-conversion)
 
 #OPTIONS
-set(TEST_ENABLE ON)
+option(TEST_ENABLE "Library Test Enable" OFF)
 
 #PACKAGES
 find_package(Threads REQUIRED)
