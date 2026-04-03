@@ -21,7 +21,7 @@
 #include <thread>
 #include <chrono>
 
-int CTCPIP_Client::Start(const SConnectParms& parms) {
+int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
 
     mConnectParms = parms;
 
@@ -44,6 +44,8 @@ int CTCPIP_Client::Start(const SConnectParms& parms) {
     // we apply a re-try strategy here
     bool local_connected_OK = false;
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
+
+        std::cout << "Attempting to connect to " << mConnectParms.ipAddress << std::endl;
 
         if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
             perror("tcpip client connect error");

@@ -20,7 +20,7 @@
 #include <cstring>
 #include <iostream>
 
-int CTCPIP_Server::Start(const STCPIPParms& parms) {
+int CTCPIP_Server::Start(const STCPIPServParms& parms) {
 
     mConnectParms = parms;
 

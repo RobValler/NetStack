@@ -11,6 +11,8 @@
 
 #include "udp_stack.h"
 #include "tcpip_server.h"
+#include "tcpip_client.h"
+
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
@@ -23,9 +25,10 @@
 TEST(network, connect)
 {
     std::atomic<bool> ExitCalled = false;
+    std::string tcpipServerIP = "";
 
     // ### SERVER ###
-    auto threadServer = [&]() {
+    auto threadServerUDP = [&]() {
 
         CUDP_Stack udp_stack;
         CSerial serialise;
@@ -40,7 +43,7 @@ TEST(network, connect)
         udp_parms.portRemoteID = 8002;
         udp_parms.broadCastSender = false;
         //udp_parms.localIpAddress = "192.168.100.11";
-        udp_parms.remoteIpAddress = "192.168.100.11";
+        udp_parms.remoteIpAddress = "192.168.100.12";
         udp_stack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -63,10 +66,27 @@ TEST(network, connect)
 
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+        udp_stack.Stop();
+    };
+
+
+    auto threadServerTCPIP = [&]() {
+
+
+        CTCPIP_Server tcpip_server;
+        STCPIPServParms parms;
+        parms.portID = 2001;
+        tcpip_server.Start(parms);
+        while(!ExitCalled) {
+
+
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        tcpip_server.Stop();
     };
 
     // ### CLIENT ###
-    auto threadClient = [&]() {
+    auto threadClientUDP = [&]() {
 
         CUDP_Stack mUDPStack;
         message::SMessage msg;
@@ -75,11 +95,11 @@ TEST(network, connect)
 
         // Start the UDP
         SUDPParms udp_parms;
-        udp_parms.broadCastSender = false;
+        udp_parms.broadCastSender = true;
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
-        //udp_parms.localIpAddress = "192.168.100.12";
-        udp_parms.remoteIpAddress = "192.168.100.12";
+        udp_parms.localIpAddress = "192.168.100.255";
+        //udp_parms.remoteIpAddress = "192.168.100.255";
         mUDPStack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -105,20 +125,60 @@ TEST(network, connect)
                       << ", "
                       << rec_message.msgname() << std::endl;
 
-
+            tcpipServerIP = msg.mIpAddress;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
+        mUDPStack.Stop();
     };
 
-    std::thread tServer(threadServer);
-    std::thread tClient(threadClient); // client is receiver, receiver creates the channel for MQ
+    auto threadClientTCPIP = [&]() {
+
+        while(!ExitCalled) {
+
+            if("" == tcpipServerIP) {
+
+                // not ready yet
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        CTCPIP_Client tcpip_client;
+        STCPIPClientParms parms;
+        parms.portID = 2001;
+        parms.ipAddress = tcpipServerIP;
+        parms.maxConnectRetryAttempts = 10;
+        if(1 == tcpip_client.Start(parms)) {
+            std::cerr << "error: tcpip_client start failed" << std::endl;
+        }
+
+        while(!ExitCalled) {
+
+
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+
+        tcpip_client.Stop();
+
+    };
+
+    std::thread tServerUDP(threadServerUDP);
+    std::thread tServerTCPIP(threadServerTCPIP);
+    std::thread tClientUDP(threadClientUDP);
+    std::thread tClientTCPIP(threadClientTCPIP);
 
     std::cout << "Press Key to continue..."  << std::endl;;
     std::cout << "A key WAS pressed :D"  << std::endl;;
 
     //ExitCalled = true;
 
-    tClient.join();
-    tServer.join();
+    tClientUDP.join();
+    tClientTCPIP.join();
+    tServerUDP.join();
+    tServerTCPIP.join();
+
+
 }
 

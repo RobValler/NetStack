@@ -17,7 +17,7 @@
 #include <vector>
 #include <memory>
 
-struct STCPIPParms {
+struct STCPIPServParms {
     int portID{0};
 };
 
@@ -29,14 +29,14 @@ public:
     CTCPIP_Server() =default;
     ~CTCPIP_Server() =default;
 
-    int Start(const STCPIPParms& parms);
+    int Start(const STCPIPServParms& parms);
     void Stop();
     int Send(const message::SMessage& msg_data);
     int Receive(message::SMessage& msg_data);
     int Connections();
 
 private:
-    STCPIPParms mConnectParms;
+    STCPIPServParms mConnectParms;
 
     int ThreadFunc();
     std::thread mtFunc;

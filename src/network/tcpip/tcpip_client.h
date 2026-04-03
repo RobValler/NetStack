@@ -10,27 +10,30 @@
 #ifndef TCPIP_CLIENT__H
 #define TCPIP_CLIENT__H
 
-#include "network_connect_parms.h"
+#include <string>
 
-#include "i_network_hndl.h"
-
+struct STCPIPClientParms {
+    int portID{0};
+    std::string ipAddress{""};
+    int maxConnectRetryAttempts{0};
+};
 
 namespace message { struct SMessage; }
 
-class CTCPIP_Client : public INetworkHndl
+class CTCPIP_Client
 {
 public:
     CTCPIP_Client() =default;
     ~CTCPIP_Client() =default;
 
-    int Start(const SConnectParms& parms) override;
-    void Stop() override;
-    int Send(const message::SMessage& msg_data) override;
-    int Receive(message::SMessage& msg_data) override;
-    int Connections() override;
+    int Start(const STCPIPClientParms& parms);
+    void Stop();
+    int Send(const message::SMessage& msg_data);
+    int Receive(message::SMessage& msg_data);
+    int Connections();
 
 private:
-    SConnectParms mConnectParms;
+    STCPIPClientParms mConnectParms;
     int client_fd;
 };
 
