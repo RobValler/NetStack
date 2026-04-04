@@ -33,18 +33,11 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
 
     mConnectParms = parms;
 
-#ifdef _WIN32
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2, 2), &wsaData);
-#endif
-
     // LOCAL NODE
     mLocalSockFD = socket(AF_INET, SOCK_DGRAM, 0);
     if (mLocalSockFD < 0) {
 #ifdef __linux__
     perror("mLocalSockFD socket error");
-#elif _WIN32
-        WSACleanup();
 #endif
         return 1;
     }
@@ -58,25 +51,13 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
             perror("setsockopt");
             return 1;
         }
-
-        mLocalAddr.sin_family = AF_INET;
-        mLocalAddr.sin_addr.s_addr = INADDR_ANY;
-        mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
-
-    } else {
-
-        mLocalAddr.sin_family = AF_INET;
-#if 0
-        mLocalAddr.sin_addr.s_addr = INADDR_ANY;
-#else
-        if(1 != inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &mLocalAddr.sin_addr)) {
-            std::cerr << "mLocalAddr inet_pton error: " << std::strerror(errno) << "\n";
-            return 1;
-        }
-#endif
-        mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
     }
-
+    mLocalAddr.sin_family = AF_INET;
+    mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
+    if(1 != inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &mLocalAddr.sin_addr)) {
+        std::cerr << "mLocalAddr inet_pton error: " << std::strerror(errno) << "\n";
+        return 1;
+    }
 
     if (bind(mLocalSockFD, (sockaddr*)&mLocalAddr, sizeof(mLocalAddr)) < 0) {
 #ifdef __linux__
@@ -130,7 +111,7 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
     sockaddr_in clientAddr{};
     socklen_t clientLen = sizeof(clientAddr);
 
-    std::vector<std::uint8_t> data(1024);
+    std::vector<std::uint8_t> data(4096);
     ssize_t body_bytes = recvfrom(mLocalSockFD,
                                   &data[0],
                                   data.size(),

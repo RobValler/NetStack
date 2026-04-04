@@ -40,10 +40,15 @@ TEST(network, connect)
         // Start the UDP
         SUDPParms udp_parms;
         udp_parms.portLocalID = 8001;
-        udp_parms.portRemoteID = 8002;
+        udp_parms.portRemoteID = 8002;       
+        udp_parms.localIpAddress = "192.168.100.11";
+#if 1
+        udp_parms.broadCastSender = true;
+        udp_parms.remoteIpAddress = "192.168.100.255";
+#else
         udp_parms.broadCastSender = false;
-        //udp_parms.localIpAddress = "192.168.100.11";
         udp_parms.remoteIpAddress = "192.168.100.12";
+#endif
         udp_stack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -58,7 +63,7 @@ TEST(network, connect)
 
             if(0< udp_stack.Send(msg)) {
 
-
+                std::cout << "Send OK" << std::endl;
             } else {
 
                 std::cerr << "error: Send" << std::endl;
@@ -71,7 +76,6 @@ TEST(network, connect)
 
 
     auto threadServerTCPIP = [&]() {
-
 
         CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
@@ -95,10 +99,10 @@ TEST(network, connect)
 
         // Start the UDP
         SUDPParms udp_parms;
-        udp_parms.broadCastSender = false;
+        //udp_parms.broadCastSender = false;
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
-        udp_parms.localIpAddress = "192.168.100.12";
+        //udp_parms.localIpAddress = "192.168.100.12";
         //udp_parms.remoteIpAddress = "192.168.100.255";
         mUDPStack.Start(udp_parms);
 
