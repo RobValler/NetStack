@@ -14,7 +14,8 @@
 
 struct STCPIPClientParms {
     int portID{0};
-    std::string ipAddress{""};
+    std::string localIpAddress{""};
+    std::string remoteIpAddress{""};
     int maxConnectRetryAttempts{0};
 };
 

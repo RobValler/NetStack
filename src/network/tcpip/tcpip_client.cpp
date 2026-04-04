@@ -35,17 +35,29 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(mConnectParms.portID);   
-    if (inet_pton(AF_INET, mConnectParms.ipAddress.c_str(), &server_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, mConnectParms.remoteIpAddress.c_str(), &server_addr.sin_addr) <= 0) {
         perror("inet_pton");
         return 1;
     }
+
+    sockaddr_in local_addr{};
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_port = htons(0); // 0 = let OS choose port
+
+    inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &local_addr.sin_addr);
+
+    if (bind(client_fd, (struct sockaddr*)&local_addr, sizeof(local_addr)) < 0) {
+        perror("local bind");
+        return 1;
+    }
+
 
     // Connect to localhost
     // we apply a re-try strategy here
     bool local_connected_OK = false;
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
 
-        std::cout << "Attempting to connect to " << mConnectParms.ipAddress << std::endl;
+        std::cout << "Attempting to connect to " << mConnectParms.remoteIpAddress << std::endl;
 
         if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
             perror("tcpip client connect error");
@@ -61,7 +73,7 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
         return 1;
     }
 
-    std::cout << "Client: Connected to remote server (" << mConnectParms.ipAddress << ")" << std::endl;
+    std::cout << "Client: Connected to remote server (" << mConnectParms.remoteIpAddress << ")" << std::endl;
 
     return 0;
 }

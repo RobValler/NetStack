@@ -95,10 +95,10 @@ TEST(network, connect)
 
         // Start the UDP
         SUDPParms udp_parms;
-        udp_parms.broadCastSender = true;
+        udp_parms.broadCastSender = false;
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
-        udp_parms.localIpAddress = "192.168.100.255";
+        udp_parms.localIpAddress = "192.168.100.12";
         //udp_parms.remoteIpAddress = "192.168.100.255";
         mUDPStack.Start(udp_parms);
 
@@ -116,6 +116,7 @@ TEST(network, connect)
                 continue;
             }
 
+#if 1
             std::cout << "Client : received data from ("
                       << msg.mIpAddress
                       << ":"
@@ -124,6 +125,7 @@ TEST(network, connect)
                       << rec_message.msgid()
                       << ", "
                       << rec_message.msgname() << std::endl;
+#endif
 
             tcpipServerIP = msg.mIpAddress;
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -146,16 +148,16 @@ TEST(network, connect)
         }
 
         CTCPIP_Client tcpip_client;
-        STCPIPClientParms parms;
-        parms.portID = 2001;
-        parms.ipAddress = tcpipServerIP;
-        parms.maxConnectRetryAttempts = 10;
-        if(1 == tcpip_client.Start(parms)) {
+        STCPIPClientParms tcpip_parms;
+        tcpip_parms.portID = 2001;
+        tcpip_parms.localIpAddress = "192.168.100.12";
+        tcpip_parms.remoteIpAddress = tcpipServerIP;
+        tcpip_parms.maxConnectRetryAttempts = 10;
+        if(1 == tcpip_client.Start(tcpip_parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 
         while(!ExitCalled) {
-
 
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
