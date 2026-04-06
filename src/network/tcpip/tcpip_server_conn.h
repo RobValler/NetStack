@@ -11,6 +11,7 @@
 #define TCPIP_CLIENT_CON__H
 
 #include <string>
+#include <memory>
 
 struct SClientEntryCont {
     std::string mName{""};
@@ -24,17 +25,17 @@ struct SClientEntryCont {
 };
 
 namespace message { struct SMessage; }
+class EncryptTLS;
 
 class CTCPIP_ClientConn
 {
 public:
-    CTCPIP_ClientConn(SClientEntryCont parms)
-        : mParms(parms)
-    {}
+    CTCPIP_ClientConn(SClientEntryCont parms);
     ~CTCPIP_ClientConn() =default;
 
     int Receive(message::SMessage& msg_data);
     int Send(const message::SMessage& msg_data);
+    bool Start();
     void Stop();
     bool Connected();
     int GetConnectionID() { return mParms.mConnectionID; }
@@ -42,6 +43,7 @@ public:
 
 private:
     SClientEntryCont mParms;
+    std::shared_ptr<EncryptTLS> mpTLS;
     bool mExitCaller{false};
     bool mConnected{true}; // class instance exists after connection
 };

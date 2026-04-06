@@ -60,10 +60,10 @@ int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
     int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-        if(msg_data.mConnectionID == it->GetConnectionID()) {
+//        if(msg_data.mConnectionID == it->GetConnectionID()) {
             body_bytes = it->Receive(msg_data);
 //            std::cout << "data received from " << it->GetName() << "\n" << std::endl;
-        }
+//        }
     }
     return body_bytes;
 }
@@ -156,7 +156,10 @@ int CTCPIP_Server::ThreadFunc() {
                       << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "
                       << clientip << "]" << std::endl;
 
-            mClientFDList.emplace_back(std::make_shared<CTCPIP_ClientConn>(local_conn_parms));
+            auto tmp_ptr_to_conn = std::make_shared<CTCPIP_ClientConn>(local_conn_parms);
+            if(tmp_ptr_to_conn->Start()) {
+                mClientFDList.emplace_back(std::move(tmp_ptr_to_conn));
+            }
             max_fd = std::max(max_fd, fd);
 
         } // FD_ISSET

@@ -7,10 +7,18 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#include "encrypt.h"
+#include "encrypt_aes.h"
 
 #include <openssl/ssl.h>
 #include <openssl/rand.h>
+#include <openssl/err.h>
+
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <unistd.h>
+
+#include <cstring>
+#include <iostream>
 
 bool EncryptAES(const std::vector<std::uint8_t>& raw_text,
              const std::uint8_t* key,
@@ -84,16 +92,6 @@ bool DecryptAES(const std::vector<std::uint8_t>& encrypted_text,
     EVP_CIPHER_CTX_free(local_context);
 
     return true;
-}
-
-bool EncryptTLS() {
-
-    return false;
-}
-
-bool DecryptTLS() {
-
-    return false;
 }
 
 void Rand(std::uint8_t* key, int size){

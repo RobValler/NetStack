@@ -10,6 +10,7 @@
 #include "tcpip_server_conn.h"
 
 #include "message_define.h"
+#include "encrypt_tls.h"
 
 #ifdef __linux__
 #include <arpa/inet.h>
@@ -24,6 +25,22 @@
 #include <unistd.h>
 #include <iostream>
 
+CTCPIP_ClientConn::CTCPIP_ClientConn(SClientEntryCont parms)
+    : mParms(parms)
+    , mpTLS(std::make_shared<EncryptTLS>())
+{
+
+}
+
+bool CTCPIP_ClientConn::Start() {
+
+    if(!mpTLS->Accept(mParms.mClientFD)) {
+        std::cerr << "[TPIP Server Con] TLS connect error" << std::endl;
+        return false;
+    }
+    return true;
+}
+
 void CTCPIP_ClientConn::Stop() {
 
     close(mParms.mClientFD);
@@ -31,6 +48,9 @@ void CTCPIP_ClientConn::Stop() {
 
 int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
 
+#if 0
+    return mpTLS->Send(msg_data);
+#else
     int body_bytes = 0;
 
     if(!mConnected) {
@@ -44,6 +64,7 @@ int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
     //std::cout << "Send called with " << std::to_string(body_bytes) << " number of bytes sent" << std::endl;
 
     return body_bytes;
+#endif
 }
 
 int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
@@ -52,6 +73,9 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
         return 0;
     }
 
+#if 1
+    return mpTLS->Receive(msg_data);
+#else
     auto foo(msg_data);
     auto hdr_size = sizeof(foo.body_size);
     ssize_t hdr_bytes = recv(mParms.mClientFD, &foo.body_size, hdr_size, 0);
@@ -67,6 +91,7 @@ int CTCPIP_ClientConn::Receive(message::SMessage& msg_data) {
 
     msg_data = foo;
     return body_bytes;
+#endif
 }
 
 bool CTCPIP_ClientConn::Connected() {

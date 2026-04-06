@@ -7,8 +7,8 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#ifndef ENCRYPT__H
-#define ENCRYPT__H
+#ifndef ENCRYPT_AES__H
+#define ENCRYPT_AES__H
 
 #include <vector>
 #include <cstdint>
@@ -24,11 +24,6 @@ bool DecryptAES(const std::vector<std::uint8_t>& ciphertext,
             const std::uint8_t* iv,
             std::vector<std::uint8_t>& plaintext);
 
-// OpenSSL TLS
-bool EncryptTLS();
-
-bool DecryptTLS();
-
 void Rand(std::uint8_t* key, int size);
 
-#endif // ENCRYPT__H
+#endif // ENCRYPT_AES__H

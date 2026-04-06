@@ -7,14 +7,27 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#include "encrypt.h"
-
 #include <gtest/gtest.h>
+
+#include "encrypt_aes.h"
+#include "encrypt_tls.h"
+
+#include "tcpip_server.h"
+#include "tcpip_client.h"
+
+#include "message_define.h"
+#include "testMsgPackage.pb.h"
+#include "serialise.h"
+
+#include <thread>
+#include <atomic>
+#include <chrono>
+#include <iostream>
 
 #include <cstdint>
 #include <iostream>
 
-TEST(encrypt, example)
+TEST(encrypt, AES)
 {
     std::uint8_t local_key[32];
     std::uint8_t local_iv[16];
@@ -42,3 +55,89 @@ TEST(encrypt, example)
     std::cout << "Result = " << output << std::endl;
 }
 
+TEST(encrypt, TLS) {
+
+    std::atomic<bool> ExitCalled = false;
+
+    // ### SERVER ###
+    auto threadServerTCPIP = [&]() {
+
+        TestMsgPackage test_msg;
+        message::SMessage msg;
+        CSerial serialise;
+
+
+        CTCPIP_Server tcpip_server;
+        STCPIPServParms parms;
+        parms.portID = 2001;
+        tcpip_server.Start(parms);
+        while(!ExitCalled) {
+
+            if(tcpip_server.Receive(msg) > 0) {
+
+                int size = msg.mMsgPayload.size();
+                if(!serialise.Deserialise(msg.mMsgPayload, test_msg, size)) {
+                    std::cerr << "error: Deserialise" << std::endl;
+                    continue;
+                }
+
+                std::cout << "Name = " << test_msg.msgname() << ", ID = " << test_msg.msgid() << std::endl;
+
+            } else {
+                //std::cerr << " thread server rec error" << std::endl;
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            }
+        }
+        tcpip_server.Stop();
+    };
+
+    // ### CLIENT ###
+    auto threadClientTCPIP = [&]() {
+
+        TestMsgPackage test_msg;
+        message::SMessage msg;
+
+        CSerial serialise;
+        CTCPIP_Client tcpip_client;
+        STCPIPClientParms tcpip_parms;
+        tcpip_parms.portID = 2001;
+        tcpip_parms.localIpAddress = "127.0.0.1";
+        tcpip_parms.remoteIpAddress = "127.0.0.1";
+        tcpip_parms.maxConnectRetryAttempts = 10;
+        if(1 == tcpip_client.Start(tcpip_parms)) {
+            std::cerr << "error: tcpip_client start failed" << std::endl;
+        }
+
+        int index = 0;
+        while(!ExitCalled) {
+
+            if(!tcpip_client.Connection()) {
+
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+                continue;
+            }
+
+            test_msg.set_msgid(123);
+            test_msg.set_msgname("Test " + std::to_string(index++));
+            int size;
+            if(serialise.Serialise(test_msg, msg.mMsgPayload, size)) {
+
+                if(tcpip_client.Send(msg) <= 0) {
+                    std::cerr << "error: tcpip send failed" << std::endl;
+                }
+            }
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        tcpip_client.Stop();
+    };
+
+    std::thread tServerTCPIP(threadServerTCPIP);
+    std::thread tClientTCPIP(threadClientTCPIP);
+
+
+    //ExitCalled = true;
+
+
+    tClientTCPIP.join();
+    tServerTCPIP.join();
+}

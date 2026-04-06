@@ -11,6 +11,9 @@
 #define TCPIP_CLIENT__H
 
 #include <string>
+#include <memory>
+
+class EncryptTLS;
 
 struct STCPIPClientParms {
     int portID{0};
@@ -24,7 +27,7 @@ namespace message { struct SMessage; }
 class CTCPIP_Client
 {
 public:
-    CTCPIP_Client() =default;
+    CTCPIP_Client();
     ~CTCPIP_Client() =default;
 
     int Start(const STCPIPClientParms& parms);
@@ -37,6 +40,8 @@ private:
     STCPIPClientParms mConnectParms;
     int client_fd;
     bool mIsConnected{false};
+
+    std::shared_ptr<EncryptTLS> mpTLS;
 };
 
 #endif // TCPIP_CLIENT__H

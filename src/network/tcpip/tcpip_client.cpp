@@ -10,6 +10,8 @@
 #include "tcpip_client.h"
 
 #include "message_define.h"
+#include "encrypt_tls.h"
+
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -20,6 +22,12 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+
+CTCPIP_Client::CTCPIP_Client()
+    : mpTLS(std::make_shared<EncryptTLS>())
+{
+
+}
 
 int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
 
@@ -59,7 +67,14 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
         std::cout << "Attempting to connect to " << mConnectParms.remoteIpAddress << std::endl;
         if (0 == connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 
-            mIsConnected = true;
+            if(mpTLS->Connect(client_fd)) {
+                mIsConnected = true;
+
+            } else {
+                //perror("tcpip client TLS connect error");
+                return 1;
+            }
+
             break;
 
         } else {
@@ -85,15 +100,22 @@ void CTCPIP_Client::Stop(){
 
 int CTCPIP_Client::Send(const message::SMessage& msg_data) {
 
+#if 1
+    return mpTLS->Send(msg_data);
+#else
     auto foo_data(msg_data);
     foo_data.body_size = (int)foo_data.mMsgPayload.size();
     auto header_bytes = write(client_fd, &foo_data.body_size, sizeof(foo_data.body_size));
     auto body_bytes = write(client_fd, &foo_data.mMsgPayload[0], foo_data.body_size);
     return body_bytes;
+#endif
 }
 
 int CTCPIP_Client::Receive(message::SMessage& msg_data) {
 
+#if 1
+    return mpTLS->Receive(msg_data);
+#else
     auto foo(msg_data);
     auto hdr_size = sizeof(foo.body_size);
     ssize_t hdr_bytes = recv(client_fd, &foo.body_size, hdr_size, 0);
@@ -109,6 +131,7 @@ int CTCPIP_Client::Receive(message::SMessage& msg_data) {
 
     msg_data = foo;
     return body_bytes;
+#endif
 }
 
 bool CTCPIP_Client::Connection() {
