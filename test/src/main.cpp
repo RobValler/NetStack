@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
     int result;
     testing::InitGoogleTest(&argc, argv);
     //::testing::GTEST_FLAG(filter) = "*";
-    ::testing::GTEST_FLAG(filter) = "network.connect";
+    //::testing::GTEST_FLAG(filter) = "network.connect";
+    ::testing::GTEST_FLAG(filter) = "encrypt.example";
 
     result = RUN_ALL_TESTS();
     return result;

@@ -31,11 +31,12 @@ public:
     void Stop();
     int Send(const message::SMessage& msg_data);
     int Receive(message::SMessage& msg_data);
-    int Connections();
+    bool Connection();
 
 private:
     STCPIPClientParms mConnectParms;
     int client_fd;
+    bool mIsConnected{false};
 };
 
 #endif // TCPIP_CLIENT__H

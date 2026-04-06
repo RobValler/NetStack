@@ -51,24 +51,24 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
         return 1;
     }
 
-
     // Connect to localhost
     // we apply a re-try strategy here
-    bool local_connected_OK = false;
+    mIsConnected = false;
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
 
         std::cout << "Attempting to connect to " << mConnectParms.remoteIpAddress << std::endl;
+        if (0 == connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 
-        if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            mIsConnected = true;
+            break;
+
+        } else {
             perror("tcpip client connect error");
             std::this_thread::sleep_for(std::chrono::seconds(1));
-        } else {
-            local_connected_OK = true;
-            break;
         }
     }
 
-    if(!local_connected_OK) {
+    if(!mIsConnected) {
         close(client_fd);
         return 1;
     }
@@ -111,10 +111,7 @@ int CTCPIP_Client::Receive(message::SMessage& msg_data) {
     return body_bytes;
 }
 
-int CTCPIP_Client::Connections() {
+bool CTCPIP_Client::Connection() {
 
-    int local_num_of_clients = 0;
-
-
-    return local_num_of_clients;
+    return mIsConnected;
 };

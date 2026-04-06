@@ -13,22 +13,22 @@
 #include <vector>
 #include <cstdint>
 
-// struct SSL_CTX;
-// struct SSL;
+// OpenSSL AES
+bool EncryptAES(const std::vector<std::uint8_t>& plaintext,
+            const std::uint8_t* key,
+            const std::uint8_t* iv,
+            std::vector<std::uint8_t>& ciphertext);
 
-class CEncrypt
-{
-public:
-    CEncrypt();
-    ~CEncrypt();
+bool DecryptAES(const std::vector<std::uint8_t>& ciphertext,
+            const std::uint8_t* key,
+            const std::uint8_t* iv,
+            std::vector<std::uint8_t>& plaintext);
 
-    bool Encrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data);
-    bool Decrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data);
+// OpenSSL TLS
+bool EncryptTLS();
 
-private:
-    // SSL_CTX *ctx;
-    // SSL *ssl;
+bool DecryptTLS();
 
-};
+void Rand(std::uint8_t* key, int size);
 
 #endif // ENCRYPT__H

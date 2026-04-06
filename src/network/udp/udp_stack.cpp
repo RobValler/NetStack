@@ -55,13 +55,13 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
     mLocalAddr.sin_family = AF_INET;
     mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
     if(1 != inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &mLocalAddr.sin_addr)) {
-        std::cerr << "mLocalAddr inet_pton error: " << std::strerror(errno) << "\n";
+        std::cerr << "[UDP] mLocalAddr inet_pton error : " << std::strerror(errno) << "\n";
         return 1;
     }
 
     if (bind(mLocalSockFD, (sockaddr*)&mLocalAddr, sizeof(mLocalAddr)) < 0) {
 #ifdef __linux__
-        perror("mLocalSockFD bind");
+        perror("[UDP] mLocalSockFD bind");
         close(mLocalSockFD);
 #elif _WIN32
 
@@ -75,7 +75,7 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
     mRemoteAddr.sin_port = htons(mConnectParms.portRemoteID);
     if(1 != inet_pton(AF_INET, mConnectParms.remoteIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
 
-        std::cerr << "portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
+        std::cerr << "[UDP] portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
         return 1;
     }
 
@@ -100,7 +100,7 @@ int CUDP_Stack::Send(const message::SMessage& msg_data) {
                             0, (sockaddr*)&mRemoteAddr,
                             sizeof(mRemoteAddr));
     if(body_bytes <= 0) {
-        std::cerr << "server send error " << strerror(errno) << std::endl;
+        std::cerr << "[UDP] Send error " << strerror(errno) << std::endl;
     }
 
     return body_bytes;
@@ -118,7 +118,7 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
                                   0, (sockaddr*)&clientAddr,
                                   &clientLen);
     if(body_bytes <= 0) {
-        std::cerr << "server receive error " << strerror(errno) << std::endl;
+        std::cerr << "[UDP] Receive error " << strerror(errno) << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     } else {
 

@@ -23,7 +23,7 @@ find_package(Threads REQUIRED)
 #find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
 #find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
-#find_package(OpenSSL 3.6.0 REQUIRED)
+find_package(OpenSSL 3.6.1 REQUIRED)
 #find_package(Libssh2 1.11.1 REQUIRED)
 find_package(libssh 0.11.3 REQUIRED)
 find_package(libxml2 2.15.0 REQUIRED)
@@ -90,6 +90,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     protobuf::protobuf
     ssh::ssh
     LibXml2::LibXml2
+    openssl::openssl
 )
 
 
@@ -139,7 +140,7 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     #Boost::boost
     #asio::asio
     gtest::gtest
-    protobuf::protobuf
+    protobuf::protobuf    
     net_stack    
 )
 endif()

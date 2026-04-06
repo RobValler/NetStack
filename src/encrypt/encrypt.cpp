@@ -10,28 +10,95 @@
 #include "encrypt.h"
 
 #include <openssl/ssl.h>
-#include <openssl/err.h>
+#include <openssl/rand.h>
 
-CEncrypt::CEncrypt()
-{
-    // SSL_library_init();
-    // SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
-    // SSL *ssl = SSL_new(ctx);
-}
+bool EncryptAES(const std::vector<std::uint8_t>& raw_text,
+             const std::uint8_t* key,
+             const std::uint8_t* init_vect,
+             std::vector<std::uint8_t>& encrypted_text) {
 
-CEncrypt::~CEncrypt() {
+    int local_len;
+    int encrypted_text_len = 0;
 
-    // SSL_CTX_free(ctx);
-}
+    EVP_CIPHER_CTX* local_context = EVP_CIPHER_CTX_new();
+    if (!local_context) {
+        return false;
+    }
 
-bool CEncrypt::Encrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data) {
+    encrypted_text.resize(raw_text.size() + EVP_MAX_BLOCK_LENGTH);
 
-    output_data = input_data;
+    if (1 != EVP_EncryptInit_ex(local_context, EVP_aes_256_cbc(), NULL, key, init_vect)) {
+        return false;
+    }
+
+    if (1 != EVP_EncryptUpdate(local_context, encrypted_text.data(), &local_len, raw_text.data(), raw_text.size())) {
+        return false;
+    }
+
+    encrypted_text_len = local_len;
+
+    if (1 != EVP_EncryptFinal_ex(local_context, encrypted_text.data() + local_len, &local_len)) {
+        return false;
+    }
+
+    encrypted_text_len += local_len;
+    encrypted_text.resize(encrypted_text_len);
+
+    EVP_CIPHER_CTX_free(local_context);
+
     return true;
 }
 
-bool CEncrypt::Decrypt(const std::vector<std::uint8_t>& input_data, std::vector<std::uint8_t>& output_data) {
+bool DecryptAES(const std::vector<std::uint8_t>& encrypted_text,
+             const std::uint8_t* key,
+             const std::uint8_t* init_vect,
+             std::vector<std::uint8_t>& raw_text) {
 
-    output_data = input_data;
+    int local_len;
+    int raw_text_len;
+
+    EVP_CIPHER_CTX* local_context = EVP_CIPHER_CTX_new();
+    if (!local_context) {
+        return false;
+    }
+
+    raw_text.resize(encrypted_text.size());
+
+    if (1 != EVP_DecryptInit_ex(local_context, EVP_aes_256_cbc(), NULL, key, init_vect)) {
+        return false;
+    }
+
+    if (1 != EVP_DecryptUpdate(local_context, raw_text.data(), &local_len, encrypted_text.data(), encrypted_text.size())) {
+        return false;
+    }
+
+    raw_text_len = local_len;
+
+    if (1 != EVP_DecryptFinal_ex(local_context, raw_text.data() + local_len, &local_len)) {
+        return false;
+    }
+
+    raw_text_len += local_len;
+    raw_text.resize(raw_text_len);
+
+    EVP_CIPHER_CTX_free(local_context);
+
     return true;
 }
+
+bool EncryptTLS() {
+
+    return false;
+}
+
+bool DecryptTLS() {
+
+    return false;
+}
+
+void Rand(std::uint8_t* key, int size){
+
+    RAND_bytes(key, size);
+}
+
+
