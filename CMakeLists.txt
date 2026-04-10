@@ -90,7 +90,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     protobuf::protobuf
     ssh::ssh
     LibXml2::LibXml2
-    openssl::openssl
+    OpenSSL::SSL
 )
 
 

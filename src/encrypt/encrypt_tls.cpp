@@ -20,7 +20,7 @@
 #include <unistd.h>
 
 #include <cstring>
-#include <iostream>
+//#include <iostream>
 
 
 struct SpImp {
@@ -132,35 +132,50 @@ bool EncryptTLS::Connect(int sock) {
 
 int EncryptTLS::Send(const message::SMessage& msg) {
 
-    // send
+    // send the header
     auto foo_data(msg);
-    foo_data.body_size = htonl(foo_data.mMsgPayload.size());
-    auto header_bytes = SSL_write(mpData->ssl, &foo_data.body_size, sizeof(foo_data.body_size));
-    auto bytes_sent = SSL_write(mpData->ssl, foo_data.mMsgPayload.data(), foo_data.mMsgPayload.size());
-    return bytes_sent;
+
+    //uint32_t head_len = htonl(msg.mMsgPayload.size());
+    uint32_t head_len = msg.mMsgPayload.size();
+    std::uint32_t header_bytes = SSL_write(mpData->ssl, &head_len, sizeof(head_len));
+    if(header_bytes != sizeof(head_len)) {
+        return header_bytes;
+    }
+
+    int total = 0;
+    while(total < head_len) {
+
+        int n = SSL_write(mpData->ssl, &foo_data.mMsgPayload[0] + total, head_len - total);
+        if(n <= 0) {
+            return n;
+        }
+        total += n;
+    }
+
+    return total;
 }
 
 int EncryptTLS::Receive(message::SMessage& msg) {
 
-    auto foo(msg);
-    auto hdr_size = sizeof(foo.body_size);
-    ssize_t hdr_bytes = SSL_read(mpData->ssl, &foo.body_size, hdr_size);
-    foo.body_size = ntohl(foo.body_size);
-    if( (hdr_bytes != hdr_size) &&
-        (foo.body_size <= 0) ) {
-        std::cerr << "[EncryptTLS] Header size error" << std::endl;
-        return -1;
+    auto foo_data(msg);
+    std::uint32_t header_bytes = SSL_read(mpData->ssl, &foo_data.body_size, sizeof(foo_data.body_size));
+    if(header_bytes != sizeof(std::uint32_t)) {
+        return 0;
     }
 
-    //uint16_t msg_size = ntohl(foo.body_size);
-    foo.mMsgPayload.resize(foo.body_size);
-    ssize_t bytes_rec = SSL_read(mpData->ssl, &foo.mMsgPayload[0], foo.body_size);
-    if(bytes_rec <= 0) {
-        ERR_print_errors_fp(stderr);
-        return bytes_rec;
+    int total = 0;
+    int len = foo_data.body_size;
+    foo_data.mMsgPayload.resize(len);
+    while(total < len) {
+
+        int n = SSL_read(mpData->ssl, &foo_data.mMsgPayload[0] + total, len - total);
+        if(n <= 0) {
+            return n;
+        }
+        total += n;
     }
 
-    msg = foo;
+    msg = foo_data;
 
-    return bytes_rec;
+    return total;
 }

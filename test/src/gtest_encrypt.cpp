@@ -81,7 +81,8 @@ TEST(encrypt, TLS) {
                     continue;
                 }
 
-                std::cout << "Name = " << test_msg.msgname() << ", ID = " << test_msg.msgid() << std::endl;
+                // std::cout << "Name = " << test_msg.msgname() << ", ID = " << test_msg.msgid() << std::endl;
+                std::cout << "ID = " << test_msg.msgid() << std::endl;
 
             } else {
                 //std::cerr << " thread server rec error" << std::endl;
@@ -118,7 +119,19 @@ TEST(encrypt, TLS) {
             }
 
             test_msg.set_msgid(123);
-            test_msg.set_msgname("Test " + std::to_string(index++));
+
+
+
+            std::string data;
+            size_t foo_size = 200000;
+            data.resize(foo_size);
+            for (size_t i = 0; i < foo_size; ++i) {
+                data[i] = 'A' + (i % 26); // predictable pattern
+            }
+
+            test_msg.set_msgname(data);
+            //test_msg.set_msgname("Test " + std::to_string(index++));
+
             int size;
             if(serialise.Serialise(test_msg, msg.mMsgPayload, size)) {
 
@@ -133,10 +146,6 @@ TEST(encrypt, TLS) {
 
     std::thread tServerTCPIP(threadServerTCPIP);
     std::thread tClientTCPIP(threadClientTCPIP);
-
-
-    //ExitCalled = true;
-
 
     tClientTCPIP.join();
     tServerTCPIP.join();

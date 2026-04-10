@@ -18,9 +18,10 @@ Work in progress.... sooooo much work in progress.
 
 ## Usage
 run the install script in root:   
-'./create.sh'
-
-##OpenSSL
+```
+./create.sh
+```
+## OpenSSL
 Creation of pem files for testing:  
 ```
 openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes
