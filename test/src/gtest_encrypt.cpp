@@ -82,7 +82,7 @@ TEST(encrypt, TLS) {
                 }
 
                 // std::cout << "Name = " << test_msg.msgname() << ", ID = " << test_msg.msgid() << std::endl;
-                std::cout << "ID = " << test_msg.msgid() << std::endl;
+                std::cout << "NAME length = " << std::to_string(test_msg.msgname().size()) << ", ID = " << test_msg.msgid() << std::endl;
 
             } else {
                 //std::cerr << " thread server rec error" << std::endl;
@@ -109,7 +109,7 @@ TEST(encrypt, TLS) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 
-        int index = 0;
+        int index = 1;
         while(!ExitCalled) {
 
             if(!tcpip_client.Connection()) {
@@ -118,7 +118,7 @@ TEST(encrypt, TLS) {
                 continue;
             }
 
-            test_msg.set_msgid(123);
+            test_msg.set_msgid(index++);
 
 
 

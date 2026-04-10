@@ -132,50 +132,63 @@ bool EncryptTLS::Connect(int sock) {
 
 int EncryptTLS::Send(const message::SMessage& msg) {
 
+    int total_bytes_sent = 0;
+    int expected_bytes_sent = sizeof(std::uint32_t);
+
     // send the header
-    auto foo_data(msg);
-
-    //uint32_t head_len = htonl(msg.mMsgPayload.size());
-    uint32_t head_len = msg.mMsgPayload.size();
-    std::uint32_t header_bytes = SSL_write(mpData->ssl, &head_len, sizeof(head_len));
-    if(header_bytes != sizeof(head_len)) {
-        return header_bytes;
-    }
-
-    int total = 0;
-    while(total < head_len) {
-
-        int n = SSL_write(mpData->ssl, &foo_data.mMsgPayload[0] + total, head_len - total);
-        if(n <= 0) {
-            return n;
+    std::uint32_t head_len = htonl(msg.mMsgPayload.size());
+    const uint8_t* p_head_len = reinterpret_cast<const uint8_t*>(&head_len);
+    while (total_bytes_sent < expected_bytes_sent) {
+        int bytes_sent = SSL_write(mpData->ssl, p_head_len + total_bytes_sent, expected_bytes_sent - total_bytes_sent);
+        if (bytes_sent <= 0) {
+            return bytes_sent;
         }
-        total += n;
+        total_bytes_sent += bytes_sent;
     }
 
-    return total;
+    // send the payload
+    total_bytes_sent = 0;
+    expected_bytes_sent = ntohl(head_len);
+    while(total_bytes_sent < expected_bytes_sent) {
+
+        int bytes_sent = SSL_write(mpData->ssl, msg.mMsgPayload.data() + total_bytes_sent, expected_bytes_sent - total_bytes_sent);
+        if(bytes_sent <= 0) {
+            return bytes_sent;
+        }
+        total_bytes_sent += bytes_sent;
+    }
+
+    return total_bytes_sent;
 }
 
 int EncryptTLS::Receive(message::SMessage& msg) {
 
-    auto foo_data(msg);
-    std::uint32_t header_bytes = SSL_read(mpData->ssl, &foo_data.body_size, sizeof(foo_data.body_size));
-    if(header_bytes != sizeof(std::uint32_t)) {
-        return 0;
-    }
+    int total_bytes_received = 0;
+    int expected_bytes_sent = sizeof(std::uint32_t);
 
-    int total = 0;
-    int len = foo_data.body_size;
-    foo_data.mMsgPayload.resize(len);
-    while(total < len) {
-
-        int n = SSL_read(mpData->ssl, &foo_data.mMsgPayload[0] + total, len - total);
-        if(n <= 0) {
-            return n;
+    // receive the header
+    std::uint32_t head_len;
+    auto p_head_len = reinterpret_cast<uint8_t*>(&head_len);
+    while (total_bytes_received < expected_bytes_sent) {
+        int bytes_received = SSL_read(mpData->ssl, p_head_len + total_bytes_received, expected_bytes_sent - total_bytes_received);
+        if (bytes_received <= 0) {
+            return bytes_received;
         }
-        total += n;
+        total_bytes_received += bytes_received;
     }
 
-    msg = foo_data;
+    // receive the payload
+    msg.body_size = ntohl(head_len);
+    total_bytes_received = 0;
+    msg.mMsgPayload.resize(msg.body_size);
+    while(total_bytes_received < msg.body_size) {
 
-    return total;
+        int bytes_received = SSL_read(mpData->ssl, &msg.mMsgPayload[0] + total_bytes_received, msg.body_size - total_bytes_received);
+        if(bytes_received <= 0) {
+            return bytes_received;
+        }
+        total_bytes_received += bytes_received;
+    }
+
+    return total_bytes_received;
 }
