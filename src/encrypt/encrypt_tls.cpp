@@ -20,15 +20,12 @@
 #include <unistd.h>
 
 #include <cstring>
-//#include <iostream>
-
 
 struct SpImp {
 
     SSL_CTX* ctx{nullptr};
     SSL* ssl{nullptr};
 };
-
 
 void info_callback(const SSL *ssl, int where, int ret)
 {
@@ -48,9 +45,10 @@ void info_callback(const SSL *ssl, int where, int ret)
     }
 }
 
-EncryptTLS::EncryptTLS()
-    : mpData(std::make_unique<SpImp>()) {
-
+EncryptTLS::EncryptTLS(const SEntryptILSData& parms)
+    : mpData(std::make_unique<SpImp>())
+    , mParms(parms)
+{
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_all_algorithms();
@@ -73,11 +71,11 @@ bool EncryptTLS::Accept(int sock) {
     }
 
     // Load certificate + private key
-    if(0 == SSL_CTX_use_certificate_file(mpData->ctx, "cert.pem", SSL_FILETYPE_PEM)) {
+    if(0 == SSL_CTX_use_certificate_file(mpData->ctx, mParms.cert.c_str(), SSL_FILETYPE_PEM)) {
         ERR_print_errors_fp(stderr);
         return false;
     }
-    if(0 == SSL_CTX_use_PrivateKey_file(mpData->ctx, "key.pem", SSL_FILETYPE_PEM)) {
+    if(0 == SSL_CTX_use_PrivateKey_file(mpData->ctx, mParms.pkey.c_str(), SSL_FILETYPE_PEM)) {
         ERR_print_errors_fp(stderr);
         return false;
     }
@@ -105,11 +103,11 @@ bool EncryptTLS::Connect(int sock) {
     }
 
     // Load certificate + private key
-    if(0 == SSL_CTX_use_certificate_file(mpData->ctx, "cert.pem", SSL_FILETYPE_PEM)) {
+    if(0 == SSL_CTX_use_certificate_file(mpData->ctx, mParms.cert.c_str(), SSL_FILETYPE_PEM)) {
         ERR_print_errors_fp(stderr);
         return false;
     }
-    if(0 == SSL_CTX_use_PrivateKey_file(mpData->ctx, "key.pem", SSL_FILETYPE_PEM)) {
+    if(0 == SSL_CTX_use_PrivateKey_file(mpData->ctx, mParms.pkey.c_str(), SSL_FILETYPE_PEM)) {
         ERR_print_errors_fp(stderr);
         return false;
     }

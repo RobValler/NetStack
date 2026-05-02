@@ -27,7 +27,7 @@
 
 CTCPIP_ClientConn::CTCPIP_ClientConn(SClientEntryCont parms)
     : mParms(parms)
-    , mpTLS(std::make_shared<EncryptTLS>())
+    , mpTLS(std::make_shared<EncryptTLS>(SEntryptILSData{parms.cert, parms.pkey}))
 {
 
 }

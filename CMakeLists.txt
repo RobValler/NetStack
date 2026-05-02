@@ -24,9 +24,10 @@ find_package(Threads REQUIRED)
 #find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(OpenSSL 3.6.1 REQUIRED)
-#find_package(Libssh2 1.11.1 REQUIRED)
+find_package(libssh2 1.11.1 REQUIRED)
 find_package(libssh 0.11.3 REQUIRED)
 find_package(libxml2 2.15.0 REQUIRED)
+find_package(logger 1.0.1 REQUIRED)
 
 #EXTERNAL INCLUDES
 include_directories(${ProtobufIncludePath})
@@ -36,7 +37,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/core)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
-include_directories(${CMAKE_SOURCE_DIR}/src/sftp2)
+include_directories(${CMAKE_SOURCE_DIR}/src/sftp)
 include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
@@ -53,7 +54,7 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
     ${CMAKE_SOURCE_DIR}/src/file/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/sftp2/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/sftp/*.cpp
 )
 
 #HEADERS FILES
@@ -66,7 +67,7 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
     ${CMAKE_SOURCE_DIR}/src/file/*.h
-    ${CMAKE_SOURCE_DIR}/src/sftp2/*.h
+    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
 )
 
 
@@ -89,6 +90,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     #asio::asio
     protobuf::protobuf
     ssh::ssh
+    libssh2::libssh2
     LibXml2::LibXml2
     OpenSSL::SSL
 )
@@ -132,7 +134,7 @@ add_executable(${PROJECT_NAME}_TEST
     ${TEST_HEADERS}
     ${PROTO_SRCS}
     ${PROTO_HDRS}
-    ${ProtoFiles}
+    ${ProtoFiles}    
 )
 
 target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
@@ -140,8 +142,9 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     #Boost::boost
     #asio::asio
     gtest::gtest
-    protobuf::protobuf    
-    net_stack    
+    protobuf::protobuf
+    logger::logger
+    net_stack
 )
 endif()
 
@@ -153,7 +156,9 @@ message("# Protobuf version:        [${protobuf_VERSION}]")
 message("# OpenSSL version:         [${OpenSSL_VERSION}]")
 message("# LibSSH version:          [${libssh_VERSION}]")
 message("# LibXML2 version:         [${libxml2_VERSION}]")
-message("# Test:")
+message("# Logger version:          [${logger_VERSION}]")
 message("# TEST_ENABLE:             [${TEST_ENABLE}]")
+if(TEST_ENABLE)
 message("# GTest version:           [${GTest_VERSION}]")
+endif()
 message("######################################################################")

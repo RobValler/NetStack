@@ -77,10 +77,12 @@ TEST(network, connect)
 
     auto threadServerTCPIP = [&]() {
 
-        CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
-        tcpip_server.Start(parms);
+        parms.cert = "../cert/cert.pem";
+        parms.pkey = "../cert/key.pem";
+        CTCPIP_Server tcpip_server(parms);
+        tcpip_server.Start();
         while(!ExitCalled) {
 
 
@@ -151,13 +153,16 @@ TEST(network, connect)
             }
         }
 
-        CTCPIP_Client tcpip_client;
+
         STCPIPClientParms tcpip_parms;
         tcpip_parms.portID = 2001;
         tcpip_parms.localIpAddress = "192.168.100.12";
         tcpip_parms.remoteIpAddress = tcpipServerIP;
         tcpip_parms.maxConnectRetryAttempts = 10;
-        if(1 == tcpip_client.Start(tcpip_parms)) {
+        tcpip_parms.cert = "../cert/cert.pem";
+        tcpip_parms.pkey = "../cert/key.pem";
+        CTCPIP_Client tcpip_client(tcpip_parms);
+        if(1 == tcpip_client.Start()) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 

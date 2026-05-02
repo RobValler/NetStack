@@ -18,6 +18,7 @@
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
+#include "logger.h"
 
 #include <thread>
 #include <atomic>
@@ -52,7 +53,7 @@ TEST(encrypt, AES)
 
     output.clear();
     output.assign(decrypted_text.begin(), decrypted_text.end());
-    std::cout << "Result = " << output << std::endl;
+    CLogger::Print("Result = ", output);
 }
 
 TEST(encrypt, TLS) {
@@ -66,11 +67,12 @@ TEST(encrypt, TLS) {
         message::SMessage msg;
         CSerial serialise;
 
-
-        CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
-        tcpip_server.Start(parms);
+        parms.cert = "../../cert/cert.pem";
+        parms.pkey = "../../cert/key.pem";
+        CTCPIP_Server tcpip_server(parms);
+        tcpip_server.Start();
         while(!ExitCalled) {
 
             if(tcpip_server.Receive(msg) > 0) {
@@ -81,8 +83,9 @@ TEST(encrypt, TLS) {
                     continue;
                 }
 
-                // std::cout << "Name = " << test_msg.msgname() << ", ID = " << test_msg.msgid() << std::endl;
-                std::cout << "NAME length = " << std::to_string(test_msg.msgname().size()) << ", ID = " << test_msg.msgid() << std::endl;
+                std::string str = "NAME length = " + std::to_string(test_msg.msgname().size()) + ", ID = " + std::to_string(test_msg.msgid());
+                CLogger::Print(str);
+                //CLogger::Print("NAME length = ", std::to_string(test_msg.msgname().size()), ", ID = ", test_msg.msgid(), "\n");
 
             } else {
                 //std::cerr << " thread server rec error" << std::endl;
@@ -99,13 +102,16 @@ TEST(encrypt, TLS) {
         message::SMessage msg;
 
         CSerial serialise;
-        CTCPIP_Client tcpip_client;
-        STCPIPClientParms tcpip_parms;
-        tcpip_parms.portID = 2001;
-        tcpip_parms.localIpAddress = "127.0.0.1";
-        tcpip_parms.remoteIpAddress = "127.0.0.1";
-        tcpip_parms.maxConnectRetryAttempts = 10;
-        if(1 == tcpip_client.Start(tcpip_parms)) {
+
+        STCPIPClientParms parms;
+        parms.portID = 2001;
+        parms.localIpAddress = "127.0.0.1";
+        parms.remoteIpAddress = "127.0.0.1";
+        parms.maxConnectRetryAttempts = 10;
+        parms.cert = "../../cert/cert.pem";
+        parms.pkey = "../../cert/key.pem";
+        CTCPIP_Client tcpip_client(parms);
+        if(1 == tcpip_client.Start()) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 

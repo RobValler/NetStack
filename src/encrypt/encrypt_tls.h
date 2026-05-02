@@ -11,15 +11,20 @@
 #define ENCRYPT_TLS__H
 
 
-
+#include <string>
 #include <memory>
+
+struct SEntryptILSData {
+    std::string cert{""};
+    std::string pkey{""};
+};
 
 namespace message { struct SMessage; }
 struct SpImp;
 
 class EncryptTLS {
 public:
-    EncryptTLS();
+    EncryptTLS(const SEntryptILSData& parms);
     ~EncryptTLS();
 
     bool Accept(int sock);
@@ -29,6 +34,7 @@ public:
 
 private:
     std::unique_ptr<SpImp> mpData;
+    SEntryptILSData mParms;
 };
 
 #endif // ENCRYPT_TLS__H

@@ -20,6 +20,8 @@ struct STCPIPClientParms {
     std::string localIpAddress{""};
     std::string remoteIpAddress{""};
     int maxConnectRetryAttempts{0};
+    std::string cert{""};
+    std::string pkey{""};
 };
 
 namespace message { struct SMessage; }
@@ -27,10 +29,10 @@ namespace message { struct SMessage; }
 class CTCPIP_Client
 {
 public:
-    CTCPIP_Client();
+    CTCPIP_Client(const STCPIPClientParms& parms);
     ~CTCPIP_Client() =default;
 
-    int Start(const STCPIPClientParms& parms);
+    int Start();
     void Stop();
     int Send(const message::SMessage& msg_data);
     int Receive(message::SMessage& msg_data);

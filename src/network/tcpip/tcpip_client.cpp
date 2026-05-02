@@ -23,15 +23,18 @@
 #include <thread>
 #include <chrono>
 
-CTCPIP_Client::CTCPIP_Client()
-    : mpTLS(std::make_shared<EncryptTLS>())
-{
+CTCPIP_Client::CTCPIP_Client(const STCPIPClientParms& parms)
+    : mConnectParms(parms) {
 
+    SEntryptILSData data;
+    data.cert = parms.cert;
+    data.pkey = parms.pkey;
+    mpTLS = std::make_shared<EncryptTLS>(data);
 }
 
-int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
+int CTCPIP_Client::Start() {
 
-    mConnectParms = parms;
+
 
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client_fd < 0) {

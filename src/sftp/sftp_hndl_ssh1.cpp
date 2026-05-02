@@ -8,7 +8,7 @@
  *****************************************************************/
 
 // header
-#include "sftp_hndl.h"
+#include "sftp_hndl_ssh1.h"
 
 #include <libssh/libssh.h>
 #include <libssh/sftp.h>

@@ -22,6 +22,8 @@ struct SClientEntryCont {
     SOCKET mClientFD{0};
 #endif
     std::string mIPAaddress{""};
+    std::string cert{""};
+    std::string pkey{""};
 };
 
 namespace message { struct SMessage; }

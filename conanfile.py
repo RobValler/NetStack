@@ -8,7 +8,7 @@
 # *****************************************************************/
 
 from conan import ConanFile
-from conan.tools.cmake import CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.cmake import cmake_layout
 
 class CommsStackRecipe(ConanFile):
     name = "net_stack"
@@ -21,10 +21,10 @@ class CommsStackRecipe(ConanFile):
 #        self.requires("asio/1.36.0")
         self.requires("gtest/1.17.0")
         self.requires("protobuf/6.32.1")
-#        self.requires("logger/1.0.1")
+        self.requires("logger/1.0.1")
         self.requires("openssl/3.6.1")
         self.requires("libssh/0.11.3")
-#        self.requires("libssh2/1.11.1")
+        self.requires("libssh2/1.11.1")
         self.requires("libxml2/2.15.0")
 
 

@@ -7,8 +7,10 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
+// LIB SSH 2
+
 // header
-#include "sftp_hndl.h"
+#include "sftp_hndl_ssh2.h"
 
 #include "netstack_config.h"
 #include <libssh2.h>

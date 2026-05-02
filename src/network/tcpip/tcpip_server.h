@@ -19,6 +19,8 @@
 
 struct STCPIPServParms {
     int portID{0};
+    std::string cert{""};
+    std::string pkey{""};
 };
 
 namespace message { struct SMessage; }
@@ -26,10 +28,10 @@ namespace message { struct SMessage; }
 class CTCPIP_Server
 {
 public:
-    CTCPIP_Server() =default;
+    CTCPIP_Server(const STCPIPServParms& parms);
     ~CTCPIP_Server() =default;
 
-    int Start(const STCPIPServParms& parms);
+    int Start();
     void Stop();
     int Send(const message::SMessage& msg_data);
     int Receive(message::SMessage& msg_data);

@@ -20,9 +20,12 @@
 #include <cstring>
 #include <iostream>
 
-int CTCPIP_Server::Start(const STCPIPServParms& parms) {
 
-    mConnectParms = parms;
+CTCPIP_Server::CTCPIP_Server(const STCPIPServParms& parms)
+    : mConnectParms(parms)
+{ }
+
+int CTCPIP_Server::Start() {
 
     mtFunc = std::thread(&CTCPIP_Server::ThreadFunc, this);
     return 0;
@@ -151,6 +154,8 @@ int CTCPIP_Server::ThreadFunc() {
 
             local_conn_parms.mConnectionID = numgen();
             local_conn_parms.mIPAaddress = clientip;
+            local_conn_parms.cert = mConnectParms.cert;
+            local_conn_parms.pkey = mConnectParms.pkey;
 
             std::cout << "Server: Connected to remote client [connection ID = "
                       << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "

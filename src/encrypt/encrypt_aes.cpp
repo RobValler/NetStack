@@ -18,7 +18,6 @@
 #include <unistd.h>
 
 #include <cstring>
-#include <iostream>
 
 bool EncryptAES(const std::vector<std::uint8_t>& raw_text,
              const std::uint8_t* key,
