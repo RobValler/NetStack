@@ -54,10 +54,7 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
     }
     mLocalAddr.sin_family = AF_INET;
     mLocalAddr.sin_port = htons(mConnectParms.portLocalID);
-    if(1 != inet_pton(AF_INET, mConnectParms.localIpAddress.c_str(), &mLocalAddr.sin_addr)) {
-        std::cerr << "[UDP] mLocalAddr inet_pton error : " << std::strerror(errno) << "\n";
-        return 1;
-    }
+    mLocalAddr.sin_addr.s_addr = INADDR_ANY;
 
     if (bind(mLocalSockFD, (sockaddr*)&mLocalAddr, sizeof(mLocalAddr)) < 0) {
 #ifdef __linux__

@@ -16,6 +16,7 @@
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
+#include "logger.h"
 
 #include <thread>
 #include <atomic>
@@ -41,14 +42,12 @@ TEST(network, connect)
         SUDPParms udp_parms;
         udp_parms.portLocalID = 8001;
         udp_parms.portRemoteID = 8002;       
-        udp_parms.localIpAddress = "192.168.100.11";
-#if 1
+        //udp_parms.localIpAddress = "192.168.100.11";
+
         udp_parms.broadCastSender = true;
         udp_parms.remoteIpAddress = "192.168.100.255";
-#else
-        udp_parms.broadCastSender = false;
-        udp_parms.remoteIpAddress = "192.168.100.12";
-#endif
+        // udp_parms.broadCastSender = false;
+        // udp_parms.remoteIpAddress = "192.168.100.12";
         udp_stack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -77,12 +76,12 @@ TEST(network, connect)
 
     auto threadServerTCPIP = [&]() {
 
+        CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
         parms.cert = "../cert/cert.pem";
         parms.pkey = "../cert/key.pem";
-        CTCPIP_Server tcpip_server(parms);
-        tcpip_server.Start();
+        tcpip_server.Start(parms);
         while(!ExitCalled) {
 
 
@@ -105,15 +104,17 @@ TEST(network, connect)
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
         //udp_parms.localIpAddress = "192.168.100.12";
-        //udp_parms.remoteIpAddress = "192.168.100.255";
+        udp_parms.remoteIpAddress = "0.0.0.0"; //"192.168.100.12";
         mUDPStack.Start(udp_parms);
 
         while(!ExitCalled) {
 
-            if(0 >= mUDPStack.Receive(msg)) {
+            if(mUDPStack.Receive(msg) <= 0) {
                 std::cerr << "error: Receive" << std::endl;
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 continue;
+            } else {
+                CLogger::Print(std::string("UDP message received"));
             }
 
             int size = msg.mMsgPayload.size();
@@ -153,16 +154,15 @@ TEST(network, connect)
             }
         }
 
-
+        CTCPIP_Client tcpip_client;
         STCPIPClientParms tcpip_parms;
         tcpip_parms.portID = 2001;
         tcpip_parms.localIpAddress = "192.168.100.12";
         tcpip_parms.remoteIpAddress = tcpipServerIP;
         tcpip_parms.maxConnectRetryAttempts = 10;
         tcpip_parms.cert = "../cert/cert.pem";
-        tcpip_parms.pkey = "../cert/key.pem";
-        CTCPIP_Client tcpip_client(tcpip_parms);
-        if(1 == tcpip_client.Start()) {
+        tcpip_parms.pkey = "../cert/key.pem";        
+        if(1 == tcpip_client.Start(tcpip_parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 

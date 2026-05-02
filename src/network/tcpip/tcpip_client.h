@@ -29,10 +29,10 @@ namespace message { struct SMessage; }
 class CTCPIP_Client
 {
 public:
-    CTCPIP_Client(const STCPIPClientParms& parms);
+    CTCPIP_Client()  =default;
     ~CTCPIP_Client() =default;
 
-    int Start();
+    int Start(const STCPIPClientParms& parms);
     void Stop();
     int Send(const message::SMessage& msg_data);
     int Receive(message::SMessage& msg_data);

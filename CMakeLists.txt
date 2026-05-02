@@ -95,6 +95,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     OpenSSL::SSL
 )
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+)
 
 if(TEST_ENABLE)
 ################### TEST ###################

@@ -25,7 +25,7 @@ struct SUDPParms {
     bool broadCastSender{false};
     int portLocalID{0};
     int portRemoteID{0};
-    std::string localIpAddress{"0.0.0.0"};
+    //std::string localIpAddress{"0.0.0.0"};
     std::string remoteIpAddress{"0.0.0.0"};
 };
 

@@ -67,12 +67,12 @@ TEST(encrypt, TLS) {
         message::SMessage msg;
         CSerial serialise;
 
+        CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
         parms.cert = "../../cert/cert.pem";
         parms.pkey = "../../cert/key.pem";
-        CTCPIP_Server tcpip_server(parms);
-        tcpip_server.Start();
+        tcpip_server.Start(parms);
         while(!ExitCalled) {
 
             if(tcpip_server.Receive(msg) > 0) {
@@ -103,6 +103,7 @@ TEST(encrypt, TLS) {
 
         CSerial serialise;
 
+        CTCPIP_Client tcpip_client;
         STCPIPClientParms parms;
         parms.portID = 2001;
         parms.localIpAddress = "127.0.0.1";
@@ -110,8 +111,8 @@ TEST(encrypt, TLS) {
         parms.maxConnectRetryAttempts = 10;
         parms.cert = "../../cert/cert.pem";
         parms.pkey = "../../cert/key.pem";
-        CTCPIP_Client tcpip_client(parms);
-        if(1 == tcpip_client.Start()) {
+
+        if(1 == tcpip_client.Start(parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 

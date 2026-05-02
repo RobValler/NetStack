@@ -23,18 +23,14 @@
 #include <thread>
 #include <chrono>
 
-CTCPIP_Client::CTCPIP_Client(const STCPIPClientParms& parms)
-    : mConnectParms(parms) {
+int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
+
+    mConnectParms = parms;
 
     SEntryptILSData data;
     data.cert = parms.cert;
     data.pkey = parms.pkey;
     mpTLS = std::make_shared<EncryptTLS>(data);
-}
-
-int CTCPIP_Client::Start() {
-
-
 
     client_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (client_fd < 0) {
@@ -68,7 +64,7 @@ int CTCPIP_Client::Start() {
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
 
         std::cout << "Attempting to connect to " << mConnectParms.remoteIpAddress << std::endl;
-        if (0 == connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 
             if(mpTLS->Connect(client_fd)) {
                 mIsConnected = true;
@@ -77,7 +73,6 @@ int CTCPIP_Client::Start() {
                 //perror("tcpip client TLS connect error");
                 return 1;
             }
-
             break;
 
         } else {

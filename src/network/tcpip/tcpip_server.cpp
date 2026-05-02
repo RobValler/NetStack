@@ -21,11 +21,9 @@
 #include <iostream>
 
 
-CTCPIP_Server::CTCPIP_Server(const STCPIPServParms& parms)
-    : mConnectParms(parms)
-{ }
+int CTCPIP_Server::Start(const STCPIPServParms& parms) {
 
-int CTCPIP_Server::Start() {
+    mConnectParms = parms;
 
     mtFunc = std::thread(&CTCPIP_Server::ThreadFunc, this);
     return 0;
