@@ -92,7 +92,8 @@ int CTCPIP_Server::ThreadFunc() {
 
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;   // 0.0.0.0
+    //server_addr.sin_addr.s_addr = INADDR_ANY;   // 0.0.0.0
+    inet_pton(AF_INET, mConnectParms.ipaddress.c_str(), &server_addr.sin_addr);
     server_addr.sin_port = htons(mConnectParms.portID);
 
     fd_set master_set, read_set;

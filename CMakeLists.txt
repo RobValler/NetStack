@@ -11,9 +11,6 @@ project ( net_stack )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(Wall)
-set(W1)
-set(Wfloat-conversion)
 
 #OPTIONS
 option(TEST_ENABLE "Library Test Enable" OFF)
@@ -33,7 +30,7 @@ find_package(logger 1.0.1 REQUIRED)
 include_directories(${ProtobufIncludePath})
 
 #INTERNAL INCLUDES
-include_directories(${CMAKE_SOURCE_DIR}/src/core)
+
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
@@ -42,15 +39,17 @@ include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
+include_directories(${CMAKE_SOURCE_DIR}/src/network/helper)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
 #SOURCE FILES
 file(GLOB APP_SOURCES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/*.cpp    
     ${CMAKE_SOURCE_DIR}/src/network/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/network/helper/*.cpp
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
     ${CMAKE_SOURCE_DIR}/src/file/*.cpp
@@ -64,6 +63,7 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.h
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/helper/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
     ${CMAKE_SOURCE_DIR}/src/file/*.h
@@ -93,6 +93,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     libssh2::libssh2
     LibXml2::LibXml2
     OpenSSL::SSL
+    logger::logger
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

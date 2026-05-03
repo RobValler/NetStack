@@ -16,7 +16,7 @@
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
-#include "logger.h"
+//#include "logger.h"
 
 #include <thread>
 #include <atomic>
@@ -44,7 +44,7 @@ TEST(network, connect)
         udp_parms.portRemoteID = 8002;       
         //udp_parms.localIpAddress = "192.168.100.11";
 
-        udp_parms.broadCastSender = true;
+        udp_parms.broadcaster = true;
         udp_parms.remoteIpAddress = "192.168.100.255";
         // udp_parms.broadCastSender = false;
         // udp_parms.remoteIpAddress = "192.168.100.12";
@@ -62,7 +62,7 @@ TEST(network, connect)
 
             if(0< udp_stack.Send(msg)) {
 
-                std::cout << "Send OK" << std::endl;
+                std::cout << "UDP Send OK" << std::endl;
             } else {
 
                 std::cerr << "error: Send" << std::endl;
@@ -79,11 +79,11 @@ TEST(network, connect)
         CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
+        parms.ipaddress = "192.168.100.11";
         parms.cert = "../cert/cert.pem";
         parms.pkey = "../cert/key.pem";
         tcpip_server.Start(parms);
         while(!ExitCalled) {
-
 
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
@@ -104,7 +104,7 @@ TEST(network, connect)
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
         //udp_parms.localIpAddress = "192.168.100.12";
-        udp_parms.remoteIpAddress = "0.0.0.0"; //"192.168.100.12";
+        udp_parms.remoteIpAddress = "0.0.0.0";  //"192.168.100.11";
         mUDPStack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -113,8 +113,6 @@ TEST(network, connect)
                 std::cerr << "error: Receive" << std::endl;
                 std::this_thread::sleep_for(std::chrono::milliseconds(200));
                 continue;
-            } else {
-                CLogger::Print(std::string("UDP message received"));
             }
 
             int size = msg.mMsgPayload.size();
@@ -122,7 +120,6 @@ TEST(network, connect)
                 std::cerr << "error: Deserialise" << std::endl;
                 continue;
             }
-
 #if 1
             std::cout << "Client : received data from ("
                       << msg.mIpAddress
@@ -180,8 +177,9 @@ TEST(network, connect)
     std::thread tClientUDP(threadClientUDP);
     std::thread tClientTCPIP(threadClientTCPIP);
 
-    std::cout << "Press Key to continue..."  << std::endl;;
-    std::cout << "A key WAS pressed :D"  << std::endl;;
+    std::cout << "Press Key to continue..."  << std::endl;
+
+    std::cout << "A key WAS pressed :D"  << std::endl;
 
     //ExitCalled = true;
 

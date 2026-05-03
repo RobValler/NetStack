@@ -19,6 +19,7 @@
 
 struct STCPIPServParms {
     int portID{0};
+    std::string ipaddress{""};
     std::string cert{""};
     std::string pkey{""};
 };
