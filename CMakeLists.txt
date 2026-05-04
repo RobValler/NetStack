@@ -39,6 +39,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
+include_directories(${CMAKE_SOURCE_DIR}/src/network/uds_ipc)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/helper)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
@@ -49,6 +50,7 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/network/uds_ipc/*.cpp
     ${CMAKE_SOURCE_DIR}/src/network/helper/*.cpp
     ${CMAKE_SOURCE_DIR}/src/serialise/*.cpp
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.cpp
@@ -63,13 +65,13 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.h
     ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
     ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
+    ${CMAKE_SOURCE_DIR}/src/network/uds_ipc/*.h
     ${CMAKE_SOURCE_DIR}/src/network/helper/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
     ${CMAKE_SOURCE_DIR}/src/file/*.h
     ${CMAKE_SOURCE_DIR}/src/sftp/*.h
 )
-
 
 #CONFIG FILES
 file(GLOB APP_CONFIG

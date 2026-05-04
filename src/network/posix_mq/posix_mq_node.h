@@ -18,17 +18,17 @@
 
 namespace message { struct SMessage; }
 
-class CPOSIX_MQ_Node : public INetworkHndl
+class CPOSIX_MQ_Node
 {
 public:
     CPOSIX_MQ_Node() =default;
     ~CPOSIX_MQ_Node() =default;
 
-    int Start(const SConnectParms& parms) override;
-    int Send(const message::SMessage& data) override;
-    int Receive(message::SMessage& data) override;
-    int Connections() override;
-    void Stop() override;
+    int Start(const SConnectParms& parms) ;
+    int Send(const message::SMessage& data);
+    int Receive(message::SMessage& data);
+    int Connections();
+    void Stop();
 
 private:
     SConnectParms mConnectParms;

@@ -62,7 +62,7 @@ TEST(network, connect)
 
             if(0< udp_stack.Send(msg)) {
 
-                std::cout << "UDP Send OK" << std::endl;
+                // std::cout << "UDP Send OK" << std::endl;
             } else {
 
                 std::cerr << "error: Send" << std::endl;
