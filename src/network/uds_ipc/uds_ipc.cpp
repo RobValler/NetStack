@@ -18,7 +18,7 @@
 
 bool CUDSIPC::Start(const std::string& channel) {
 
-    int mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (mSocket == -1) {
         perror("socket");
         return false;
@@ -63,6 +63,36 @@ int CUDSIPC::Send(const std::string& message) {
         perror("sendmsg");
         return -1;
     }
+
+    return 0;
+}
+
+int CUDSIPC::Receive(std::string& outMessage)
+{
+    char buffer[4096];  // Adjust size as needed
+
+    struct msghdr msg{};
+    struct iovec iov{};
+
+    // Set up iovec to point to our receive buffer
+    iov.iov_base = buffer;
+    iov.iov_len = sizeof(buffer);
+
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    // No ancillary data
+    msg.msg_control = nullptr;
+    msg.msg_controllen = 0;
+
+    ssize_t bytes_received = recvmsg(mSocket, &msg, 0);
+    if (bytes_received == -1) {
+        perror("recvmsg");
+        return -1;
+    }
+
+    // Assign received data to std::string
+    outMessage.assign(buffer, bytes_received);
 
     return 0;
 }

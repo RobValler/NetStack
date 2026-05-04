@@ -17,6 +17,8 @@ public:
     bool Start(const std::string& channel);
     void Stop();
     int Send(const std::string& message);
+    int Receive(std::string& outMessage);
+
 
 private:
     int mSocket;

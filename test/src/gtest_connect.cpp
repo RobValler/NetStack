@@ -80,8 +80,8 @@ TEST(network, connect)
         STCPIPServParms parms;
         parms.portID = 2001;
         parms.ipaddress = "192.168.100.11";
-        parms.cert = "../cert/cert.pem";
-        parms.pkey = "../cert/key.pem";
+        parms.cert = "../../cert/cert.pem";
+        parms.pkey = "../../cert/key.pem";
         tcpip_server.Start(parms);
         while(!ExitCalled) {
 
@@ -157,8 +157,8 @@ TEST(network, connect)
         tcpip_parms.localIpAddress = "192.168.100.12";
         tcpip_parms.remoteIpAddress = tcpipServerIP;
         tcpip_parms.maxConnectRetryAttempts = 10;
-        tcpip_parms.cert = "../cert/cert.pem";
-        tcpip_parms.pkey = "../cert/key.pem";        
+        tcpip_parms.cert = "../../cert/cert.pem";
+        tcpip_parms.pkey = "../../cert/key.pem";
         if(1 == tcpip_client.Start(tcpip_parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
