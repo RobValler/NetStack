@@ -6,6 +6,7 @@ import threading
 SOCKET_PATH = "/tmp/uds_test.sock"
 
 stop_flag = False
+last_response = "NO DATA"
 
 
 def wait_for_keypress():
@@ -14,7 +15,6 @@ def wait_for_keypress():
     stop_flag = True
 
 
-# Start keypress watcher in background
 threading.Thread(target=wait_for_keypress, daemon=True).start()
 
 # Cleanup old socket file
@@ -30,7 +30,7 @@ print("Socket:", SOCKET_PATH)
 
 try:
     while not stop_flag:
-        server.settimeout(1.0)  # allows periodic stop check
+        server.settimeout(1.0)
 
         try:
             conn, _ = server.accept()
@@ -40,18 +40,32 @@ try:
         print("\nClient connected")
 
         try:
-            while True:
-                data = conn.recv(4096)
-                if not data:
-                    break
+            # Try to receive data (non-blocking style)
+            conn.settimeout(0.5)
 
+            try:
+                data = conn.recv(4096)
+            except socket.timeout:
+                data = b""
+
+            if data:
                 msg = data.decode()
                 print("Received:", msg)
 
-                # Simple response for your C++ test
-                response = "Here is your shrubbery!"
-                conn.sendall(response.encode())
-                print("Sent:", response)
+                # Store response for next Receive() call
+                last_response = "Here is your shrubbery!"
+
+                # IMPORTANT: Do NOT rely on this response for your test
+                # (your C++ client won't read it here)
+                conn.sendall(last_response.encode())
+                print("Sent (immediate):", last_response)
+
+            else:
+                # This is the Receive() connection
+                print("Receive() connection detected")
+
+                conn.sendall(last_response.encode())
+                print("Sent (deferred):", last_response)
 
         except Exception as e:
             print("Connection error:", e)

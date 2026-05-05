@@ -16,33 +16,11 @@
 #include <unistd.h>
 #include <cstring>
 
-bool CUDSIPC::Start(const std::string& channel) {
+int CUDSIPC::Send(const std::string& channel, const std::string& message) {
 
-    mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
-    if (mSocket == -1) {
-        perror("socket");
-        return false;
+    if(!Connect(channel)) {
+        return -1;
     }
-
-    sockaddr_un addr{};
-    addr.sun_family = AF_UNIX;
-    std::strncpy(addr.sun_path, channel.c_str(), sizeof(addr.sun_path) - 1);
-
-    if (connect(mSocket, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
-        perror("connect");
-        close(mSocket);
-        return false;
-    }
-
-    return true;
-}
-
-void  CUDSIPC::Stop() {
-
-    close(mSocket);
-}
-
-int CUDSIPC::Send(const std::string& message) {
 
     struct msghdr msg{};
     struct iovec iov{};
@@ -64,12 +42,18 @@ int CUDSIPC::Send(const std::string& message) {
         return -1;
     }
 
-    return 0;
+    close(mSocket);
+
+    return bytes_sent;
 }
 
-int CUDSIPC::Receive(std::string& outMessage)
+int CUDSIPC::Receive(const std::string& channel, std::string& message)
 {
-    char buffer[4096];  // Adjust size as needed
+    if(!Connect(channel)) {
+        return -1;
+    }
+
+    char buffer[4096];
 
     struct msghdr msg{};
     struct iovec iov{};
@@ -92,7 +76,32 @@ int CUDSIPC::Receive(std::string& outMessage)
     }
 
     // Assign received data to std::string
-    outMessage.assign(buffer, bytes_received);
+    message.assign(buffer, bytes_received);
 
-    return 0;
+    close(mSocket);
+
+    return bytes_received;
 }
+
+bool CUDSIPC::Connect(const std::string& channel) {
+
+    mSocket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (mSocket == -1) {
+        perror("socket");
+        return false;
+    }
+
+    sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    std::strncpy(addr.sun_path, channel.c_str(), sizeof(addr.sun_path) - 1);
+
+    if (connect(mSocket, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
+        perror("connect");
+        close(mSocket);
+        return false;
+    }
+
+    return true;
+}
+
+

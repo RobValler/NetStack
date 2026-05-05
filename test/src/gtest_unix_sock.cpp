@@ -12,23 +12,18 @@
 #include "uds_ipc.h"
 #include "logger.h"
 
-
 TEST(network, unix_sock)
 {
     CUDSIPC client;
-    if(client.Start("/tmp/uds_test.sock")) {
 
-        std::string msg1 = "We are the knights who say .... UNHANDLED EXCEPTION!!";
-        client.Send(msg1);
-
-        std::string msg2 = "";
-        client.Receive(msg2);
-        CLogger::Print("Received message = " + msg2);
-
-    } else {
-        CLogger::Print("error");
+    std::string msg1 = "We are the knights who say .... UNHANDLED EXCEPTION!!";
+    if(client.Send("/tmp/uds_test.sock", msg1) <= 0) {
         FAIL();
     }
 
-    client.Stop();
+    std::string msg2 = "";
+    if(client.Receive("/tmp/uds_test.sock", msg2) <= 0) {
+        FAIL();
+    }
+    CLogger::Print("Received message = " + msg2);
 }

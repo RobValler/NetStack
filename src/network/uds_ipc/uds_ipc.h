@@ -14,12 +14,11 @@ public:
     CUDSIPC() =default;
     ~CUDSIPC() =default;
 
-    bool Start(const std::string& channel);
-    void Stop();
-    int Send(const std::string& message);
-    int Receive(std::string& outMessage);
-
+    int Send(const std::string& channel, const std::string& message);
+    int Receive(const std::string& channel, std::string& message);
 
 private:
-    int mSocket;
+    bool Connect(const std::string& channel);
+
+    int mSocket{-1};
 };
