@@ -11,7 +11,8 @@
 
 #include "message_define.h"
 #include "encrypt_tls.h"
-
+#include "error_log.h"
+#include "logger.h"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -63,20 +64,20 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
     mIsConnected = false;
     for(int retry_counter = 0; retry_counter < mConnectParms.maxConnectRetryAttempts; ++retry_counter) {
 
-        std::cout << "Attempting to connect to " << mConnectParms.remoteIpAddress << std::endl;
-        if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        CLogger::Log("[TCPIP Client] Attempting to connect to " + mConnectParms.remoteIpAddress);
+        if (connect(client_fd, (sockaddr*)&server_addr, sizeof(server_addr)) == 0) {
 
             if(mpTLS->Connect(client_fd)) {
-                mIsConnected = true;
+                mIsConnected = true;                
 
             } else {
-                //perror("tcpip client TLS connect error");
+                error_log("[TCPIP Client] TLS connect error : ");
                 return 1;
             }
             break;
 
         } else {
-            perror("tcpip client connect error");
+            error_log("[TCPIP Client] connect error : ");
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
@@ -86,7 +87,7 @@ int CTCPIP_Client::Start(const STCPIPClientParms& parms) {
         return 1;
     }
 
-    std::cout << "Client: Connected to remote server (" << mConnectParms.remoteIpAddress << ")" << std::endl;
+    CLogger::Log("[TCPIP Client] Connected to remote server (" + mConnectParms.remoteIpAddress + ")");
 
     return 0;
 }

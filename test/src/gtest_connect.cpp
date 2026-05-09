@@ -36,6 +36,8 @@ TEST(network, connect)
         TestMsgPackage send_message;
         send_message.set_msgid(10);
         send_message.set_msgname("Discovery request");
+        send_message.set_server_ipaddress("192.168.100.11");
+        send_message.set_server_port(2001);
         message::SMessage msg;
 
         // Start the UDP
@@ -43,11 +45,8 @@ TEST(network, connect)
         udp_parms.portLocalID = 8001;
         udp_parms.portRemoteID = 8002;       
         //udp_parms.localIpAddress = "192.168.100.11";
-
         udp_parms.broadcaster = true;
-        udp_parms.remoteIpAddress = "192.168.100.255";
-        // udp_parms.broadCastSender = false;
-        // udp_parms.remoteIpAddress = "192.168.100.12";
+        udp_parms.broadcastIpAddress = "192.168.100.255";
         udp_stack.Start(udp_parms);
 
         while(!ExitCalled) {
@@ -94,7 +93,7 @@ TEST(network, connect)
     auto threadClientUDP = [&]() {
 
         CUDP_Stack mUDPStack;
-        message::SMessage msg;
+
         CSerial serialiser;
         TestMsgPackage rec_message;
 
@@ -104,10 +103,19 @@ TEST(network, connect)
         udp_parms.portLocalID = 8002;
         udp_parms.portRemoteID = 8001;
         //udp_parms.localIpAddress = "192.168.100.12";
-        udp_parms.remoteIpAddress = "0.0.0.0";  //"192.168.100.11";
+        udp_parms.broadcastIpAddress = "0.0.0.0";  //"192.168.100.11";
         mUDPStack.Start(udp_parms);
 
+
         while(!ExitCalled) {
+
+            if(!tcpipServerIP.empty()) {
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
+                continue;
+            }
+
+            message::SMessage msg;
 
             if(mUDPStack.Receive(msg) <= 0) {
                 std::cerr << "error: Receive" << std::endl;
@@ -121,17 +129,18 @@ TEST(network, connect)
                 continue;
             }
 #if 1
-            std::cout << "Client : received data from ("
-                      << msg.mIpAddress
+            std::cout << "UDP Client : received data from ("
+                      << rec_message.server_ipaddress()
                       << ":"
-                      << std::to_string(msg.mPort)
+                      << std::to_string(rec_message.server_port())
                       << ") - "
                       << rec_message.msgid()
                       << ", "
                       << rec_message.msgname() << std::endl;
 #endif
-
-            tcpipServerIP = msg.mIpAddress;
+            if(tcpipServerIP.empty()) {
+                tcpipServerIP = rec_message.server_ipaddress();
+            }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         mUDPStack.Stop();
@@ -141,7 +150,8 @@ TEST(network, connect)
 
         while(!ExitCalled) {
 
-            if("" == tcpipServerIP) {
+            if( (tcpipServerIP.empty()) ||
+                ("0.0.0.0" == tcpipServerIP) ) {
 
                 // not ready yet
                 std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -164,6 +174,7 @@ TEST(network, connect)
         }
 
         while(!ExitCalled) {
+
 
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }

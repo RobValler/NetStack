@@ -3,4 +3,6 @@ syntax = "proto3";
 message TestMsgPackage {
   int32 MsgId = 1;
   string MsgName = 2;
+  string server_ipaddress = 3;
+  int32 server_port = 4;
 }

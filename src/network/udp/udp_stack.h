@@ -22,11 +22,12 @@
 
 
 struct SUDPParms {
-    bool broadcaster{false};
+
     int portLocalID{0};
     int portRemoteID{0};
     //std::string localIpAddress{"0.0.0.0"};
-    std::string remoteIpAddress{"0.0.0.0"};
+    bool broadcaster{false};
+    std::string broadcastIpAddress{"0.0.0.0"};
 };
 
 
@@ -46,7 +47,7 @@ public:
 private:
     SUDPParms mConnectParms;
     sockaddr_in mRemoteAddr{};
-    sockaddr_in mSendAddr{};
+    sockaddr_in mBroadcastAddr{};
 
 #ifdef __linux__
     int mSocket;

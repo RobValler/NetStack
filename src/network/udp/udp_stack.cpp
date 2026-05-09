@@ -12,6 +12,7 @@
 #include "message_define.h"
 
 #include "error_log.h"
+#include "sendrec.h"
 
 #ifdef __linux__
 #include <arpa/inet.h>
@@ -43,10 +44,6 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
         return 1;
     }
 
-    // LOCAL SENDER
-    mSendAddr.sin_family = AF_INET;
-    mSendAddr.sin_port = htons(mConnectParms.portLocalID);
-
     if(mConnectParms.broadcaster) {
 
         // Enable broadcast
@@ -56,12 +53,15 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
             return 1;
         }
     }
-    inet_pton(AF_INET, mConnectParms.remoteIpAddress.c_str(), &mSendAddr.sin_addr);
+
+    mBroadcastAddr.sin_family = AF_INET;
+    mBroadcastAddr.sin_port = htons(mConnectParms.portLocalID);
+    inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mBroadcastAddr.sin_addr);
 
     // REMOTE RECEIVER
     mRemoteAddr.sin_family = AF_INET;
     mRemoteAddr.sin_port = htons(mConnectParms.portRemoteID);
-    if(1 != inet_pton(AF_INET, mConnectParms.remoteIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
+    if(1 != inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
 
         std::cerr << "[UDP] portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
         return 1;
@@ -89,13 +89,16 @@ void CUDP_Stack::Stop() {
 
 int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
+#if 1
+    int body_bytes = MySend(mSocket, msg_data, mBroadcastAddr);
+#else
     int body_bytes = sendto(mSocket,
                             &msg_data.mMsgPayload[0],
                             msg_data.mMsgPayload.size(),
                             0,
-                            (sockaddr*)&mSendAddr,
-                            sizeof(mSendAddr));
-
+                            (sockaddr*)&mBroadcastAddr,
+                            sizeof(mBroadcastAddr));
+#endif
     if(body_bytes <= 0) {
         error_log("[UDP] Send error");
     }
@@ -104,7 +107,10 @@ int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
 int CUDP_Stack::Receive(message::SMessage& msg_data) {
 
-    std::vector<std::uint8_t> data(4096);
+//    std::vector<std::uint8_t> data(4096);
+#if 1
+    int body_bytes = MyReceive(mSocket, msg_data, mRemoteAddr);
+#else
     ssize_t body_bytes = recv(mSocket, &data[0], sizeof(data), 0);
     // ssize_t body_bytes = recvfrom(mSocket,
     //                               &data[0],
@@ -112,14 +118,16 @@ int CUDP_Stack::Receive(message::SMessage& msg_data) {
     //                               0,
     //                               (sockaddr*)&mRemoteAddr,
     //                               sizeof(mRemoteAddr));
+#endif
+
     if(body_bytes <= 0) {
         std::cerr << "[UDP] Receive error " << strerror(errno) << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     } else {
 
         // fetch payload
-        msg_data.mMsgPayload.resize(body_bytes);
-        msg_data.mMsgPayload.assign(data.begin(), data.begin() + body_bytes);
+        // msg_data.mMsgPayload.resize(body_bytes);
+        // msg_data.mMsgPayload.assign(data.begin(), data.begin() + body_bytes);
 
         // get the senders IP Address
         char local_ip_address[INET_ADDRSTRLEN];

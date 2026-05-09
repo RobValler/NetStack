@@ -26,11 +26,8 @@ find_package(libssh 0.11.3 REQUIRED)
 find_package(libxml2 2.15.0 REQUIRED)
 find_package(logger 1.0.1 REQUIRED)
 
-#EXTERNAL INCLUDES
-include_directories(${ProtobufIncludePath})
 
 #INTERNAL INCLUDES
-
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
@@ -111,6 +108,9 @@ find_package(GTest REQUIRED)
 
 #CONFIG
 set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL test/messages)
+
+#EXTERNAL INCLUDES
+include_directories(${ProtobufIncludePath})
 
 #INCLUDE
 include_directories(${GTest_INCLUDE_DIRS})

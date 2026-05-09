@@ -15,9 +15,9 @@ int main(int argc, char *argv[])
     testing::InitGoogleTest(&argc, argv);
     //::testing::GTEST_FLAG(filter) = "*";
     //::testing::GTEST_FLAG(filter) = "encrypt.AES";
-    //::testing::GTEST_FLAG(filter) = "network.connect";
+    ::testing::GTEST_FLAG(filter) = "network.connect";
     //::testing::GTEST_FLAG(filter) = "encrypt.TLS";
-    ::testing::GTEST_FLAG(filter) = "network.unix_sock";
+    //::testing::GTEST_FLAG(filter) = "network.unix_sock";
 
     result = RUN_ALL_TESTS();
     return result;

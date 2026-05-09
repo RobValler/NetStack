@@ -117,7 +117,7 @@ int CTCPIP_Server::ThreadFunc() {
             return 1;
         }
 
-        std::cout << "Server now listening on port " << std::to_string(mConnectParms.portID) << std::endl;
+        std::cout << "[TCPIP Server] Server now listening on port " << std::to_string(mConnectParms.portID) << std::endl;
 
         if (FD_ISSET(mServerFD, &read_set)) {
             int fd = accept(mServerFD, nullptr, nullptr);
