@@ -82,8 +82,11 @@ TEST(network, connect)
         parms.cert = "../../cert/cert.pem";
         parms.pkey = "../../cert/key.pem";
         tcpip_server.Start(parms);
+
+        message::SMessage msg;
         while(!ExitCalled) {
 
+            tcpip_server.Receive(msg);
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         tcpip_server.Stop();
@@ -172,6 +175,7 @@ TEST(network, connect)
         if(1 == tcpip_client.Start(tcpip_parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
+
 
         while(!ExitCalled) {
 

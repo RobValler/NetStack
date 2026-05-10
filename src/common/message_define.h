@@ -12,10 +12,18 @@
 
 #include <cstdint>
 #include <vector>
+#include <queue>
 #include <string>
+
 
 /// array message structures
 namespace message {
+
+struct SPayloadListData {
+
+    std::uint32_t body_size{0};
+    std::vector<std::uint8_t> mMsgPayload;
+};
 
 struct SMessage {
 
@@ -24,6 +32,7 @@ struct SMessage {
     int mPort{0};
     std::uint32_t body_size{0};
     std::vector<std::uint8_t> mMsgPayload;
+    std::vector<SPayloadListData> mMsgPayloadList;
 };
 
 } // namespace

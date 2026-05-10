@@ -54,18 +54,23 @@ int CUDP_Stack::Start(const SUDPParms& parms) {
         }
     }
 
+    int opt = 1;
+    setsockopt(mSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    setsockopt(mSocket, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+
     mBroadcastAddr.sin_family = AF_INET;
     mBroadcastAddr.sin_port = htons(mConnectParms.portLocalID);
-    inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mBroadcastAddr.sin_addr);
+    inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mBroadcastAddr.sin_addr.s_addr);
 
     // REMOTE RECEIVER
     mRemoteAddr.sin_family = AF_INET;
     mRemoteAddr.sin_port = htons(mConnectParms.portRemoteID);
-    if(1 != inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
+    mRemoteAddr.sin_addr.s_addr = INADDR_ANY;
+    // if(1 != inet_pton(AF_INET, mConnectParms.broadcastIpAddress.c_str(), &mRemoteAddr.sin_addr)) {
 
-        std::cerr << "[UDP] portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
-        return 1;
-    }
+    //     std::cerr << "[UDP] portRemoteID inet_pton error: " << std::strerror(errno) << "\n";
+    //     return 1;
+    // }
 
     if (bind(mSocket, (sockaddr*)&mRemoteAddr, sizeof(mRemoteAddr)) < 0) {
 

@@ -59,14 +59,13 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
 
 int CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
-    int body_bytes = 0;
     for(const auto& it : mClientFDList) {
-//        if(msg_data.mConnectionID == it->GetConnectionID()) {
-            body_bytes = it->Receive(msg_data);
-//            std::cout << "data received from " << it->GetName() << "\n" << std::endl;
-//        }
+        message::SPayloadListData tmp_data;
+        tmp_data.body_size = it->Receive(msg_data);
+        tmp_data.mMsgPayload = msg_data.mMsgPayload;
+        msg_data.mMsgPayloadList.emplace_back(std::move(tmp_data));
     }
-    return body_bytes;
+    return 0;
 }
 
 int CTCPIP_Server::Connections() {
