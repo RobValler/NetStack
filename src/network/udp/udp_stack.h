@@ -25,11 +25,9 @@ struct SUDPParms {
 
     int portLocalID{0};
     int portRemoteID{0};
-    //std::string localIpAddress{"0.0.0.0"};
     bool broadcaster{false};
     std::string broadcastIpAddress{"0.0.0.0"};
 };
-
 
 namespace message {struct SMessage; }
 

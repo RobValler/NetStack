@@ -112,18 +112,7 @@ int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
 int CUDP_Stack::Receive(message::SMessage& msg_data) {
 
-//    std::vector<std::uint8_t> data(4096);
-#if 1
     int body_bytes = MyReceive(mSocket, msg_data, mRemoteAddr);
-#else
-    ssize_t body_bytes = recv(mSocket, &data[0], sizeof(data), 0);
-    // ssize_t body_bytes = recvfrom(mSocket,
-    //                               &data[0],
-    //                               data.size(),
-    //                               0,
-    //                               (sockaddr*)&mRemoteAddr,
-    //                               sizeof(mRemoteAddr));
-#endif
 
     if(body_bytes <= 0) {
         std::cerr << "[UDP] Receive error " << strerror(errno) << std::endl;

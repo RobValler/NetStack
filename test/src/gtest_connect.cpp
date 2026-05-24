@@ -16,7 +16,6 @@
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
 #include "serialise.h"
-//#include "logger.h"
 
 #include <thread>
 #include <atomic>
@@ -43,11 +42,14 @@ TEST(network, connect)
         // Start the UDP
         SUDPParms udp_parms;
         udp_parms.portLocalID = 8001;
-        udp_parms.portRemoteID = 8002;       
+        udp_parms.portRemoteID = 8002;
         //udp_parms.localIpAddress = "192.168.100.11";
         udp_parms.broadcaster = true;
         udp_parms.broadcastIpAddress = "192.168.100.255";
-        udp_stack.Start(udp_parms);
+        if(0 != udp_stack.Start(udp_parms)) {
+
+            std::cerr << "error: udp" << std::endl;
+        }
 
         while(!ExitCalled) {
 
@@ -61,7 +63,7 @@ TEST(network, connect)
 
             if(0< udp_stack.Send(msg)) {
 
-                // std::cout << "UDP Send OK" << std::endl;
+                //std::cout << "UDP Send OK" << std::endl;
             } else {
 
                 std::cerr << "error: Send" << std::endl;
@@ -84,9 +86,22 @@ TEST(network, connect)
         tcpip_server.Start(parms);
 
         message::SMessage msg;
+        TestStatus status;
+        CSerial serial;
+        int size;
+
         while(!ExitCalled) {
 
-            tcpip_server.Receive(msg);
+            if(tcpip_server.Receive(msg)) {
+                if(msg.body_size > 0) {
+
+                    size = msg.mMsgPayload.size();
+                    serial.Deserialise(msg.mMsgPayload, status, size);
+                    std::string local_msg_string = "Server: data from client = " + status.status();
+                    std::cout << local_msg_string << std::endl;
+                }
+            }
+
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         tcpip_server.Stop();
@@ -173,18 +188,27 @@ TEST(network, connect)
         tcpip_parms.cert = "../../cert/cert.pem";
         tcpip_parms.pkey = "../../cert/key.pem";
         if(1 == tcpip_client.Start(tcpip_parms)) {
+
             std::cerr << "error: tcpip_client start failed" << std::endl;
         }
 
+        message::SMessage message;
+        TestStatus status;
+        CSerial serial;
+        int size;
+        int index = 0;
 
         while(!ExitCalled) {
 
-
+            std::string local_client_msg = "Status index (" + std::to_string(index++) + ")";
+            //std::cout << local_client_msg << std::endl;
+            status.set_status(local_client_msg);
+            auto serial_result = serial.Serialise(status, message.mMsgPayload, size);
+            auto send_result = tcpip_client.Send(message);
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
 
         tcpip_client.Stop();
-
     };
 
     std::thread tServerUDP(threadServerUDP);
@@ -193,10 +217,7 @@ TEST(network, connect)
     std::thread tClientTCPIP(threadClientTCPIP);
 
     std::cout << "Press Key to continue..."  << std::endl;
-
     std::cout << "A key WAS pressed :D"  << std::endl;
-
-    //ExitCalled = true;
 
     tClientUDP.join();
     tClientTCPIP.join();

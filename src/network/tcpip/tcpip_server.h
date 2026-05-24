@@ -35,7 +35,7 @@ public:
     int Start(const STCPIPServParms& parms);
     void Stop();
     int Send(const message::SMessage& msg_data);
-    int Receive(message::SMessage& msg_data);
+    bool Receive(message::SMessage& msg_data);
     int Connections();
 
 private:

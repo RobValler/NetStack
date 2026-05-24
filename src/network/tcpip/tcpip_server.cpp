@@ -57,15 +57,20 @@ int CTCPIP_Server::Send(const message::SMessage& msg_data) {
     return body_bytes;
 }
 
-int CTCPIP_Server::Receive(message::SMessage& msg_data) {
+bool CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
+    bool result = true;
     for(const auto& it : mClientFDList) {
         message::SPayloadListData tmp_data;
         tmp_data.body_size = it->Receive(msg_data);
+        if(tmp_data.body_size <= 0) {
+            result = false;
+        }
         tmp_data.mMsgPayload = msg_data.mMsgPayload;
         msg_data.mMsgPayloadList.emplace_back(std::move(tmp_data));
+
     }
-    return 0;
+    return result;
 }
 
 int CTCPIP_Server::Connections() {
@@ -155,7 +160,7 @@ int CTCPIP_Server::ThreadFunc() {
             local_conn_parms.cert = mConnectParms.cert;
             local_conn_parms.pkey = mConnectParms.pkey;
 
-            std::cout << "Server: Connected to remote client [connection ID = "
+            std::cout << "[TCPIP Server] : Connected to remote client [connection ID = "
                       << std::to_string(local_conn_parms.mConnectionID) << ", client ip = "
                       << clientip << "]" << std::endl;
 
