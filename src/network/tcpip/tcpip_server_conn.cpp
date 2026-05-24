@@ -48,7 +48,7 @@ void CTCPIP_ClientConn::Stop() {
 
 int CTCPIP_ClientConn::Send(const message::SMessage& msg_data) {
 
-#if 0
+#if 1
     return mpTLS->Send(msg_data);
 #else
     int body_bytes = 0;
