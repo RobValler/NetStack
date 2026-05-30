@@ -51,7 +51,7 @@ bool FileStreamWrite(const std::string& filename, const std::vector<char>& data)
     return result;
 }
 
-int XMLReadconst(std::string xml_filename, SXmlData& outgoing_data) {
+int XMLReadconst(std::string xml_filename, SXmlData&) {
 
     // Initialize libxml
     xmlInitParser();

@@ -112,7 +112,7 @@ int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
 int CUDP_Stack::Receive(message::SMessage& msg_data) {
 
-    int body_bytes = MyReceive(mSocket, msg_data, mRemoteAddr);
+    int body_bytes = MyReceive(mSocket, msg_data);
 
     if(body_bytes <= 0) {
         std::cerr << "[UDP] Receive error " << strerror(errno) << std::endl;

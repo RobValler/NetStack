@@ -60,10 +60,10 @@ int MySend(int sock, const message::SMessage& msg, const sockaddr_in& addr) {
     return total_bytes_sent;
 }
 
-int MyReceive(int sock, message::SMessage& msg, const sockaddr_in& addr) {
+int MyReceive(int sock, message::SMessage& msg) {
 
-    int total_bytes_received = 0;
-    int expected_bytes_sent = sizeof(std::uint32_t);
+    std::uint32_t  total_bytes_received = 0;
+    std::uint32_t  expected_bytes_sent = sizeof(std::uint32_t);
 
     // receive the header
     std::uint32_t head_len;

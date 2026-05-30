@@ -34,7 +34,7 @@ bool SFTPGetFile(
             const std::string& username,
             const std::string& private_key_path,
             const std::string& public_key_path,
-            const std::string& key_passphrase,
+//            const std::string& key_passphrase,
             const std::vector<std::string>& remote_files,
             const std::string& local_path) {
 
@@ -187,7 +187,7 @@ bool SFTPPutFile(
     const std::string& username,
     const std::string& private_key_path,
     const std::string& public_key_path,
-    const std::string& key_passphrase,
+//    const std::string& key_passphrase,
     const std::vector<std::string>& remote_files,
     const std::string& local_path) {
 

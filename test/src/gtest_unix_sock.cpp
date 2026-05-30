@@ -17,13 +17,11 @@ TEST(network, unix_sock)
     CUDSIPC client;
 
     std::string msg1 = "We are the knights who say .... UNHANDLED EXCEPTION!!";
-    if(client.Send("/tmp/uds_test.sock", msg1) <= 0) {
-        FAIL();
-    }
+    EXPECT_GT(client.Send("/tmp/uds_test.sock", msg1), 0);
+    CLogger::Print("Sent message = " + msg1);
 
     std::string msg2 = "";
-    if(client.Receive("/tmp/uds_test.sock", msg2) <= 0) {
-        FAIL();
-    }
+    EXPECT_GT(client.Receive("/tmp/uds_test.sock", msg2), 0);
+    EXPECT_EQ("Here is your shrubbery!", msg2);
     CLogger::Print("Received message = " + msg2);
 }
