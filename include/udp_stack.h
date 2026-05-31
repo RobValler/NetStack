@@ -10,8 +10,6 @@
 #ifndef UDP_STACK__H
 #define UDP_STACK__H
 
-#include "i_network_hndl.h"
-
 #ifdef __linux__
 #include <netinet/in.h>
 #elif _WIN32

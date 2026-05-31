@@ -9,12 +9,19 @@
 
 from conan import ConanFile
 from conan.tools.cmake import cmake_layout
+from conan.tools.files import copy
+import os
 
-class CommsStackRecipe(ConanFile):
-    name = "net_stack"
+class NetStackRecipe(ConanFile):
+    name = "netstack"
     version = "1.0.0"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps", "CMakeToolchain"
+    package_type = "static-library"
+    exports_sources = (
+        "include/*",
+        "lib/*",
+    )
 
     def requirements(self):
         self.requires("gtest/1.17.0")
@@ -28,3 +35,65 @@ class CommsStackRecipe(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+    def package(self):
+        # Headers
+        copy(
+            self,
+            pattern="*.h",
+            src=os.path.join(self.export_sources_folder, "include"),
+            dst=os.path.join(self.package_folder, "include"),
+            keep_path=True,
+        )
+
+        # copy(
+        #     self,
+        #     pattern="*.hpp",
+        #     src=os.path.join(self.export_sources_folder, "include"),
+        #     dst=os.path.join(self.package_folder, "include"),
+        #     keep_path=True,
+        # )
+
+        # Static libraries
+        copy(
+            self,
+            pattern="*.a",
+            src=os.path.join(self.export_sources_folder, "lib"),
+            dst=os.path.join(self.package_folder, "lib"),
+            keep_path=False,
+        )
+
+        # copy(
+        #     self,
+        #     pattern="*.lib",
+        #     src=os.path.join(self.export_sources_folder, "lib"),
+        #     dst=os.path.join(self.package_folder, "lib"),
+        #     keep_path=False,
+        # )
+
+        # Shared libraries
+        # copy(
+        #     self,
+        #     pattern="*.so*",
+        #     src=os.path.join(self.export_sources_folder, "lib"),
+        #     dst=os.path.join(self.package_folder, "lib"),
+        #     keep_path=False,
+        # )
+
+        # copy(
+        #     self,
+        #     pattern="*.dylib*",
+        #     src=os.path.join(self.export_sources_folder, "lib"),
+        #     dst=os.path.join(self.package_folder, "lib"),
+        #     keep_path=False,
+        # )
+
+        # copy(
+        #     self,
+        #     pattern="*.dll",
+        #     src=os.path.join(self.export_sources_folder, "bin"),
+        #     dst=os.path.join(self.package_folder, "bin"),
+        #     keep_path=False,
+        # )
+
+    def package_info(self):
+        self.cpp_info.libs = ["netstack"]

@@ -7,7 +7,7 @@
 # * without the express permission of the copyright holder
 # *****************************************************************/
 cmake_minimum_required(VERSION 3.22.0)
-project ( net_stack )
+project ( netstack )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -28,15 +28,16 @@ find_package(logger 1.0.1 REQUIRED)
 
 
 #INTERNAL INCLUDES
+include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/common)
 include_directories(${CMAKE_SOURCE_DIR}/src/encrypt)
 include_directories(${CMAKE_SOURCE_DIR}/src/file)
-include_directories(${CMAKE_SOURCE_DIR}/src/sftp)
+#include_directories(${CMAKE_SOURCE_DIR}/src/sftp)
 include_directories(${CMAKE_SOURCE_DIR}/src/network)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/tcpip)
-include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
-include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
-include_directories(${CMAKE_SOURCE_DIR}/src/network/uds_ipc)
+#include_directories(${CMAKE_SOURCE_DIR}/src/network/udp)
+#include_directories(${CMAKE_SOURCE_DIR}/src/network/posix_mq)
+#include_directories(${CMAKE_SOURCE_DIR}/src/network/uds_ipc)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/helper)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
 
@@ -57,17 +58,18 @@ file(GLOB APP_SOURCES
 
 #HEADERS FILES
 file(GLOB_RECURSE APP_HEADERS
-    ${CMAKE_SOURCE_DIR}/src/*.h
+#    ${CMAKE_SOURCE_DIR}/src/*.h
+    ${CMAKE_SOURCE_DIR}/inlude/*.h
     ${CMAKE_SOURCE_DIR}/src/network/*.h
     ${CMAKE_SOURCE_DIR}/src/network/tcpip/*.h
-    ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
-    ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
-    ${CMAKE_SOURCE_DIR}/src/network/uds_ipc/*.h
+#    ${CMAKE_SOURCE_DIR}/src/network/udp/*.h
+#    ${CMAKE_SOURCE_DIR}/src/network/posix_mq/*.h
+#    ${CMAKE_SOURCE_DIR}/src/network/uds_ipc/*.h
     ${CMAKE_SOURCE_DIR}/src/network/helper/*.h
     ${CMAKE_SOURCE_DIR}/src/serialise/*.h
     ${CMAKE_SOURCE_DIR}/src/encrypt/*.h
     ${CMAKE_SOURCE_DIR}/src/file/*.h
-    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
+#    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
 )
 
 #CONFIG FILES
@@ -151,7 +153,7 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     gtest::gtest
     protobuf::protobuf
     logger::logger
-    net_stack
+    netstack
 )
 endif()
 

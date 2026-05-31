@@ -12,9 +12,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <queue>
 #include <string>
-
 
 /// array message structures
 namespace message {

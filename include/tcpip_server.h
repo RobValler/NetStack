@@ -10,12 +10,11 @@
 #ifndef TCPIP_SERVER__H
 #define TCPIP_SERVER__H
 
-#include "tcpip_server_conn.h"
-
 #include <thread>
 #include <atomic>
 #include <vector>
 #include <memory>
+#include <string>
 
 struct STCPIPServParms {
     int portID{0};
@@ -24,7 +23,9 @@ struct STCPIPServParms {
     std::string pkey{""};
 };
 
+// forwarding
 namespace message { struct SMessage; }
+class CTCPIP_ClientConn;
 
 class CTCPIP_Server
 {

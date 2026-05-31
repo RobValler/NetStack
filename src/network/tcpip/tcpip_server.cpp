@@ -10,6 +10,7 @@
 #include "tcpip_server.h"
 
 #include "message_define.h"
+#include "tcpip_server_conn.h"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
