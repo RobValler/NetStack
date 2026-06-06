@@ -35,6 +35,10 @@ class NetStackRecipe(ConanFile):
     def layout(self):
         cmake_layout(self)
 
+    def package_info(self):
+        self.cpp_info.libs = ["netstack"]
+        self.cpp_info.set_property("cmake_target_name", "devfw::netstack")
+
     def package(self):
         # Headers
         copy(
@@ -45,14 +49,6 @@ class NetStackRecipe(ConanFile):
             keep_path=True,
         )
 
-        # copy(
-        #     self,
-        #     pattern="*.hpp",
-        #     src=os.path.join(self.export_sources_folder, "include"),
-        #     dst=os.path.join(self.package_folder, "include"),
-        #     keep_path=True,
-        # )
-
         # Static libraries
         copy(
             self,
@@ -62,38 +58,4 @@ class NetStackRecipe(ConanFile):
             keep_path=False,
         )
 
-        # copy(
-        #     self,
-        #     pattern="*.lib",
-        #     src=os.path.join(self.export_sources_folder, "lib"),
-        #     dst=os.path.join(self.package_folder, "lib"),
-        #     keep_path=False,
-        # )
 
-        # Shared libraries
-        # copy(
-        #     self,
-        #     pattern="*.so*",
-        #     src=os.path.join(self.export_sources_folder, "lib"),
-        #     dst=os.path.join(self.package_folder, "lib"),
-        #     keep_path=False,
-        # )
-
-        # copy(
-        #     self,
-        #     pattern="*.dylib*",
-        #     src=os.path.join(self.export_sources_folder, "lib"),
-        #     dst=os.path.join(self.package_folder, "lib"),
-        #     keep_path=False,
-        # )
-
-        # copy(
-        #     self,
-        #     pattern="*.dll",
-        #     src=os.path.join(self.export_sources_folder, "bin"),
-        #     dst=os.path.join(self.package_folder, "bin"),
-        #     keep_path=False,
-        # )
-
-    def package_info(self):
-        self.cpp_info.libs = ["netstack"]

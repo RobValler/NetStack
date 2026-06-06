@@ -94,7 +94,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     libssh2::libssh2
     LibXml2::LibXml2
     OpenSSL::SSL
-    logger::logger
+    devfw::logger
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -152,7 +152,7 @@ target_link_libraries(${PROJECT_NAME}_TEST PRIVATE
     #asio::asio
     gtest::gtest
     protobuf::protobuf
-    logger::logger
+    devfw::logger
     netstack
 )
 endif()

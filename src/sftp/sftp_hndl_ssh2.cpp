@@ -359,7 +359,8 @@ void PutCommand(const std::string& file_name) {
 
     auto command = command2;
     std::cout << command << std::endl;
-    std::system(command.c_str());
+    auto result = std::system(command.c_str());
+    (void)result;
 
 }
 

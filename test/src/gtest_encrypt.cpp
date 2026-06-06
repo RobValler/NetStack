@@ -9,6 +9,8 @@
 
 #include <gtest/gtest.h>
 
+#include "config.h"
+
 #include "encrypt_aes.h"
 #include "encrypt_tls.h"
 
@@ -70,8 +72,8 @@ TEST(encrypt, TLS) {
         CTCPIP_Server tcpip_server;
         STCPIPServParms parms;
         parms.portID = 2001;
-        parms.cert = "../../cert/cert.pem";
-        parms.pkey = "../../cert/key.pem";
+        parms.cert = gCertFile;
+        parms.pkey = gKeyFile;
         tcpip_server.Start(parms);
         while(!ExitCalled) {
 
@@ -109,8 +111,8 @@ TEST(encrypt, TLS) {
         parms.localIpAddress = "127.0.0.1";
         parms.remoteIpAddress = "127.0.0.1";
         parms.maxConnectRetryAttempts = 10;
-        parms.cert = "../../cert/cert.pem";
-        parms.pkey = "../../cert/key.pem";
+        parms.cert = gCertFile;
+        parms.pkey = gKeyFile;
 
         if(1 == tcpip_client.Start(parms)) {
             std::cerr << "error: tcpip_client start failed" << std::endl;
