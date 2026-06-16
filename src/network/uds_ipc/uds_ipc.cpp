@@ -16,9 +16,9 @@
 #include <unistd.h>
 #include <cstring>
 
-int CUDSIPC::Send(const std::string& channel, const std::string& message) {
+int CUDSIPC::Send(const std::string& message) {
 
-    if(!Connect(channel)) {
+    if(!mIsConnected) {
         return -1;
     }
 
@@ -42,14 +42,14 @@ int CUDSIPC::Send(const std::string& channel, const std::string& message) {
         return -1;
     }
 
-    close(mSocket);
+    mIsConnected = true;
 
     return bytes_sent;
 }
 
-int CUDSIPC::Receive(const std::string& channel, std::string& message)
+int CUDSIPC::Receive(std::string& message)
 {
-    if(!Connect(channel)) {
+    if(!mIsConnected) {
         return -1;
     }
 
@@ -78,8 +78,6 @@ int CUDSIPC::Receive(const std::string& channel, std::string& message)
     // Assign received data to std::string
     message.assign(buffer, bytes_received);
 
-    close(mSocket);
-
     return bytes_received;
 }
 
@@ -97,11 +95,24 @@ bool CUDSIPC::Connect(const std::string& channel) {
 
     if (connect(mSocket, (struct sockaddr*)&addr, sizeof(addr)) == -1) {
         perror("connect");
-        close(mSocket);
+        Disconnect();
         return false;
     }
 
+    mIsConnected = true;
     return true;
 }
 
+void CUDSIPC::Disconnect() {
 
+    mIsConnected = false;
+    close(mSocket);
+}
+
+void CUDSIPC::Get(const std::string& channel, std::string& message) {
+
+    Connect(channel);
+    Send(message);
+    Receive(message);
+    Disconnect();
+}

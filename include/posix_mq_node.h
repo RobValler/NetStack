@@ -14,7 +14,7 @@
 
 #include <mqueue.h>
 
-#include "i_network_hndl.h"
+//#include "i_network_hndl.h"
 
 namespace message { struct SMessage; }
 

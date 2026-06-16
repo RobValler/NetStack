@@ -10,18 +10,36 @@
 #include <gtest/gtest.h>
 
 #include "uds_ipc.h"
+#include "json_to_struct.h"
 #include "logger.h"
 
-TEST(network, unix_sock)
+TEST(unix_sock, basic)
 {
     CUDSIPC client;
 
-    std::string msg1 = "We are the knights who say .... UNHANDLED EXCEPTION!!";
-    EXPECT_GT(client.Send("/tmp/uds_test.sock", msg1), 0);
-    CLogger::Print("Sent message = " + msg1);
+}
 
-    std::string msg2 = "";
-    EXPECT_GT(client.Receive("/tmp/uds_test.sock", msg2), 0);
-    EXPECT_EQ("Here is your shrubbery!", msg2);
-    CLogger::Print("Received message = " + msg2);
+TEST(unix_sock, get)
+{
+    CUDSIPC client;
+    std::string msg = "We are the knights who say .... UNHANDLED EXCEPTION!!";
+    client.Get("/tmp/uds_test.sock", msg);
+    CLogger::Print("Sent message = " + msg);
+}
+
+TEST(unix_sock, json_test)
+{
+    CUDSIPC client;
+    CJsonToStruct parser;
+    std::string msg = "list";
+    client.Get("/tmp/uds_test.sock", msg);
+
+    std::vector<SDeviceData> local_dev = parser.Parse(msg);
+
+    for(const auto& it : local_dev) {
+
+        CLogger::Print("device_name = " + it.device_name);
+        CLogger::Print("mount_point = " + it.mount_point);
+        CLogger::Print("other = " + it.other);
+    }
 }

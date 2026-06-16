@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-BUILD_TYPE=Release
-#BUILD_TYPE=Debug
+#BUILD_TYPE=Release
+BUILD_TYPE=Debug
 echo "Build type $BUILD_TYPE"
 
 rm -rf lib || true
