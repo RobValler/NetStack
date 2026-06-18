@@ -34,7 +34,10 @@ TEST(unix_sock, json_test)
     std::string msg = "list";
     client.Get("/tmp/uds_test.sock", msg);
 
+    CLogger::Print(msg);
+
     std::vector<SDeviceData> local_dev = parser.Parse(msg);
+    EXPECT_GT(local_dev.size(), 0) << "array is empty";
 
     for(const auto& it : local_dev) {
 

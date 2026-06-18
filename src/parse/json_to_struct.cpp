@@ -7,11 +7,7 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-
 #include "json_to_struct.h"
-
-//#include <sstream>
-
 
 std::vector<SDeviceData> CJsonToStruct::Parse(const std::string& json)
 {
