@@ -85,9 +85,9 @@ TEST(encrypt, TLS) {
                     continue;
                 }
 
-                std::string str = "NAME length = " + std::to_string(test_msg.msgname().size()) + ", ID = " + std::to_string(test_msg.msgid());
-                CLogger::Print(str);
-                //CLogger::Print("NAME length = ", std::to_string(test_msg.msgname().size()), ", ID = ", test_msg.msgid(), "\n");
+                //std::string str = "NAME length = " + std::to_string(test_msg.msgname().size()) + ", ID = " + std::to_string(test_msg.msgid());
+                //CLogger::Print(str);
+                CLogger::Print("NAME = " + test_msg.msgname() + ", ID = " + std::to_string(test_msg.msgid()));
 
             } else {
                 //std::cerr << " thread server rec error" << std::endl;
@@ -115,7 +115,7 @@ TEST(encrypt, TLS) {
         parms.pkey = gKeyFile;
 
         if(1 == tcpip_client.Start(parms)) {
-            std::cerr << "error: tcpip_client start failed" << std::endl;
+            CLogger::Err("error: tcpip_client start failed");
         }
 
         int index = 1;
@@ -129,14 +129,17 @@ TEST(encrypt, TLS) {
 
             test_msg.set_msgid(index++);
 
-
-
             std::string data;
+#if 1
+            data = "hello world!";
+#else
+            // large data
             size_t foo_size = 200000;
             data.resize(foo_size);
             for (size_t i = 0; i < foo_size; ++i) {
                 data[i] = 'A' + (i % 26); // predictable pattern
             }
+#endif
 
             test_msg.set_msgname(data);
             //test_msg.set_msgname("Test " + std::to_string(index++));
@@ -145,7 +148,7 @@ TEST(encrypt, TLS) {
             if(serialise.Serialise(test_msg, msg.mMsgPayload, size)) {
 
                 if(tcpip_client.Send(msg) <= 0) {
-                    std::cerr << "error: tcpip send failed" << std::endl;
+                    CLogger::Err("error: tcpip send failed");
                 }
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));

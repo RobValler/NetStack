@@ -16,10 +16,10 @@ int main(int argc, char *argv[])
     //::testing::GTEST_FLAG(filter) = "*";
     //::testing::GTEST_FLAG(filter) = "encrypt.AES";
     //::testing::GTEST_FLAG(filter) = "network.connect";
-    //::testing::GTEST_FLAG(filter) = "encrypt.TLS";
+    ::testing::GTEST_FLAG(filter) = "encrypt.TLS";
     //::testing::GTEST_FLAG(filter) = "network.json_test";
     //::testing::GTEST_FLAG(filter) = "unix_sock.get";
-    ::testing::GTEST_FLAG(filter) = "unix_sock.json_test";
+    //::testing::GTEST_FLAG(filter) = "unix_sock.json_test";
 
     result = RUN_ALL_TESTS();
     return result;
