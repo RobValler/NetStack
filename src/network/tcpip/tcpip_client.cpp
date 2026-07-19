@@ -20,7 +20,6 @@
 #include <unistd.h>
 
 #include <cstring>
-#include <iostream>
 #include <thread>
 #include <chrono>
 
@@ -99,38 +98,12 @@ void CTCPIP_Client::Stop(){
 
 int CTCPIP_Client::Send(const message::SMessage& msg_data) {
 
-#if 1
     return mpTLS->Send(msg_data);
-#else
-    auto foo_data(msg_data);
-    foo_data.body_size = (int)foo_data.mMsgPayload.size();
-    auto header_bytes = write(client_fd, &foo_data.body_size, sizeof(foo_data.body_size));
-    auto body_bytes = write(client_fd, &foo_data.mMsgPayload[0], foo_data.body_size);
-    return body_bytes;
-#endif
 }
 
 int CTCPIP_Client::Receive(message::SMessage& msg_data) {
 
-#if 1
     return mpTLS->Receive(msg_data);
-#else
-    auto foo(msg_data);
-    auto hdr_size = sizeof(foo.body_size);
-    ssize_t hdr_bytes = recv(client_fd, &foo.body_size, hdr_size, 0);
-    if( (hdr_bytes != hdr_size) &&
-        (foo.body_size <= 0) ) {
-        std::cerr << "Size error" << std::endl;
-        return -1;
-    }
-
-    //uint16_t msg_size = ntohl(foo.body_size);
-    foo.mMsgPayload.resize(foo.body_size);
-    ssize_t body_bytes = recv(client_fd, &foo.mMsgPayload[0], foo.body_size, 0);
-
-    msg_data = foo;
-    return body_bytes;
-#endif
 }
 
 bool CTCPIP_Client::Connection() {

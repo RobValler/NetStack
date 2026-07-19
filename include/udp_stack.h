@@ -17,6 +17,9 @@
 #endif
 
 #include <string>
+#include <memory>
+
+class CRevSend;
 
 
 struct SUDPParms {
@@ -32,8 +35,8 @@ namespace message {struct SMessage; }
 class CUDP_Stack
 {
 public:
-    CUDP_Stack() =default;
-    ~CUDP_Stack() =default;
+    CUDP_Stack();
+    ~CUDP_Stack();
 
     int Start(const SUDPParms& parms);
     void Stop();
@@ -44,6 +47,7 @@ private:
     SUDPParms mConnectParms;
     sockaddr_in mRemoteAddr{};
     sockaddr_in mBroadcastAddr{};
+    std::unique_ptr<CRevSend> mSendRec;
 
 #ifdef __linux__
     int mSocket;

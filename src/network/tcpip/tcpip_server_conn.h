@@ -33,7 +33,7 @@ class CTCPIP_ClientConn
 {
 public:
     CTCPIP_ClientConn(SClientEntryCont parms);
-    ~CTCPIP_ClientConn() =default;
+    ~CTCPIP_ClientConn();
 
     int Receive(message::SMessage& msg_data);
     int Send(const message::SMessage& msg_data);

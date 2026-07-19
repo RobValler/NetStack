@@ -32,6 +32,13 @@
 #include <iostream>
 
 
+CUDP_Stack::CUDP_Stack()
+    : mSendRec(std::make_unique<CRevSend>())
+{/**/}
+
+CUDP_Stack::~CUDP_Stack()
+{/**/}
+
 int CUDP_Stack::Start(const SUDPParms& parms) {
 
     mConnectParms = parms;
@@ -94,16 +101,8 @@ void CUDP_Stack::Stop() {
 
 int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
-#if 1
-    int body_bytes = MySend(mSocket, msg_data, mBroadcastAddr);
-#else
-    int body_bytes = sendto(mSocket,
-                            &msg_data.mMsgPayload[0],
-                            msg_data.mMsgPayload.size(),
-                            0,
-                            (sockaddr*)&mBroadcastAddr,
-                            sizeof(mBroadcastAddr));
-#endif
+    //int body_bytes = mSendRec->MySend(mSocket, msg_data, mBroadcastAddr);
+    int body_bytes = mSendRec->MySend(mSocket, msg_data);
     if(body_bytes <= 0) {
         error_log("[UDP] Send error");
     }
@@ -112,16 +111,11 @@ int CUDP_Stack::Send(const message::SMessage& msg_data) {
 
 int CUDP_Stack::Receive(message::SMessage& msg_data) {
 
-    int body_bytes = MyReceive(mSocket, msg_data);
-
+    int body_bytes = mSendRec->MyReceive(mSocket, msg_data);
     if(body_bytes <= 0) {
         std::cerr << "[UDP] Receive error " << strerror(errno) << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     } else {
-
-        // fetch payload
-        // msg_data.mMsgPayload.resize(body_bytes);
-        // msg_data.mMsgPayload.assign(data.begin(), data.begin() + body_bytes);
 
         // get the senders IP Address
         char local_ip_address[INET_ADDRSTRLEN];

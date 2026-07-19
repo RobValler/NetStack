@@ -17,8 +17,6 @@ option(TEST_ENABLE "Library Test Enable" OFF)
 
 #PACKAGES
 find_package(Threads REQUIRED)
-#find_package(Boost 1.88.0 REQUIRED COMPONENTS boost)
-#find_package(asio 1.36.0 REQUIRED)
 find_package(protobuf 6.32.1 REQUIRED)
 find_package(OpenSSL 3.6.1 REQUIRED)
 find_package(libssh2 1.11.1 REQUIRED)
@@ -40,6 +38,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src/network)
 #include_directories(${CMAKE_SOURCE_DIR}/src/network/uds_ipc)
 include_directories(${CMAKE_SOURCE_DIR}/src/network/helper)
 include_directories(${CMAKE_SOURCE_DIR}/src/serialise)
+include_directories(${CMAKE_SOURCE_DIR}/src/checksum)
 
 #SOURCE FILES
 file(GLOB APP_SOURCES
@@ -55,6 +54,7 @@ file(GLOB APP_SOURCES
     ${CMAKE_SOURCE_DIR}/src/file/*.cpp
     ${CMAKE_SOURCE_DIR}/src/sftp/*.cpp
     ${CMAKE_SOURCE_DIR}/src/parse/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/checksum/*.cpp
 )
 
 #HEADERS FILES
@@ -71,6 +71,7 @@ file(GLOB_RECURSE APP_HEADERS
     ${CMAKE_SOURCE_DIR}/src/file/*.h
 #    ${CMAKE_SOURCE_DIR}/src/sftp/*.h
     ${CMAKE_SOURCE_DIR}/src/parse/*.h
+    ${CMAKE_SOURCE_DIR}/src/checksum/*.h
 )
 
 #CONFIG FILES

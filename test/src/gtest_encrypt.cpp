@@ -13,9 +13,9 @@
 
 #include "encrypt_aes.h"
 #include "encrypt_tls.h"
-
 #include "tcpip_server.h"
 #include "tcpip_client.h"
+#include "checksum.h"
 
 #include "message_define.h"
 #include "testMsgPackage.pb.h"
@@ -77,22 +77,22 @@ TEST(encrypt, TLS) {
         tcpip_server.Start(parms);
         while(!ExitCalled) {
 
-            if(tcpip_server.Receive(msg) > 0) {
-
-                int size = msg.mMsgPayload.size();
-                if(!serialise.Deserialise(msg.mMsgPayload, test_msg, size)) {
-                    std::cerr << "error: Deserialise" << std::endl;
-                    continue;
-                }
-
-                //std::string str = "NAME length = " + std::to_string(test_msg.msgname().size()) + ", ID = " + std::to_string(test_msg.msgid());
-                //CLogger::Print(str);
-                CLogger::Print("NAME = " + test_msg.msgname() + ", ID = " + std::to_string(test_msg.msgid()));
-
-            } else {
-                //std::cerr << " thread server rec error" << std::endl;
+            if(tcpip_server.Receive(msg) <= 0) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
             }
+            if(!CheckSumValidate(msg.mMsgPayload)) {
+                continue;
+            }
+            int size = msg.mMsgPayload.size();
+            if(!serialise.Deserialise(msg.mMsgPayload, test_msg, size)) {
+                CLogger::Err("Error: Deserialise");
+                continue;
+            }
+
+            //std::string str = "NAME length = " + std::to_string(test_msg.msgname().size()) + ", ID = " + std::to_string(test_msg.msgid());
+            //CLogger::Print(str);
+            CLogger::Print("NAME = " + test_msg.msgname() + ", ID = " + std::to_string(test_msg.msgid()));
         }
         tcpip_server.Stop();
     };
@@ -140,16 +140,18 @@ TEST(encrypt, TLS) {
                 data[i] = 'A' + (i % 26); // predictable pattern
             }
 #endif
-
             test_msg.set_msgname(data);
             //test_msg.set_msgname("Test " + std::to_string(index++));
 
             int size;
-            if(serialise.Serialise(test_msg, msg.mMsgPayload, size)) {
-
-                if(tcpip_client.Send(msg) <= 0) {
-                    CLogger::Err("error: tcpip send failed");
-                }
+            if(!serialise.Serialise(test_msg, msg.mMsgPayload, size)) {
+                continue;
+            }
+            if(!CheckSumGenerate(msg.mMsgPayload)) {
+                continue;
+            }
+            if(tcpip_client.Send(msg) <= 0) {
+                CLogger::Err("error: tcpip send failed");
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }

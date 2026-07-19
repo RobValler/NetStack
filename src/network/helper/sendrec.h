@@ -14,7 +14,17 @@ struct sockaddr_in;
 
 namespace message { struct SMessage; }
 
-int MySend(int sock, const message::SMessage& msg, const sockaddr_in& addr);
-int MyReceive(int sock, message::SMessage& msg);
+class CRevSend {
+public:
+    CRevSend() =default;
+    ~CRevSend() =default;
+    //int MySend(int sock, const message::SMessage& msg, const sockaddr_in& addr);
+    int MySend(int sock, const message::SMessage& msg);
+    int MyReceive(int sock, message::SMessage& msg);
+
+public:
+
+};
+
 
 #endif // SENDREC__H

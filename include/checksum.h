@@ -7,20 +7,13 @@
  * without the express permission of the copyright holder
  *****************************************************************/
 
-#include <string>
+#ifndef CHECKSUM__H
+#define CHECKSUM__H
 
-class CUDSIPC {
-public:
-    CUDSIPC() =default;
-    ~CUDSIPC() =default;
+#include <vector>
+#include <cstdint>
 
-    bool Connect(const std::string& channel);
-    void Disconnect();
-    int Send(const std::string& message);
-    int Receive(std::string& message);
-    void Get(const std::string& channel, std::string& message);
+bool CheckSumGenerate(std::vector<std::uint8_t>& data);
+bool CheckSumValidate(std::vector<std::uint8_t>& data);
 
-private:
-    int mSocket{-1};
-    bool mIsConnected{false};
-};
+#endif // CHECKSUM__H
