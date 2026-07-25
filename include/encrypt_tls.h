@@ -13,6 +13,7 @@
 
 #include <string>
 #include <memory>
+#include <cstdint>
 
 struct SEntryptILSData {
     std::string cert{""};
@@ -29,10 +30,12 @@ public:
 
     bool Accept(int sock);
     bool Connect(int sock);
-    int Send(const message::SMessage& msg);
-    int Receive(message::SMessage& msg);
+    size_t Send(const message::SMessage& msg);
+    size_t Receive(message::SMessage& msg);
 
-private:
+private:    
+    inline std::uint64_t htonll(std::uint64_t value);
+    inline std::uint64_t ntohll(std::uint64_t value);
     std::unique_ptr<SpImp> mpData;
     SEntryptILSData mParms;
 };

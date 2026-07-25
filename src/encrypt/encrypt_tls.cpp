@@ -128,16 +128,17 @@ bool EncryptTLS::Connect(int sock) {
     return true;
 }
 
-int EncryptTLS::Send(const message::SMessage& msg) {
-
-    int total_bytes_sent = 0;
-    int expected_bytes_sent = sizeof(std::uint32_t);
+size_t EncryptTLS::Send(const message::SMessage& msg)
+{
+    size_t total_bytes_sent = 0;
+    size_t expected_bytes_sent = sizeof(std::uint64_t);
 
     // send the header
-    std::uint32_t head_len = htonl(msg.mMsgPayload.size());
+    std::uint64_t head_len = htonll(msg.mMsgPayload.size());
     const uint8_t* p_head_len = reinterpret_cast<const uint8_t*>(&head_len);
+
     while (total_bytes_sent < expected_bytes_sent) {
-        int bytes_sent = SSL_write(mpData->ssl, p_head_len + total_bytes_sent, expected_bytes_sent - total_bytes_sent);
+        int bytes_sent = SSL_write(mpData->ssl, p_head_len + total_bytes_sent,static_cast<int>(expected_bytes_sent - total_bytes_sent));
         if (bytes_sent <= 0) {
             return bytes_sent;
         }
@@ -146,10 +147,12 @@ int EncryptTLS::Send(const message::SMessage& msg) {
 
     // send the payload
     total_bytes_sent = 0;
-    expected_bytes_sent = ntohl(head_len);
+    expected_bytes_sent = static_cast<size_t>(ntohll(head_len));
     while(total_bytes_sent < expected_bytes_sent) {
+        size_t remaining = expected_bytes_sent - total_bytes_sent;
 
-        int bytes_sent = SSL_write(mpData->ssl, msg.mMsgPayload.data() + total_bytes_sent, expected_bytes_sent - total_bytes_sent);
+        int bytes_to_send = static_cast<int>(std::min(remaining,static_cast<size_t>(INT_MAX))); // compensate for SSL_write size limitation
+        int bytes_sent = SSL_write(mpData->ssl, msg.mMsgPayload.data() + total_bytes_sent, bytes_to_send);
         if(bytes_sent <= 0) {
             return bytes_sent;
         }
@@ -159,16 +162,18 @@ int EncryptTLS::Send(const message::SMessage& msg) {
     return total_bytes_sent;
 }
 
-int EncryptTLS::Receive(message::SMessage& msg) {
-
-    std::uint32_t total_bytes_received = 0;
-    std::uint32_t expected_bytes_sent = sizeof(std::uint32_t);
+size_t EncryptTLS::Receive(message::SMessage& msg)
+{
+    size_t total_bytes_received = 0;
+    size_t expected_bytes_received = sizeof(std::uint64_t);
 
     // receive the header
-    std::uint32_t head_len;
+    std::uint64_t head_len;
     auto p_head_len = reinterpret_cast<uint8_t*>(&head_len);
-    while (total_bytes_received < expected_bytes_sent) {
-        int bytes_received = SSL_read(mpData->ssl, p_head_len + total_bytes_received, expected_bytes_sent - total_bytes_received);
+
+    while (total_bytes_received < expected_bytes_received) {
+        int bytes_received = SSL_read(mpData->ssl, p_head_len + total_bytes_received,static_cast<int>(expected_bytes_received - total_bytes_received));
+
         if (bytes_received <= 0) {
             return bytes_received;
         }
@@ -176,12 +181,19 @@ int EncryptTLS::Receive(message::SMessage& msg) {
     }
 
     // receive the payload
-    msg.body_size = ntohl(head_len);
-    total_bytes_received = 0;
-    msg.mMsgPayload.resize(msg.body_size);
-    while(total_bytes_received < msg.body_size) {
+    msg.body_size = static_cast<size_t>(ntohll(head_len));
 
-        int bytes_received = SSL_read(mpData->ssl, &msg.mMsgPayload[0] + total_bytes_received, msg.body_size - total_bytes_received);
+    total_bytes_received = 0;
+    expected_bytes_received = msg.body_size;
+
+    msg.mMsgPayload.resize(msg.body_size);
+
+    while (total_bytes_received < expected_bytes_received) {
+        size_t remaining = expected_bytes_received - total_bytes_received;
+
+        int bytes_to_receive = static_cast<int>(std::min(remaining, static_cast<size_t>(INT_MAX)));
+        int bytes_received = SSL_read(mpData->ssl, msg.mMsgPayload.data() + total_bytes_received, bytes_to_receive);
+
         if(bytes_received <= 0) {
             return bytes_received;
         }
@@ -189,4 +201,19 @@ int EncryptTLS::Receive(message::SMessage& msg) {
     }
 
     return total_bytes_received;
+}
+
+std::uint64_t EncryptTLS::htonll(std::uint64_t value) {
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+
+    return value;
+#else
+    return (static_cast<std::uint64_t>(
+                htonl(static_cast<std::uint32_t>(value))) << 32) |
+           htonl(static_cast<std::uint32_t>(value >> 32));
+#endif
+}
+
+std::uint64_t EncryptTLS::ntohll(std::uint64_t value) {
+    return htonll(value);
 }

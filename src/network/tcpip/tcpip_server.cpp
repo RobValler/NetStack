@@ -62,6 +62,9 @@ bool CTCPIP_Server::Receive(message::SMessage& msg_data) {
 
     bool result = true;
     for(const auto& it : mClientFDList) {
+        if(!it) {
+            continue;
+        }
         message::SPayloadListData tmp_data;
         tmp_data.body_size = it->Receive(msg_data);
         if(tmp_data.body_size <= 0) {
